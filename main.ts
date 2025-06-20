@@ -9,9 +9,9 @@ import { appSetup } from './src/setup/app.setup';
  const serverUrl ='http://localhost:5005/api'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-appSetup(app)
 app.enableCors()
+appSetup(app)
+
   const PORT = process.env.PORT || 5005; //TODO: move to configService. will be in the following lessons
   await app.listen(PORT, () => {
     console.log('Server is running on port ' + PORT);

@@ -6,16 +6,29 @@ import { UserAccountsModule } from 'src/modules/user-accounts/userAccounts.modul
 import { CoreModule } from 'src/core/core.module';
 import { TestingModule } from 'src/modules/testing/testing.module';
 import { BloggersPlatformModule } from 'src/modules/bloggers-platform/bloggers-platform.module';
+import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/nest-bloggers-platform'),//ODO: move to env. will be in the following lessons
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'swagger-static'),
+      serveRoot: process.env.NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
+    }),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
+      dbName: 'nest-bloggers-platform'
+    }),//ODO: move to env. will be in the following lessons
+
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
-    BloggersPlatformModule,
-   CoreModule,
+    CoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
+
+
+//mongod.exe --dbpath .\data\db ctrl break остановить WIN R cmd

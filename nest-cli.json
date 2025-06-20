@@ -3,7 +3,9 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
+     "assets": ["swagger-static/**/*"],
+    "watchAssets": true
    
-     "deleteOutDir": true
+     
   }
 }

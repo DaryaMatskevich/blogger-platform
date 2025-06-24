@@ -12,11 +12,12 @@ import { join } from 'path';
 
 @Module({
   imports: [
+      ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
     }),
-    ConfigModule.forRoot(),
+  
     MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
       dbName: 'nest-bloggers-platform'
     }),//ODO: move to env. will be in the following lessons
@@ -31,4 +32,3 @@ import { join } from 'path';
 export class AppModule { }
 
 
-//mongod.exe --dbpath .\data\db ctrl break остановить WIN R cmd

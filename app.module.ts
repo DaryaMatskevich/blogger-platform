@@ -12,10 +12,13 @@ import { join } from 'path';
 
 @Module({
   imports: [
-      ConfigModule.forRoot(),
+      ConfigModule.forRoot({
+  envFilePath: '.env',
+  isGlobal: true // или массив путей ['.env.development', '.env.production']
+}),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
-      serveRoot: process.env.NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
+      serveRoot: process.env.TZ === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
     }),
   
     MongooseModule.forRoot('mongodb://127.0.0.1:27017', {

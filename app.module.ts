@@ -12,10 +12,7 @@ import { join } from 'path';
 
 @Module({
   imports: [
-      ConfigModule.forRoot({
-  envFilePath: '.env',
-  isGlobal: true // или массив путей ['.env.development', '.env.production']
-}),
+      ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.TZ === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой

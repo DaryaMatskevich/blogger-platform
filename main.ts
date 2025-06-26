@@ -6,13 +6,13 @@ import { createWriteStream } from 'fs';
 import { get } from 'http';
 
 const serverUrl = 'http://localhost:5005'
-let NODE_ENV: string;
+export let NODE_ENV: string;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
  
   const configService = app.get(ConfigService)
-  const PORT = configService.get<number>('PORT') || 3000;
+  const PORT = configService.get<number>('PORT') || 5005;
   NODE_ENV = configService.get<string>('NODE_ENV', 'development');
 
   app.enableCors()

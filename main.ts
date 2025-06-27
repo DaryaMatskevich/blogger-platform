@@ -5,8 +5,8 @@ import { createWriteStream } from 'fs';
 import { get } from 'http';
 
 
-const port = process.env.PORT || 3000;
-const serverUrl = 'http://localhost:5005'
+const port = process.env.PORT || 5000;
+const serverUrl = 'http://localhost:5000'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

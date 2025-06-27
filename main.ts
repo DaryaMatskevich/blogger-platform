@@ -1,33 +1,30 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { appSetup } from './src/setup/app.setup';
-import { ConfigService } from '@nestjs/config';
 import { createWriteStream } from 'fs';
 import { get } from 'http';
 
 const serverUrl = 'http://localhost:5005'
-export let NODE_ENV: string;
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
  
-  const configService = app.get(ConfigService)
-  const PORT = configService.get<number>('PORT')|| 5005;
-  NODE_ENV = configService.get<string>('NODE_ENV', 'development');
+
 
   app.enableCors()
   appSetup(app)
 
   //TODO: move to configService. will be in the following lessons
 
-  await app.listen(PORT, () => {
-    console.log('Server is running on port ' + PORT);
+  await app.listen(process.env.PORT, () => {
+    console.log('Server is running on port ' + process.env.PORT);
   });
 }
 
 // get the swagger json file (if app is running in development mode)
 bootstrap().then(() => {
-if (NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
 
   // write swagger ui files
   get(

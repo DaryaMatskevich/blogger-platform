@@ -9,17 +9,17 @@ import { BloggersPlatformModule } from 'src/modules/bloggers-platform/bloggers-p
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { NODE_ENV } from 'main';
+
 
 @Module({
   imports: [
       ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
-      serveRoot: NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
+      serveRoot: process.env.NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
     }),
   
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
+    MongooseModule.forRoot(process.env.MONGO_URL, {
       dbName: 'nest-bloggers-platform'
     }),//ODO: move to env. will be in the following lessons
 

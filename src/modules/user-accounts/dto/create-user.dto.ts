@@ -4,6 +4,3 @@ export class CreateUserDto {
   password: string;
 }
 
-export class UpdateUserDto {
-  email: string;
-}

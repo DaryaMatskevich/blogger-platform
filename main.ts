@@ -10,16 +10,18 @@ const serverUrl = 'http://localhost:5005'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
  
-
-
   app.enableCors()
   appSetup(app)
-
+ await app.init()
   //TODO: move to configService. will be in the following lessons
 
-  await app.listen(process.env.PORT, () => {
-    console.log('Server is running on port ' + process.env.PORT);
+
+ const port = process.env.PORT || 3000;
+
+  const server = await app.listen(port, () => {
+    console.log('Server is running on port ' + port);
   });
+  return server
 }
 
 // get the swagger json file (if app is running in development mode)

@@ -5,7 +5,7 @@ import { createWriteStream } from 'fs';
 import { get } from 'http';
 
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5005;
 const serverUrl = 'http://localhost:5000'
 
 async function bootstrap() {

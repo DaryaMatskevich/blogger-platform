@@ -16,10 +16,9 @@ import { join } from 'path';
       ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
-      serveRoot: process.env.NODE_ENV === 'development' ?   '/' : '/Blogger Swagger' // Путь к папке со статикой
+      serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/swagger',
     }),
-  
-    MongooseModule.forRoot(process.env.MONGO_URL, {
+      MongooseModule.forRoot(process.env.MONGO_URL, {
       dbName: 'nest-bloggers-platform'
     }),//ODO: move to env. will be in the following lessons
 

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../app.module';
+import { AppModule } from './app.module';
 import { appSetup } from './setup/app.setup';
 import { createWriteStream } from 'fs';
 import { get } from 'http';

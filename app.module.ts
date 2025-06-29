@@ -12,11 +12,12 @@ import { join } from 'path';
 
 @Module({
   imports: [
-      ConfigModule.forRoot(),
+     
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
     }),
+     ConfigModule.forRoot(),
       MongooseModule.forRoot(process.env.MONGO_URL, {
       dbName: 'nest-bloggers-platform'
     }),//ODO: move to env. will be in the following lessons

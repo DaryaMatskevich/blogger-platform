@@ -1,4 +1,4 @@
-import { UserDocument } from "src/modules/user-accounts/domain/dto/user.entity";
+import { UserDocument } from "../../../../../modules/user-accounts/domain/dto/user.entity";
 
 
 export class UserExternalDto {

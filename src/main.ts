@@ -63,5 +63,5 @@ await app.listen(port, () => {
   
  }
 
-bootstrap();
+export const server = bootstrap();
 

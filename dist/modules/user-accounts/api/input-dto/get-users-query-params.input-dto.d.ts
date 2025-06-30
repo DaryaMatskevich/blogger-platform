@@ -1,4 +1,4 @@
-import { BaseQueryParams } from 'src/core/dto/base.query.params.input.dto';
+import { BaseQueryParams } from '../../../../core/dto/base.query.params.input.dto';
 import { UsersSortBy } from './users-sort-by';
 export declare class GetUsersQueryParams extends BaseQueryParams {
     sortBy: UsersSortBy;

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersExternalQueryRepository = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const common_1 = require("@nestjs/common");
-const user_entity_1 = require("../../../domain/dto/user.entity");
+const user_entity_1 = require("../../../../../modules/user-accounts/domain/dto/user.entity");
 const users_external_dto_1 = require("./users.external-dto");
 let UsersExternalQueryRepository = class UsersExternalQueryRepository {
     UserModel;

@@ -1,4 +1,4 @@
-import { UserModelType } from 'src/modules/user-accounts/domain/dto/user.entity';
+import { UserModelType } from '../../../../../modules/user-accounts/domain/dto/user.entity';
 import { UserExternalDto } from './users.external-dto';
 export declare class UsersExternalQueryRepository {
     private UserModel;

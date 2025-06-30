@@ -5,6 +5,7 @@ import { createWriteStream } from 'fs';
 import { get } from 'http';
 
 
+
 const port = process.env.PORT || 5005;
 const serverUrl = 'http://localhost:5005'
 
@@ -12,6 +13,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors()
   appSetup(app)
+
+    
 
   //TODO: move to configService. will be in the following lessons
 
@@ -57,6 +60,8 @@ await app.listen(port, () => {
      });
 
    }
+  
  }
 
 bootstrap();
+

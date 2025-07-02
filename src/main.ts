@@ -63,5 +63,5 @@ await app.listen(port, () => {
   
  }
 
- export default bootstrap();
+ bootstrap();
 

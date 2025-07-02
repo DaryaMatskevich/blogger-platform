@@ -33,5 +33,5 @@ async function bootstrap() {
         });
     }
 }
-exports.default = bootstrap();
+bootstrap();
 //# sourceMappingURL=main.js.map

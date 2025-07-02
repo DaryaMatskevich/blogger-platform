@@ -11,9 +11,9 @@ const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const mongoose_1 = require("@nestjs/mongoose");
-const userAccounts_module_1 = require("././modules/user-accounts/userAccounts.module");
-const core_module_1 = require("././core/core.module");
-const testing_module_1 = require("././modules/testing/testing.module");
+const userAccounts_module_1 = require("./modules/user-accounts/userAccounts.module");
+const core_module_1 = require("./core/core.module");
+const testing_module_1 = require("./modules/testing/testing.module");
 const config_1 = require("@nestjs/config");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
@@ -23,11 +23,11 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule.forRoot(),
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (0, path_1.join)(__dirname, '..', 'swagger-static'),
                 serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
             }),
-            config_1.ConfigModule.forRoot(),
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URL, {
                 dbName: 'nest-bloggers-platform'
             }),

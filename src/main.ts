@@ -58,10 +58,8 @@ await app.listen(port, () => {
      `Swagger UI css file written to: '/swagger-static/swagger-ui.css'`,
    );
      });
-
    }
-  
- }
+   }
 
  bootstrap();
 

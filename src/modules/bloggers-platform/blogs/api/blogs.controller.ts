@@ -16,7 +16,7 @@ import { CreateBlogInputDto } from './input-dto/blogs.input-dto';
 import { ApiParam } from '@nestjs/swagger';
 import { UpdateBlogInputDto } from './input-dto/update-blog.input-dto';
 import { GetBlogsQueryParams} from './input-dto/get-blogs-query-params.input-dto';
-import { PaginatedViewDto } from 'src/core/dto/base.paginated.view.dto';
+import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
 import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infastructure/query/blogs.query-repository';
 

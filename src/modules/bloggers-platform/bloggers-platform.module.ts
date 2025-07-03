@@ -16,6 +16,7 @@ import { BlogsExternalQueryRepository } from './blogs/infastructure/external-que
   providers: [BlogsService,
     BlogsRepository,
   BlogsQueryRepository,
+  BlogsExternalQueryRepository
 ],
 exports: [BlogsExternalQueryRepository],
 })

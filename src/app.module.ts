@@ -8,6 +8,7 @@ import { TestingModule } from './modules/testing/testing.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { join } from 'path';
 
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
+    BloggersPlatformModule,
     CoreModule,
   ],
   controllers: [AppController],

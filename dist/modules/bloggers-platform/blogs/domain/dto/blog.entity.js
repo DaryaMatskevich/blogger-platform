@@ -57,6 +57,12 @@ __decorate([
     __metadata("design:type", String)
 ], Blog.prototype, "websiteUrl", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: Boolean,
+        default: false
+    }),
+    __metadata("design:type", Boolean)
+], Blog.prototype, "isMembership", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: Date, nullable: true }),
     __metadata("design:type", Object)
 ], Blog.prototype, "deletedAt", void 0);

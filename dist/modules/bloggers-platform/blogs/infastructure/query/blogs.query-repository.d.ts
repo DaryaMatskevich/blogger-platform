@@ -1,4 +1,4 @@
-import { PaginatedViewDto } from 'src/core/dto/base.paginated.view.dto';
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view.dto';
 import { BlogModelType } from '../../domain/dto/blog.entity';
 import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.input-dto';

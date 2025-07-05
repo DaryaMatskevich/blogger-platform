@@ -36,8 +36,8 @@ let BlogsController = class BlogsController {
         return this.blogsQueryRepository.getAll(query);
     }
     async createBlog(body) {
-        const userId = await this.blogsService.createBlog(body);
-        return this.blogsQueryRepository.getByIdOrNotFoundFail(userId);
+        const blogId = await this.blogsService.createBlog(body);
+        return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
     }
     async updateBlog(id, body) {
         const userId = await this.blogsService.updateBlog(id, body);

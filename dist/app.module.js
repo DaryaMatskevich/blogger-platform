@@ -17,6 +17,7 @@ const testing_module_1 = require("./modules/testing/testing.module");
 const config_1 = require("@nestjs/config");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
+const bloggers_platform_module_1 = require("./modules/bloggers-platform/bloggers-platform.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,6 +34,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             userAccounts_module_1.UserAccountsModule,
             testing_module_1.TestingModule,
+            bloggers_platform_module_1.BloggersPlatformModule,
             core_module_1.CoreModule,
         ],
         controllers: [app_controller_1.AppController],

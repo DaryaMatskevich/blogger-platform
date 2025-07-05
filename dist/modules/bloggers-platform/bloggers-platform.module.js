@@ -27,6 +27,7 @@ exports.BloggersPlatformModule = BloggersPlatformModule = __decorate([
         providers: [blogs_service_1.BlogsService,
             blogs_repository_1.BlogsRepository,
             blogs_query_repository_1.BlogsQueryRepository,
+            blogs_external_query_repository_1.BlogsExternalQueryRepository
         ],
         exports: [blogs_external_query_repository_1.BlogsExternalQueryRepository],
     })

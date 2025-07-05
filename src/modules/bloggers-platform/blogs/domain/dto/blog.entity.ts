@@ -25,7 +25,10 @@ export class Blog {
   websiteUrl: string;
 
   createdAt: Date;
-
+  
+@Prop({  type: Boolean, 
+    default: false // значение по умолчанию
+  })
   isMembership: Boolean;
 
   @Prop({ type: Date, nullable: true })

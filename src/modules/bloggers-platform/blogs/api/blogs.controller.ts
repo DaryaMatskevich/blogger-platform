@@ -46,9 +46,9 @@ export class BlogsController {
 
   @Post()
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
-    const userId = await this.blogsService.createBlog(body);
+    const blogId = await this.blogsService.createBlog(body);
 
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(userId);
+    return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
 
   @Put(':id')

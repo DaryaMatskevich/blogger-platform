@@ -6,9 +6,9 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
 import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infastructure/query/blogs.query-repository';
 export declare class BlogsController {
-    private blogsQueryRepository;
     private blogsService;
-    constructor(blogsQueryRepository: BlogsQueryRepository, blogsService: BlogsService);
+    private blogsQueryRepository;
+    constructor(blogsService: BlogsService, blogsQueryRepository: BlogsQueryRepository);
     getById(id: string): Promise<BlogViewDto>;
     getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto[]>>;
     createBlog(body: CreateBlogInputDto): Promise<BlogViewDto>;

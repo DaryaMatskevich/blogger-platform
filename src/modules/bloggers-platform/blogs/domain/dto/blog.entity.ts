@@ -10,34 +10,27 @@ import { UpdateBlogDto } from '../../dto/update-blog.dto';
  * This class represents the schema and behavior of a User entity.
  */
 @Schema({ timestamps: true })
-
 export class Blog {
-
   @Prop({ type: String, required: true })
   name: string;
-
 
   @Prop({ type: String, required: true })
   description: string;
 
-
   @Prop({ type: String, min: 5, required: true })
   websiteUrl: string;
 
-  createdAt: Date;
-  
-@Prop({  type: Boolean, 
-    default: false // значение по умолчанию
-  })
+  @Prop({ type: Boolean, default: false })
   isMembership: Boolean;
 
-  @Prop({ type: Date, nullable: true })
+   createdAt: Date;
+
+  updatedAt: Date;
+  
+  @Prop({ type: Date, nullable: true,   default: null })
   deletedAt: Date | null;
 
-
-
-
-  static createInstance(dto: CreateBlogInputDto): BlogDocument {
+    static createInstance(dto: CreateBlogInputDto): BlogDocument {
     const blog = new this();
     blog.name = dto.name;
     blog.description = dto.description;
@@ -56,13 +49,13 @@ export class Blog {
 
   update(dto: UpdateBlogDto) {
     if (dto.name !== this.name) {
-            this.name = dto.name;
+      this.name = dto.name;
     }
     if (dto.description !== this.description) {
-            this.description = dto.description;
+      this.description = dto.description;
     }
     if (dto.websiteUrl !== this.websiteUrl) {
-            this.websiteUrl = dto.websiteUrl;
+      this.websiteUrl = dto.websiteUrl;
     }
   }
 }

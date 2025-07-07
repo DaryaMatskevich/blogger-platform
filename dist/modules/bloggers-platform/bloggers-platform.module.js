@@ -15,19 +15,31 @@ const blog_entity_1 = require("./blogs/domain/dto/blog.entity");
 const blogs_controller_1 = require("./blogs/api/blogs.controller");
 const blogs_query_repository_1 = require("./blogs/infastructure/query/blogs.query-repository");
 const blogs_external_query_repository_1 = require("./blogs/infastructure/external-query/external-dto/blogs.external-query-repository");
+const post_entity_1 = require("./posts/domain/post.entity");
+const posts_controller_1 = require("./posts/api/posts.controller");
+const posts_service_1 = require("./posts/application/posts.service");
+const posts_repository_1 = require("./posts/infactructure/posts.repository");
+const posts_query_repository_1 = require("./posts/infactructure/query/posts.query-repository");
 let BloggersPlatformModule = class BloggersPlatformModule {
 };
 exports.BloggersPlatformModule = BloggersPlatformModule;
 exports.BloggersPlatformModule = BloggersPlatformModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: blog_entity_1.Blog.name, schema: blog_entity_1.BlogSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: blog_entity_1.Blog.name, schema: blog_entity_1.BlogSchema },
+                { name: post_entity_1.Post.name, schema: post_entity_1.PostSchema }
+            ]),
         ],
-        controllers: [blogs_controller_1.BlogsController],
-        providers: [blogs_service_1.BlogsService,
+        controllers: [blogs_controller_1.BlogsController, posts_controller_1.PostsController],
+        providers: [
+            blogs_service_1.BlogsService,
             blogs_repository_1.BlogsRepository,
             blogs_query_repository_1.BlogsQueryRepository,
-            blogs_external_query_repository_1.BlogsExternalQueryRepository
+            blogs_external_query_repository_1.BlogsExternalQueryRepository,
+            posts_service_1.PostsService,
+            posts_repository_1.PostsRepository,
+            posts_query_repository_1.PostsQueryRepository,
         ],
         exports: [blogs_external_query_repository_1.BlogsExternalQueryRepository],
     })

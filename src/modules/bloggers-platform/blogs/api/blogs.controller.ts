@@ -23,9 +23,9 @@ import { BlogsQueryRepository } from '../infastructure/query/blogs.query-reposit
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private blogsQueryRepository: BlogsQueryRepository,
-    private blogsService: BlogsService,
-  ) {
+     private blogsService: BlogsService,
+    private blogsQueryRepository: BlogsQueryRepository
+     ) {
     console.log('UsersController created');
   }
 
@@ -56,9 +56,9 @@ export class BlogsController {
     @Param('id') id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<BlogViewDto> {
-    const userId = await this.blogsService.updateBlog(id, body);
+    const blogId = await this.blogsService.updateBlog(id, body);
 
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(userId);
+    return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

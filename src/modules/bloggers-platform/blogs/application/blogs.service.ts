@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UsersExternalQueryRepository } from '../../../user-accounts/infastructure/external-query/external-dto/users.external-query-repository';
-import { UsersExternalService } from '../../../user-accounts/application/users.external-service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from '../domain/dto/blog.entity';
 import { BlogsRepository } from '../infastructure/blogs.repository';
@@ -27,6 +25,7 @@ export class BlogsService {
   
       return blog._id.toString();
     }
+    
     async updateBlog(id: string, dto: UpdateBlogDto): Promise<string> {
       const blog = await this.blogsRepository.findOrNotFoundFail(id);
   

@@ -71,7 +71,7 @@ __decorate([
     __metadata("design:type", name_schema_1.Name)
 ], User.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    (0, mongoose_1.Prop)({ type: Date, nullable: true, default: null }),
     __metadata("design:type", Object)
 ], User.prototype, "deletedAt", void 0);
 exports.User = User = __decorate([

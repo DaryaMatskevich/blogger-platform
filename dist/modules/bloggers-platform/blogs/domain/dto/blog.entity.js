@@ -15,8 +15,9 @@ let Blog = class Blog {
     name;
     description;
     websiteUrl;
-    createdAt;
     isMembership;
+    createdAt;
+    updatedAt;
     deletedAt;
     static createInstance(dto) {
         const blog = new this();
@@ -57,13 +58,11 @@ __decorate([
     __metadata("design:type", String)
 ], Blog.prototype, "websiteUrl", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Boolean,
-        default: false
-    }),
+    (0, mongoose_1.Prop)({ type: Boolean, default: false }),
     __metadata("design:type", Boolean)
 ], Blog.prototype, "isMembership", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    (0, mongoose_1.Prop)({ type: Date, nullable: true, default: null }),
     __metadata("design:type", Object)
 ], Blog.prototype, "deletedAt", void 0);
 exports.Blog = Blog = __decorate([

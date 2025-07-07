@@ -5,8 +5,9 @@ export declare class Blog {
     name: string;
     description: string;
     websiteUrl: string;
-    createdAt: Date;
     isMembership: Boolean;
+    createdAt: Date;
+    updatedAt: Date;
     deletedAt: Date | null;
     static createInstance(dto: CreateBlogInputDto): BlogDocument;
     makeDeleted(): void;

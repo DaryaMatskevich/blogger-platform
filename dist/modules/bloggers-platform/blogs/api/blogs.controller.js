@@ -22,11 +22,11 @@ const get_blogs_query_params_input_dto_1 = require("./input-dto/get-blogs-query-
 const blogs_service_1 = require("../application/blogs.service");
 const blogs_query_repository_1 = require("../infastructure/query/blogs.query-repository");
 let BlogsController = class BlogsController {
-    blogsQueryRepository;
     blogsService;
-    constructor(blogsQueryRepository, blogsService) {
-        this.blogsQueryRepository = blogsQueryRepository;
+    blogsQueryRepository;
+    constructor(blogsService, blogsQueryRepository) {
         this.blogsService = blogsService;
+        this.blogsQueryRepository = blogsQueryRepository;
         console.log('UsersController created');
     }
     async getById(id) {
@@ -40,8 +40,8 @@ let BlogsController = class BlogsController {
         return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
     }
     async updateBlog(id, body) {
-        const userId = await this.blogsService.updateBlog(id, body);
-        return this.blogsQueryRepository.getByIdOrNotFoundFail(userId);
+        const blogId = await this.blogsService.updateBlog(id, body);
+        return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
     }
     async deleteBlog(id) {
         return this.blogsService.deleteBlog(id);
@@ -94,7 +94,7 @@ __decorate([
 ], BlogsController.prototype, "deleteBlog", null);
 exports.BlogsController = BlogsController = __decorate([
     (0, common_1.Controller)('blogs'),
-    __metadata("design:paramtypes", [blogs_query_repository_1.BlogsQueryRepository,
-        blogs_service_1.BlogsService])
+    __metadata("design:paramtypes", [blogs_service_1.BlogsService,
+        blogs_query_repository_1.BlogsQueryRepository])
 ], BlogsController);
 //# sourceMappingURL=blogs.controller.js.map

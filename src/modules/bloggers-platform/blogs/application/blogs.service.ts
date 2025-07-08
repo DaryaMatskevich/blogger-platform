@@ -17,7 +17,7 @@ export class BlogsService {
     private BlogModel: BlogModelType,
     private blogsRepository: BlogsRepository,
     private postsQueryRepository: PostsQueryRepository,
-    private postsRepository: PostsRepository
+    
   ) { }
 
   async createBlog(dto: CreateBlogDto): Promise<string> {

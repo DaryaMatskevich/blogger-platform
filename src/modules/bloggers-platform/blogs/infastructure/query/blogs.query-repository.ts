@@ -27,18 +27,18 @@ export class BlogsQueryRepository {
   }
 
   async getAll(
-    query: GetBlogsQueryParams,
+    query: GetBlogsQueryParams
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
     const filter: FilterQuery<Blog> = {
       deletedAt: null,
     };
 
     if (query.searchNameTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        login: { $regex: query.searchNameTerm, $options: 'i' },
-      });
-    }
+      filter.name = { 
+      $regex: query.searchNameTerm, 
+      $options: 'i' // регистронезависимый поиск
+    };
+  }
 
    
 

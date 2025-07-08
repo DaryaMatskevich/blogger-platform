@@ -52,13 +52,14 @@ export class PostsController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updatePost(
     @Param('id') id: string,
     @Body() body: UpdatePostDto,
-  ): Promise<PostViewDto> {
-    const postId = await this.postsService.updatePost(id, body);
+  ): Promise<void> {
+    await this.postsService.updatePost(id, body);
 
-    return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
+    ;
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

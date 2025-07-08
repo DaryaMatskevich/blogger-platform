@@ -60,13 +60,13 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updateBlog(
     @Param('id') id: string,
     @Body() body: UpdateBlogInputDto,
-  ): Promise<BlogViewDto> {
-    const blogId = await this.blogsService.updateBlog(id, body);
+  ): Promise<void> {
+    await this.blogsService.updateBlog(id, body);
 
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

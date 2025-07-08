@@ -29,4 +29,4 @@ export class PostsRepository {
 
     return post;
   }
-}
+ }

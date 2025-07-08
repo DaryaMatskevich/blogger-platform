@@ -17,12 +17,18 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const blog_entity_1 = require("../domain/dto/blog.entity");
 const blogs_repository_1 = require("../infastructure/blogs.repository");
+const posts_query_repository_1 = require("../../posts/infactructure/query/posts.query-repository");
+const posts_repository_1 = require("../../posts/infactructure/posts.repository");
 let BlogsService = class BlogsService {
     BlogModel;
     blogsRepository;
-    constructor(BlogModel, blogsRepository) {
+    postsQueryRepository;
+    postsRepository;
+    constructor(BlogModel, blogsRepository, postsQueryRepository, postsRepository) {
         this.BlogModel = BlogModel;
         this.blogsRepository = blogsRepository;
+        this.postsQueryRepository = postsQueryRepository;
+        this.postsRepository = postsRepository;
     }
     async createBlog(dto) {
         const blog = this.BlogModel.createInstance({
@@ -44,11 +50,23 @@ let BlogsService = class BlogsService {
         blog.makeDeleted();
         await this.blogsRepository.save(blog);
     }
+    async getAllPostsForBlog(id, query) {
+        const posts = await this.postsQueryRepository.getPostsForBlog(query, id);
+        return posts;
+    }
+    async blogExists(id) {
+        return this.BlogModel.exists({
+            _id: id,
+            deletedAt: null
+        });
+    }
 };
 exports.BlogsService = BlogsService;
 exports.BlogsService = BlogsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(blog_entity_1.Blog.name)),
-    __metadata("design:paramtypes", [Object, blogs_repository_1.BlogsRepository])
+    __metadata("design:paramtypes", [Object, blogs_repository_1.BlogsRepository,
+        posts_query_repository_1.PostsQueryRepository,
+        posts_repository_1.PostsRepository])
 ], BlogsService);
 //# sourceMappingURL=blogs.service.js.map

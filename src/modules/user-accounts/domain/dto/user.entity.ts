@@ -4,6 +4,27 @@ import { Name, NameSchema } from './name.schema';
 import { CreateUserDomainDto } from './create-user.domain.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
 
+
+export const loginConstraints = {
+  minLength: 3,
+  maxLength: 10
+}
+
+export const passwordConstraints = {
+  minLength: 6,
+  maxLength: 20
+}
+
+export const emailConstraints = {
+  match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+}
+
+
+
+
+
+
+
 //флаг timestemp автоматичеки добавляет поля upatedAt и createdAt
 /**
  * User Entity Schema
@@ -17,7 +38,7 @@ export class User {
    * @type {string}
    * @required
    */
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, ...loginConstraints })
   login: string;
 
   /**
@@ -33,7 +54,7 @@ export class User {
    * @type {string}
    * @required
    */
-  @Prop({ type: String, min: 5, required: true })
+  @Prop({ type: String, min: 5, required: true, ...emailConstraints })
   email: string;
 
   /**

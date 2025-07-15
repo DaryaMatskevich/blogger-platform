@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { UserViewDto } from './view-dto/users.view-dto';
@@ -20,8 +21,11 @@ import { UpdateUserInputDto } from './input-dto/update-user.input-dto';
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { UsersQueryRepository } from '../infastructure/query/users.query-repository';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view.dto';
+import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
+import { Public } from '../guards/decorators/param/public.decorator';
 
 @Controller('users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private usersQueryRepository: UsersQueryRepository,
@@ -37,7 +41,7 @@ export class UsersController {
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
   }
-
+@Public()
   @Get()
   async getAll(
     @Query() query: GetUsersQueryParams,

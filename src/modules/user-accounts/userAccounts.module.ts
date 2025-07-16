@@ -12,10 +12,18 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { AuthService } from './application/auth.service';
 import { AuthQueryRepository } from './infastructure/query/auth.query-repository';
 import { SecurityDevicesQueryRepository } from './infastructure/query/security-devices.query-repository';
+import { EmailService } from '../notifications/email.service';
+import { JwtModule } from '@nestjs/jwt';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
+      JwtModule.register({
+      secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
+      signOptions: { expiresIn: '60m' }, // Время жизни токена
+    }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    NotificationsModule
   ],
   controllers: [UsersController],
   providers: [
@@ -28,6 +36,7 @@ import { SecurityDevicesQueryRepository } from './infastructure/query/security-d
     AuthService,
     LocalStrategy,
     CryptoService,
+    EmailService,
     JwtStrategy,
     UsersExternalQueryRepository,
    

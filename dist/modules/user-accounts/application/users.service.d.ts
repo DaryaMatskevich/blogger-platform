@@ -2,7 +2,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UserModelType } from '../domain/dto/user.entity';
 import { UsersRepository } from '../infastructure/users.repository';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { EmailService } from '@src/modules/notifications/email.service';
+import { EmailService } from '../../../modules/notifications/email.service';
 import { CryptoService } from './crypto.service';
 export declare class UsersService {
     private UserModel;

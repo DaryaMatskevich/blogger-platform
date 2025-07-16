@@ -21,13 +21,21 @@ const local_strategy_1 = require("./guards/local/local.strategy");
 const auth_service_1 = require("./application/auth.service");
 const auth_query_repository_1 = require("./infastructure/query/auth.query-repository");
 const security_devices_query_repository_1 = require("./infastructure/query/security-devices.query-repository");
+const email_service_1 = require("../notifications/email.service");
+const jwt_1 = require("@nestjs/jwt");
+const notifications_module_1 = require("../notifications/notifications.module");
 let UserAccountsModule = class UserAccountsModule {
 };
 exports.UserAccountsModule = UserAccountsModule;
 exports.UserAccountsModule = UserAccountsModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            jwt_1.JwtModule.register({
+                secret: 'access-token-secret',
+                signOptions: { expiresIn: '60m' },
+            }),
             mongoose_1.MongooseModule.forFeature([{ name: user_entity_1.User.name, schema: user_entity_1.UserSchema }]),
+            notifications_module_1.NotificationsModule
         ],
         controllers: [users_controller_1.UsersController],
         providers: [
@@ -40,6 +48,7 @@ exports.UserAccountsModule = UserAccountsModule = __decorate([
             auth_service_1.AuthService,
             local_strategy_1.LocalStrategy,
             crypto_service_1.CryptoService,
+            email_service_1.EmailService,
             jwt_strategy_1.JwtStrategy,
             users_external_query_repository_1.UsersExternalQueryRepository,
         ],

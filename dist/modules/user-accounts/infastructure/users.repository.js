@@ -37,6 +37,12 @@ let UsersRepository = class UsersRepository {
         }
         return user;
     }
+    findByLogin(login) {
+        return this.UserModel.findOne({ login });
+    }
+    async loginIsExist(login) {
+        return !!(await this.UserModel.countDocuments({ login: login }));
+    }
 };
 exports.UsersRepository = UsersRepository;
 exports.UsersRepository = UsersRepository = __decorate([

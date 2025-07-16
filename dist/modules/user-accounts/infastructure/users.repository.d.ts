@@ -5,4 +5,6 @@ export declare class UsersRepository {
     findById(id: string): Promise<UserDocument | null>;
     save(user: UserDocument): Promise<void>;
     findOrNotFoundFail(id: string): Promise<UserDocument>;
+    findByLogin(login: string): Promise<UserDocument | null>;
+    loginIsExist(login: string): Promise<boolean>;
 }

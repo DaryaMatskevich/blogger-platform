@@ -53,6 +53,8 @@ let User = class User {
         }
         this.deletedAt = new Date();
     }
+    setConfirmationCode(code) {
+    }
     update(dto) {
         if (dto.email !== this.email) {
             this.isEmailConfirmed = false;

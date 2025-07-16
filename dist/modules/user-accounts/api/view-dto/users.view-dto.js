@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserViewDto = void 0;
+exports.MeViewDto = exports.UserViewDto = void 0;
 const openapi = require("@nestjs/swagger");
+const swagger_1 = require("@nestjs/swagger");
 class UserViewDto {
     id;
     login;
@@ -20,4 +21,21 @@ class UserViewDto {
     }
 }
 exports.UserViewDto = UserViewDto;
+class MeViewDto extends (0, swagger_1.OmitType)(UserViewDto, [
+    'createdAt',
+    'id',
+]) {
+    userId;
+    static mapToView(user) {
+        const dto = new MeViewDto();
+        dto.email = user.email;
+        dto.login = user.login;
+        dto.userId = user._id.toString();
+        return dto;
+    }
+    static _OPENAPI_METADATA_FACTORY() {
+        return { userId: { required: true, type: () => String } };
+    }
+}
+exports.MeViewDto = MeViewDto;
 //# sourceMappingURL=users.view-dto.js.map

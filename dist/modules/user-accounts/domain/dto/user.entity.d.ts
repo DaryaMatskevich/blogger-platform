@@ -25,6 +25,7 @@ export declare class User {
     get id(): any;
     static createInstance(dto: CreateUserDomainDto): UserDocument;
     makeDeleted(): void;
+    setConfirmationCode(code: string): void;
     update(dto: UpdateUserDto): void;
 }
 export declare const UserSchema: import("mongoose").Schema<User, Model<User, any, any, any, import("mongoose").Document<unknown, any, User, any> & User & {

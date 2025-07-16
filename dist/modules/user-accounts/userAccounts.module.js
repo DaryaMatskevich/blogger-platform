@@ -15,6 +15,12 @@ const user_entity_1 = require("./domain/dto/user.entity");
 const users_repository_1 = require("./infastructure/users.repository");
 const users_query_repository_1 = require("./infastructure/query/users.query-repository");
 const users_external_query_repository_1 = require("./infastructure/external-query/external-dto/users.external-query-repository");
+const jwt_strategy_1 = require("./guards/bearer/jwt.strategy");
+const crypto_service_1 = require("./application/crypto.service");
+const local_strategy_1 = require("./guards/local/local.strategy");
+const auth_service_1 = require("./application/auth.service");
+const auth_query_repository_1 = require("./infastructure/query/auth.query-repository");
+const security_devices_query_repository_1 = require("./infastructure/query/security-devices.query-repository");
 let UserAccountsModule = class UserAccountsModule {
 };
 exports.UserAccountsModule = UserAccountsModule;
@@ -28,6 +34,13 @@ exports.UserAccountsModule = UserAccountsModule = __decorate([
             users_service_1.UsersService,
             users_repository_1.UsersRepository,
             users_query_repository_1.UsersQueryRepository,
+            users_external_query_repository_1.UsersExternalQueryRepository,
+            security_devices_query_repository_1.SecurityDevicesQueryRepository,
+            auth_query_repository_1.AuthQueryRepository,
+            auth_service_1.AuthService,
+            local_strategy_1.LocalStrategy,
+            crypto_service_1.CryptoService,
+            jwt_strategy_1.JwtStrategy,
             users_external_query_repository_1.UsersExternalQueryRepository,
         ],
         exports: [users_external_query_repository_1.UsersExternalQueryRepository],

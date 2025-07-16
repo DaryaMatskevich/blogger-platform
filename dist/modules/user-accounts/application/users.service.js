@@ -51,12 +51,18 @@ const mongoose_1 = require("@nestjs/mongoose");
 const bcrypt = __importStar(require("bcryptjs"));
 const user_entity_1 = require("../domain/dto/user.entity");
 const users_repository_1 = require("../infastructure/users.repository");
+const email_service_1 = require("../../notifications/email.service");
+const crypto_service_1 = require("./crypto.service");
 let UsersService = class UsersService {
     UserModel;
     usersRepository;
-    constructor(UserModel, usersRepository) {
+    emailService;
+    cryptoService;
+    constructor(UserModel, usersRepository, emailService, cryptoService) {
         this.UserModel = UserModel;
         this.usersRepository = usersRepository;
+        this.emailService = emailService;
+        this.cryptoService = cryptoService;
     }
     async createUser(dto) {
         const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -79,11 +85,23 @@ let UsersService = class UsersService {
         user.makeDeleted();
         await this.usersRepository.save(user);
     }
+    async registerUser(dto) {
+        const createdUserId = await this.createUser(dto);
+        const confirmCode = 'uuid';
+        const user = await this.usersRepository.findOrNotFoundFail(createdUserId);
+        user.setConfirmationCode(confirmCode);
+        await this.usersRepository.save(user);
+        this.emailService
+            .sendConfirmationEmail(user.email, confirmCode)
+            .catch(console.error);
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(user_entity_1.User.name)),
-    __metadata("design:paramtypes", [Object, users_repository_1.UsersRepository])
+    __metadata("design:paramtypes", [Object, users_repository_1.UsersRepository,
+        email_service_1.EmailService,
+        crypto_service_1.CryptoService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

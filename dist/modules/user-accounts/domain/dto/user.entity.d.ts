@@ -18,6 +18,8 @@ export declare class User {
     passwordHash: string;
     email: string;
     isEmailConfirmed: boolean;
+    confirmationCode: string | null;
+    confirmationCodeCreatedAt: Date | null;
     name: Name;
     createdAt: Date;
     updatedAt: Date;

@@ -65,6 +65,12 @@ export class User {
   @Prop({ type: Boolean, required: true, default: false })
   isEmailConfirmed: boolean;
 
+  @Prop({ type: String, nullable: true })
+  confirmationCode: string | null;
+
+  @Prop({ type: Date, nullable: true })
+  confirmationCodeCreatedAt: Date | null;
+
   // @Prop(NameSchema) this variant from docdoesn't make validation for inner object
   @Prop({ type: NameSchema })
   name: Name;
@@ -129,10 +135,16 @@ export class User {
     this.deletedAt = new Date();
   }
 
-  setConfirmationCode(code: string) {
-    //logic
+  setConfirmationCode(code: string) : void {
+  if (!code || typeof code !== 'string') {
+    throw new Error('Confirmation code must be a non-empty string');
   }
-  
+
+  this.confirmationCode = code;
+  this.confirmationCodeCreatedAt = new Date(); // Добавляем timestamp создания кода
+  this.isEmailConfirmed = false; // Сбрасываем статус подтверждения
+}
+
   /**
    * Updates the user instance with new data
    * Resets email confirmation if email is updated

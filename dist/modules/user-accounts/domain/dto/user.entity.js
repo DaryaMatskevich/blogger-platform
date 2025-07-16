@@ -28,6 +28,8 @@ let User = class User {
     passwordHash;
     email;
     isEmailConfirmed;
+    confirmationCode;
+    confirmationCodeCreatedAt;
     name;
     createdAt;
     updatedAt;
@@ -54,6 +56,12 @@ let User = class User {
         this.deletedAt = new Date();
     }
     setConfirmationCode(code) {
+        if (!code || typeof code !== 'string') {
+            throw new Error('Confirmation code must be a non-empty string');
+        }
+        this.confirmationCode = code;
+        this.confirmationCodeCreatedAt = new Date();
+        this.isEmailConfirmed = false;
     }
     update(dto) {
         if (dto.email !== this.email) {
@@ -79,6 +87,14 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Boolean, required: true, default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isEmailConfirmed", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "confirmationCode", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "confirmationCodeCreatedAt", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: name_schema_1.NameSchema }),
     __metadata("design:type", name_schema_1.Name)

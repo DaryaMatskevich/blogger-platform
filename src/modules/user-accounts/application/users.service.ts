@@ -5,9 +5,9 @@ import * as bcrypt from 'bcryptjs';
 import { User, UserModelType } from '../domain/dto/user.entity';
 import { UsersRepository } from '../infastructure/users.repository';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { EmailService } from '@src/modules/notifications/email.service';
+import { EmailService } from '../../../modules/notifications/email.service';
 import { CryptoService } from './crypto.service';
-import { Types } from 'mongoose';
+
 
 @Injectable()
 export class UsersService {

@@ -25,9 +25,9 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
-import { DomainException, Extension } from '@src/core/exeptions/domain-exeptions';
-import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
+import { DomainExceptionCode } from '../core/exeptions/domain-exeption-codes';
+import { DomainException, Extension } from '../core/exeptions/domain-exeptions';
+import { ObjectIdValidationPipe } from '../core/pipes/object-id-validation-pipe.service';
 
 
 //функция использует рекурсию для обхода объекта children при вложенных полях при валидации

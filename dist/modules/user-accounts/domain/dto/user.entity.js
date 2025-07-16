@@ -9,9 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserSchema = exports.User = void 0;
+exports.UserSchema = exports.User = exports.emailConstraints = exports.passwordConstraints = exports.loginConstraints = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const name_schema_1 = require("./name.schema");
+exports.loginConstraints = {
+    minLength: 3,
+    maxLength: 10
+};
+exports.passwordConstraints = {
+    minLength: 6,
+    maxLength: 20
+};
+exports.emailConstraints = {
+    match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+};
 let User = class User {
     login;
     passwordHash;
@@ -51,7 +62,7 @@ let User = class User {
 };
 exports.User = User;
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true }),
+    (0, mongoose_1.Prop)({ type: String, required: true, ...exports.loginConstraints }),
     __metadata("design:type", String)
 ], User.prototype, "login", void 0);
 __decorate([
@@ -59,7 +70,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "passwordHash", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, min: 5, required: true }),
+    (0, mongoose_1.Prop)({ type: String, min: 5, required: true, ...exports.emailConstraints }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([

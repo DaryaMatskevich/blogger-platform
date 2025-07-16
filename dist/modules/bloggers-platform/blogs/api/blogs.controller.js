@@ -48,8 +48,7 @@ let BlogsController = class BlogsController {
         return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
     }
     async updateBlog(id, body) {
-        const blogId = await this.blogsService.updateBlog(id, body);
-        return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
+        await this.blogsService.updateBlog(id, body);
     }
     async deleteBlog(id) {
         return this.blogsService.deleteBlog(id);
@@ -98,7 +97,8 @@ __decorate([
 ], BlogsController.prototype, "createBlog", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./view-dto/blogs.view-dto").BlogViewDto }),
+    (0, common_1.HttpCode)(204),
+    openapi.ApiResponse({ status: 204 }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

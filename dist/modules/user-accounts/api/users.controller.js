@@ -21,6 +21,8 @@ const swagger_1 = require("@nestjs/swagger");
 const update_user_input_dto_1 = require("./input-dto/update-user.input-dto");
 const get_users_query_params_input_dto_1 = require("./input-dto/get-users-query-params.input-dto");
 const users_query_repository_1 = require("../infastructure/query/users.query-repository");
+const basic_auth_guard_1 = require("../guards/basic/basic-auth.guard");
+const public_decorator_1 = require("../guards/decorators/param/public.decorator");
 let UsersController = class UsersController {
     usersQueryRepository;
     usersService;
@@ -58,6 +60,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getById", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
@@ -94,6 +97,7 @@ __decorate([
 ], UsersController.prototype, "deleteUser", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
+    (0, common_1.UseGuards)(basic_auth_guard_1.BasicAuthGuard),
     __metadata("design:paramtypes", [users_query_repository_1.UsersQueryRepository,
         users_service_1.UsersService])
 ], UsersController);

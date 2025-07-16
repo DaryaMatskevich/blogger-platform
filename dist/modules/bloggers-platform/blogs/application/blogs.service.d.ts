@@ -4,13 +4,11 @@ import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostsQueryRepository } from '../../posts/infactructure/query/posts.query-repository';
-import { PostsRepository } from '../../posts/infactructure/posts.repository';
 export declare class BlogsService {
     private BlogModel;
     private blogsRepository;
     private postsQueryRepository;
-    private postsRepository;
-    constructor(BlogModel: BlogModelType, blogsRepository: BlogsRepository, postsQueryRepository: PostsQueryRepository, postsRepository: PostsRepository);
+    constructor(BlogModel: BlogModelType, blogsRepository: BlogsRepository, postsQueryRepository: PostsQueryRepository);
     createBlog(dto: CreateBlogDto): Promise<string>;
     updateBlog(id: string, dto: UpdateBlogDto): Promise<string>;
     deleteBlog(id: string): Promise<void>;

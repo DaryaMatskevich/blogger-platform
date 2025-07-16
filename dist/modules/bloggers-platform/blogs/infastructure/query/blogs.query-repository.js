@@ -38,16 +38,10 @@ let BlogsQueryRepository = class BlogsQueryRepository {
             deletedAt: null,
         };
         if (query.searchNameTerm) {
-            filter.$or = filter.$or || [];
-            filter.$or.push({
-                login: { $regex: query.searchNameTerm, $options: 'i' },
-            });
-        }
-        if (query.searchNameTerm) {
-            filter.$or = filter.$or || [];
-            filter.$or.push({
-                email: { $regex: query.searchNameTerm, $options: 'i' },
-            });
+            filter.name = {
+                $regex: query.searchNameTerm,
+                $options: 'i'
+            };
         }
         const blogs = await this.BlogModel.find(filter)
             .sort({ [query.sortBy]: query.sortDirection })

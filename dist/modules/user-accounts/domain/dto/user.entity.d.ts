@@ -2,6 +2,17 @@ import { HydratedDocument, Model } from 'mongoose';
 import { Name } from './name.schema';
 import { CreateUserDomainDto } from './create-user.domain.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
+export declare const loginConstraints: {
+    minLength: number;
+    maxLength: number;
+};
+export declare const passwordConstraints: {
+    minLength: number;
+    maxLength: number;
+};
+export declare const emailConstraints: {
+    match: RegExp;
+};
 export declare class User {
     login: string;
     passwordHash: string;

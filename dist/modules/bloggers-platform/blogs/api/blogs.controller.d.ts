@@ -19,7 +19,7 @@ export declare class BlogsController {
     getById(id: string): Promise<BlogViewDto>;
     getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto[]>>;
     createBlog(body: CreateBlogInputDto): Promise<BlogViewDto>;
-    updateBlog(id: string, body: UpdateBlogInputDto): Promise<BlogViewDto>;
+    updateBlog(id: string, body: UpdateBlogInputDto): Promise<void>;
     deleteBlog(id: string): Promise<void>;
     getAllPostsForBlog(id: string, query: GetPostsQueryParams): Promise<PaginatedViewDto<PostViewDto[]>>;
     createPostForBlog(blogId: string, body: CreatePostForBlogInputDto): Promise<PostViewDto>;

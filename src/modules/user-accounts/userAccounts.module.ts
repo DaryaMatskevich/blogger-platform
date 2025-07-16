@@ -6,6 +6,12 @@ import { User, UserSchema } from './domain/dto/user.entity';
 import { UsersRepository } from './infastructure/users.repository';
 import { UsersQueryRepository } from './infastructure/query/users.query-repository';
 import { UsersExternalQueryRepository } from './infastructure/external-query/external-dto/users.external-query-repository';
+import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { CryptoService } from './application/crypto.service';
+import { LocalStrategy } from './guards/local/local.strategy';
+import { AuthService } from './application/auth.service';
+import { AuthQueryRepository } from './infastructure/query/auth.query-repository';
+import { SecurityDevicesQueryRepository } from './infastructure/query/security-devices.query-repository';
 
 @Module({
   imports: [
@@ -17,6 +23,14 @@ import { UsersExternalQueryRepository } from './infastructure/external-query/ext
     UsersRepository,
     UsersQueryRepository,
     UsersExternalQueryRepository,
+   SecurityDevicesQueryRepository,
+    AuthQueryRepository,
+    AuthService,
+    LocalStrategy,
+    CryptoService,
+    JwtStrategy,
+    UsersExternalQueryRepository,
+   
   ],
   exports: [UsersExternalQueryRepository],
 })

@@ -5,13 +5,21 @@ import { EmailService } from './email.service';
 @Module({
   imports: [
     MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
-      defaults: {
-        from: '"nest-modules" <modules@nestjs.com>',
+      transport: {
+        host: "smtp.mail.ru",
+        port: 465,
+        secure: true,
+      auth: {
+        user: "backendlessons@mail.ru",
+        pass: "Dasha21091992",
+      },
+    },
+    defaults: {
+        from: '"backend-lessons" <backendlessons@mail.ru>',
       },
     }),
   ],
   providers: [EmailService],
   exports: [EmailService],
 })
-export class NotificationsModule {}
+export class NotificationsModule { }

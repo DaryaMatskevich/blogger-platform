@@ -20,7 +20,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
   imports: [
       JwtModule.register({
       secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-      signOptions: { expiresIn: '60m' }, // Время жизни токена
+      signOptions: { expiresIn: '5m' }, // Время жизни токена
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     NotificationsModule

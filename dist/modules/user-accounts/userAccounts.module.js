@@ -32,7 +32,7 @@ exports.UserAccountsModule = UserAccountsModule = __decorate([
         imports: [
             jwt_1.JwtModule.register({
                 secret: 'access-token-secret',
-                signOptions: { expiresIn: '60m' },
+                signOptions: { expiresIn: '5m' },
             }),
             mongoose_1.MongooseModule.forFeature([{ name: user_entity_1.User.name, schema: user_entity_1.UserSchema }]),
             notifications_module_1.NotificationsModule

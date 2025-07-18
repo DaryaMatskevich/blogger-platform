@@ -53,6 +53,7 @@ const user_entity_1 = require("../domain/dto/user.entity");
 const users_repository_1 = require("../infastructure/users.repository");
 const email_service_1 = require("../../../modules/notifications/email.service");
 const crypto_service_1 = require("./crypto.service");
+const uuid_1 = require("uuid");
 let UsersService = class UsersService {
     UserModel;
     usersRepository;
@@ -67,9 +68,9 @@ let UsersService = class UsersService {
     async createUser(dto) {
         const passwordHash = await bcrypt.hash(dto.password, 10);
         const user = this.UserModel.createInstance({
-            email: dto.email,
             login: dto.login,
             passwordHash: passwordHash,
+            email: dto.email,
         });
         await this.usersRepository.save(user);
         return user._id.toString();
@@ -87,7 +88,7 @@ let UsersService = class UsersService {
     }
     async registerUser(dto) {
         const createdUserId = await this.createUser(dto);
-        const confirmCode = 'uuid';
+        const confirmCode = (0, uuid_1.v4)();
         const user = await this.usersRepository.findOrNotFoundFail(createdUserId);
         user.setConfirmationCode(confirmCode);
         await this.usersRepository.save(user);

@@ -38,6 +38,7 @@ let UsersController = class UsersController {
         return this.usersQueryRepository.getAll(query);
     }
     async createUser(body) {
+        console.log('ХА!');
         const userId = await this.usersService.createUser(body);
         return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     }

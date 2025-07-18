@@ -31,6 +31,7 @@ function pipesSetup(app) {
     app.useGlobalPipes(new object_id_validation_pipe_service_1.ObjectIdValidationPipe(), new common_1.ValidationPipe({
         transform: true,
         whitelist: true,
+        validateCustomDecorators: true,
         stopAtFirstError: true,
         exceptionFactory: (errors) => {
             const formattedErrors = (0, exports.errorFormatter)(errors);

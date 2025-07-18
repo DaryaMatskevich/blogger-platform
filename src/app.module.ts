@@ -9,6 +9,10 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AllHttpExceptionsFilter } from './core/exeptions/filters/all-exeptions.filter';
+import { DomainHttpExceptionsFilter } from './core/exeptions/filters/domain-exeptions.fiter';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 
 @Module({
@@ -26,9 +30,18 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
     TestingModule,
     BloggersPlatformModule,
     CoreModule,
+    NotificationsModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+     {
+      provide: APP_FILTER,
+      useClass: DomainHttpExceptionsFilter,
+    },
+     {
+      provide: APP_FILTER,
+      useClass: AllHttpExceptionsFilter},
+     ],
 })
 export class AppModule { }
 

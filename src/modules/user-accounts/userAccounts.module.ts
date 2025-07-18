@@ -15,32 +15,34 @@ import { SecurityDevicesQueryRepository } from './infastructure/query/security-d
 import { EmailService } from '../notifications/email.service';
 import { JwtModule } from '@nestjs/jwt';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AuthController } from './api/auth.controller';
+import { UsersExternalService } from './application/users.external-service';
 
 @Module({
   imports: [
-      JwtModule.register({
+    JwtModule.register({
       secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
       signOptions: { expiresIn: '5m' }, // Время жизни токена
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     NotificationsModule
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, AuthController],
   providers: [
     UsersService,
     UsersRepository,
     UsersQueryRepository,
     UsersExternalQueryRepository,
-   SecurityDevicesQueryRepository,
+    SecurityDevicesQueryRepository,
     AuthQueryRepository,
     AuthService,
     LocalStrategy,
     CryptoService,
-    EmailService,
     JwtStrategy,
     UsersExternalQueryRepository,
-   
+    UsersExternalService
+
   ],
-  exports: [UsersExternalQueryRepository],
+  exports: [JwtStrategy,UsersExternalQueryRepository, UsersExternalService],
 })
 export class UserAccountsModule { }

@@ -1,1 +1,1 @@
-{"statusCode":404,"timestamp":"2025-07-18T06:46:35.922Z","path":"/swagger/swagger-ui-standalone-preset.js"}
+{"timestamp":"2025-07-18T09:10:22.600Z","path":"/swagger/swagger-ui-standalone-preset.js","message":"Cannot GET /swagger/swagger-ui-standalone-preset.js","extensions":[],"code":3}

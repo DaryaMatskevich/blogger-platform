@@ -18,6 +18,10 @@ const config_1 = require("@nestjs/config");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
 const bloggers_platform_module_1 = require("./modules/bloggers-platform/bloggers-platform.module");
+const core_1 = require("@nestjs/core");
+const all_exeptions_filter_1 = require("./core/exeptions/filters/all-exeptions.filter");
+const domain_exeptions_fiter_1 = require("./core/exeptions/filters/domain-exeptions.fiter");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,9 +40,19 @@ exports.AppModule = AppModule = __decorate([
             testing_module_1.TestingModule,
             bloggers_platform_module_1.BloggersPlatformModule,
             core_module_1.CoreModule,
+            notifications_module_1.NotificationsModule
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService,
+            {
+                provide: core_1.APP_FILTER,
+                useClass: domain_exeptions_fiter_1.DomainHttpExceptionsFilter,
+            },
+            {
+                provide: core_1.APP_FILTER,
+                useClass: all_exeptions_filter_1.AllHttpExceptionsFilter
+            },
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

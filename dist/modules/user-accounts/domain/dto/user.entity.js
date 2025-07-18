@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserSchema = exports.User = exports.emailConstraints = exports.passwordConstraints = exports.loginConstraints = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
-const name_schema_1 = require("./name.schema");
 exports.loginConstraints = {
     minLength: 3,
     maxLength: 10
@@ -30,7 +29,6 @@ let User = class User {
     isEmailConfirmed;
     confirmationCode;
     confirmationCodeCreatedAt;
-    name;
     createdAt;
     updatedAt;
     deletedAt;
@@ -39,14 +37,10 @@ let User = class User {
     }
     static createInstance(dto) {
         const user = new this();
-        user.email = dto.email;
-        user.passwordHash = dto.passwordHash;
         user.login = dto.login;
+        user.passwordHash = dto.passwordHash;
+        user.email = dto.email;
         user.isEmailConfirmed = false;
-        user.name = {
-            firstName: 'firstName xxx',
-            lastName: 'lastName yyy',
-        };
         return user;
     }
     makeDeleted() {
@@ -95,10 +89,6 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Date, nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "confirmationCodeCreatedAt", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: name_schema_1.NameSchema }),
-    __metadata("design:type", name_schema_1.Name)
-], User.prototype, "name", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: Date, nullable: true, default: null }),
     __metadata("design:type", Object)

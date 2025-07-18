@@ -1,5 +1,4 @@
 import { HydratedDocument, Model } from 'mongoose';
-import { Name } from './name.schema';
 import { CreateUserDomainDto } from './create-user.domain.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
 export declare const loginConstraints: {
@@ -20,7 +19,6 @@ export declare class User {
     isEmailConfirmed: boolean;
     confirmationCode: string | null;
     confirmationCodeCreatedAt: Date | null;
-    name: Name;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;

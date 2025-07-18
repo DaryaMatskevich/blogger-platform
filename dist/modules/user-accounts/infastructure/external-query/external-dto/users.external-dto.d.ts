@@ -4,7 +4,5 @@ export declare class UserExternalDto {
     login: string;
     email: string;
     createdAt: Date;
-    firstName: string;
-    lastName: string | null;
     static mapToView(user: UserDocument): UserExternalDto;
 }

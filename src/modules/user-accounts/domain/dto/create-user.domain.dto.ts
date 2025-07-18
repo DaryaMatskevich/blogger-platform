@@ -1,5 +1,5 @@
 export class CreateUserDomainDto {
   login: string;
-  email: string;
   passwordHash: string;
+  email: string;
 }

@@ -37,10 +37,12 @@ export const errorFormatter = (
   return errorsForResponse;
 };
 
-export function pipesSetup(app: INestApplication) {
+export function pipesSetup(app: INestApplication) {   
+
   //Глобальный пайп для валидации и трансформации входящих данных.
   app.useGlobalPipes(
-    new ObjectIdValidationPipe(),
+    
+    // new ObjectIdValidationPipe(),
     new ValidationPipe({
       //class-transformer создает экземпляр dto
       //соответственно применятся значения по-умолчанию

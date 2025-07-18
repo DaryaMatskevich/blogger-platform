@@ -70,6 +70,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAll", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Post)(),
     openapi.ApiResponse({ status: 201, type: require("./view-dto/users.view-dto").UserViewDto }),
     __param(0, (0, common_1.Body)()),

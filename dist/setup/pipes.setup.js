@@ -5,7 +5,6 @@ exports.pipesSetup = pipesSetup;
 const common_1 = require("@nestjs/common");
 const domain_exeption_codes_1 = require("../core/exeptions/domain-exeption-codes");
 const domain_exeptions_1 = require("../core/exeptions/domain-exeptions");
-const object_id_validation_pipe_service_1 = require("../core/pipes/object-id-validation-pipe.service");
 const errorFormatter = (errors, errorMessage) => {
     const errorsForResponse = errorMessage || [];
     for (const error of errors) {
@@ -28,7 +27,7 @@ const errorFormatter = (errors, errorMessage) => {
 };
 exports.errorFormatter = errorFormatter;
 function pipesSetup(app) {
-    app.useGlobalPipes(new object_id_validation_pipe_service_1.ObjectIdValidationPipe(), new common_1.ValidationPipe({
+    app.useGlobalPipes(new common_1.ValidationPipe({
         transform: true,
         whitelist: true,
         validateCustomDecorators: true,

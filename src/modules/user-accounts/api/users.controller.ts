@@ -15,7 +15,6 @@ import {
 import { UserViewDto } from './view-dto/users.view-dto';
 import { UsersService } from '../application/users.service';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
-
 import { ApiParam } from '@nestjs/swagger';
 import { UpdateUserInputDto } from './input-dto/update-user.input-dto';
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
@@ -41,14 +40,14 @@ export class UsersController {
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
   }
-@Public()
+ @Public()
   @Get()
   async getAll(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
     return this.usersQueryRepository.getAll(query);
   }
-
+@Public()
   @Post()
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
         console.log('ХА!')

@@ -31,6 +31,7 @@ export class UsersRepository {
   }
 
    findByLogin(login: string): Promise<UserDocument | null> {
+    console.log("FUF")
     return this.UserModel.findOne({ login });
   }
 

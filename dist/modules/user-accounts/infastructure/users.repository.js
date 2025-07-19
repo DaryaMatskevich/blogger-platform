@@ -38,6 +38,7 @@ let UsersRepository = class UsersRepository {
         return user;
     }
     findByLogin(login) {
+        console.log("FUF");
         return this.UserModel.findOne({ login });
     }
     async loginIsExist(login) {

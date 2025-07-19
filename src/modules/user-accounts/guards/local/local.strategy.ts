@@ -22,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         message: 'Invalid username or password',
       });
     }
-
+     console.log("Стратегия")
     return user;
   }
 }

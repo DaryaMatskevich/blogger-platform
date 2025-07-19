@@ -20,6 +20,7 @@ export class AuthService {
     password: string,
   ): Promise<UserContextDto | null> {
     const user = await this.usersRepository.findByLogin(login);
+     console.log("FUF")
     if (!user) {
       return null;
     }

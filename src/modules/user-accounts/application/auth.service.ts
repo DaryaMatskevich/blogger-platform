@@ -33,7 +33,7 @@ export class AuthService {
       return null;
     }
 
-    return { id: user.id.toString() };
+    return { id: user._id.toString() };
   }
 
   async login(userId: string) {

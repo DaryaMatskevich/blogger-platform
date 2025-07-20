@@ -3,3 +3,10 @@ export declare class CreateUserInputDto {
     password: string;
     email: string;
 }
+export declare class NewPasswordDto {
+    newPassword: string;
+    recoveryCode: string;
+}
+export declare class EmailDto {
+    email: string;
+}

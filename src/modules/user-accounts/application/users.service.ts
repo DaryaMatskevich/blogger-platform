@@ -65,6 +65,15 @@ if(!!userWithTheSameLogin) {
   }
 
   async registerUser(dto: CreateUserDto) {
+    const userWithTheSameLogin = await this.usersRepository.findByLogin(
+dto.login
+)
+if(!!userWithTheSameLogin) {
+  throw new DomainException({
+    code: DomainExceptionCode.BadRequest,
+    message: "User with the same login already exists"
+  })
+}
     
     const createdUserId = await this.createUser(dto);
 

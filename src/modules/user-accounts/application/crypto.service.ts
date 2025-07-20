@@ -12,4 +12,8 @@ export class CryptoService {
   comparePasswords(args: { password: string; hash: string }): Promise<boolean> {
     return bcrypt.compare(args.password, args.hash);
   }
+
+  async checkPassword(password: string, hash: string): Promise<boolean> {
+        return await bcrypt.compare(password, hash)
+    }
 }

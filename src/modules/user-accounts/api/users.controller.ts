@@ -40,17 +40,17 @@ export class UsersController {
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
   }
- @Public()
+ 
   @Get()
   async getAll(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
     return this.usersQueryRepository.getAll(query);
   }
-@Public()
+
   @Post()
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
-        console.log('ХА!')
+        
     const userId = await this.usersService.createUser(body);
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);

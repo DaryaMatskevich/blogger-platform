@@ -37,12 +37,36 @@ let UsersRepository = class UsersRepository {
         }
         return user;
     }
+    findByLoginOrEmail(loginOrEmail) {
+        return this.UserModel.findOne({
+            $or: [
+                { login: loginOrEmail },
+                { email: loginOrEmail },
+            ],
+        });
+    }
     findByLogin(login) {
-        console.log("FUF");
-        return this.UserModel.findOne({ login });
+        return this.UserModel.findOne({
+            login
+        });
+    }
+    findByEmail(email) {
+        return this.UserModel.findOne({
+            email
+        });
     }
     async loginIsExist(login) {
         return !!(await this.UserModel.countDocuments({ login: login }));
+    }
+    findUserByConfirmationCode(code) {
+        return this.UserModel.findOne({
+            confirmationCode: code
+        });
+    }
+    findUserByRecoveryCode(code) {
+        return this.UserModel.findOne({
+            recoveryCode: code
+        });
     }
 };
 exports.UsersRepository = UsersRepository;

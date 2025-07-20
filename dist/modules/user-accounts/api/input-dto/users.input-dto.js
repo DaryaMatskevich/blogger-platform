@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateUserInputDto = void 0;
+exports.EmailDto = exports.NewPasswordDto = exports.CreateUserInputDto = void 0;
 const openapi = require("@nestjs/swagger");
 const is_string_with_trim_1 = require("../../../../core/decorators/validation/is-string-with-trim");
 const user_entity_1 = require("../../domain/dto/user.entity");
@@ -38,4 +38,33 @@ __decorate([
     (0, trim_1.Trim)(),
     __metadata("design:type", String)
 ], CreateUserInputDto.prototype, "email", void 0);
+class NewPasswordDto {
+    newPassword;
+    recoveryCode;
+    static _OPENAPI_METADATA_FACTORY() {
+        return { newPassword: { required: true, type: () => String }, recoveryCode: { required: true, type: () => String } };
+    }
+}
+exports.NewPasswordDto = NewPasswordDto;
+__decorate([
+    (0, is_string_with_trim_1.IsStringWithTrim)(user_entity_1.passwordConstraints.minLength, user_entity_1.passwordConstraints.maxLength),
+    __metadata("design:type", String)
+], NewPasswordDto.prototype, "newPassword", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], NewPasswordDto.prototype, "recoveryCode", void 0);
+class EmailDto {
+    email;
+    static _OPENAPI_METADATA_FACTORY() {
+        return {};
+    }
+}
+exports.EmailDto = EmailDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(user_entity_1.emailConstraints.match),
+    (0, trim_1.Trim)(),
+    __metadata("design:type", String)
+], EmailDto.prototype, "email", void 0);
 //# sourceMappingURL=users.input-dto.js.map

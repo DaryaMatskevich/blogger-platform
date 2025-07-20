@@ -20,6 +20,8 @@ const users_repository_1 = require("../infastructure/users.repository");
 const email_service_1 = require("../../../modules/notifications/email.service");
 const crypto_service_1 = require("./crypto.service");
 const uuid_1 = require("uuid");
+const domain_exeptions_1 = require("../../../core/exeptions/domain-exeptions");
+const domain_exeption_codes_1 = require("../../../core/exeptions/domain-exeption-codes");
 let UsersService = class UsersService {
     UserModel;
     usersRepository;
@@ -32,6 +34,13 @@ let UsersService = class UsersService {
         this.cryptoService = cryptoService;
     }
     async createUser(dto) {
+        const userWithTheSameLogin = await this.usersRepository.findByLogin(dto.login);
+        if (!!userWithTheSameLogin) {
+            throw new domain_exeptions_1.DomainException({
+                code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
+                message: "User with the same login already exists"
+            });
+        }
         const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
         const user = this.UserModel.createInstance({
             login: dto.login,
@@ -53,6 +62,13 @@ let UsersService = class UsersService {
         await this.usersRepository.save(user);
     }
     async registerUser(dto) {
+        const userWithTheSameLogin = await this.usersRepository.findByLogin(dto.login);
+        if (!!userWithTheSameLogin) {
+            throw new domain_exeptions_1.DomainException({
+                code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
+                message: "User with the same login already exists"
+            });
+        }
         const createdUserId = await this.createUser(dto);
         const confirmCode = (0, uuid_1.v4)();
         const user = await this.usersRepository.findOrNotFoundFail(createdUserId);

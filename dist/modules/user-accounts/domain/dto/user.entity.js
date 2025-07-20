@@ -29,6 +29,10 @@ let User = class User {
     isEmailConfirmed;
     confirmationCode;
     confirmationCodeCreatedAt;
+    confirmationCodeExpiresAt;
+    recoveryCode;
+    recoveryCodeCreatedAt;
+    recoveryCodeExpiresAt;
     createdAt;
     updatedAt;
     deletedAt;
@@ -55,13 +59,33 @@ let User = class User {
         }
         this.confirmationCode = code;
         this.confirmationCodeCreatedAt = new Date();
+        this.confirmationCodeExpiresAt = new Date();
+        this.confirmationCodeExpiresAt.setDate(this.confirmationCodeExpiresAt.getDate() + 2);
         this.isEmailConfirmed = false;
+    }
+    setRecoveryCode(code) {
+        if (!code || typeof code !== 'string') {
+            throw new Error('Confirmation code must be a non-empty string');
+        }
+        this.recoveryCode = code;
+        this.recoveryCodeCreatedAt = new Date();
+        this.recoveryCodeExpiresAt = new Date();
+        this.recoveryCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    }
+    confirmEmail() {
+        this.isEmailConfirmed = true;
+        this.confirmationCode = null;
+        this.confirmationCodeCreatedAt = null;
+        this.confirmationCodeExpiresAt = null;
     }
     update(dto) {
         if (dto.email !== this.email) {
             this.isEmailConfirmed = false;
             this.email = dto.email;
         }
+    }
+    setNewPasswordHash(newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 };
 exports.User = User;
@@ -89,6 +113,22 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Date, nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "confirmationCodeCreatedAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "confirmationCodeExpiresAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "recoveryCode", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "recoveryCodeCreatedAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Date, nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "recoveryCodeExpiresAt", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: Date, nullable: true, default: null }),
     __metadata("design:type", Object)

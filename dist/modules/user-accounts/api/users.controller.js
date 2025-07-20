@@ -22,7 +22,6 @@ const update_user_input_dto_1 = require("./input-dto/update-user.input-dto");
 const get_users_query_params_input_dto_1 = require("./input-dto/get-users-query-params.input-dto");
 const users_query_repository_1 = require("../infastructure/query/users.query-repository");
 const basic_auth_guard_1 = require("../guards/basic/basic-auth.guard");
-const public_decorator_1 = require("../guards/decorators/param/public.decorator");
 let UsersController = class UsersController {
     usersQueryRepository;
     usersService;
@@ -38,7 +37,6 @@ let UsersController = class UsersController {
         return this.usersQueryRepository.getAll(query);
     }
     async createUser(body) {
-        console.log('ХА!');
         const userId = await this.usersService.createUser(body);
         return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     }
@@ -61,7 +59,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getById", null);
 __decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
@@ -70,7 +67,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAll", null);
 __decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Post)(),
     openapi.ApiResponse({ status: 201, type: require("./view-dto/users.view-dto").UserViewDto }),
     __param(0, (0, common_1.Body)()),

@@ -19,6 +19,10 @@ export declare class User {
     isEmailConfirmed: boolean;
     confirmationCode: string | null;
     confirmationCodeCreatedAt: Date | null;
+    confirmationCodeExpiresAt: Date | null;
+    recoveryCode: string | null;
+    recoveryCodeCreatedAt: Date | null;
+    recoveryCodeExpiresAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
@@ -26,7 +30,10 @@ export declare class User {
     static createInstance(dto: CreateUserDomainDto): UserDocument;
     makeDeleted(): void;
     setConfirmationCode(code: string): void;
+    setRecoveryCode(code: string): void;
+    confirmEmail(): void;
     update(dto: UpdateUserDto): void;
+    setNewPasswordHash(newPasswordHash: string): void;
 }
 export declare const UserSchema: import("mongoose").Schema<User, Model<User, any, any, any, import("mongoose").Document<unknown, any, User, any> & User & {
     _id: import("mongoose").Types.ObjectId;

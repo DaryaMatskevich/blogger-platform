@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
-import { CreateUserInputDto } from './input-dto/users.input-dto';
+import { CreateUserInputDto, EmailDto, NewPasswordDto } from './input-dto/users.input-dto';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
@@ -52,6 +52,27 @@ export class AuthController {
     return this.authService.login(user.id);
   }
 
+ @Post('password-recovery')
+  passwordRecovery(@Body() body : EmailDto): Promise<void> {
+    return this.authService.sendPasswordRecoveryEmail(body.email)
+  }
+
+ @Post('new-password')
+  newPassword(@Body() body : NewPasswordDto): Promise<void> {
+    return this.authService.setNewPassword(body.newPassword, body.recoveryCode)
+  }
+
+   @Post('registration-confirmation')
+  registrationConfirmation(@Body() body : {code: string}): Promise<any> {
+    return this.authService.confirmEmail(body.code)
+  }
+
+  @Post('registration-email-resending')
+  registrationEmailResending(@Body() body : EmailDto): Promise<void> {
+    return this.authService.resendConfirmationEmail(body.email)
+  }
+
+
   @ApiBearerAuth()
   @Get('me')
   @UseGuards(JwtAuthGuard)
@@ -76,4 +97,6 @@ export class AuthController {
       };
     }
   }
+
+
 }

@@ -48,7 +48,21 @@ export class User {
   // @Prop({ type: NameSchema })
   // name: Name;
 
+  @Prop({ type: Date, nullable: true })
+  confirmationCodeExpiresAt: Date | null;
 
+  @Prop({ type: String, nullable: true })
+  recoveryCode: string | null;
+
+  @Prop({ type: Date, nullable: true })
+  recoveryCodeCreatedAt: Date | null;
+
+  // @Prop(NameSchema) this variant from docdoesn't make validation for inner object
+  // @Prop({ type: NameSchema })
+  // name: Name;
+
+  @Prop({ type: Date, nullable: true })
+  recoveryCodeExpiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 
@@ -93,15 +107,41 @@ export class User {
 
     this.confirmationCode = code;
     this.confirmationCodeCreatedAt = new Date(); // Добавляем timestamp создания кода
+    this.confirmationCodeExpiresAt = new Date();
+  this.confirmationCodeExpiresAt.setDate(
+    this.confirmationCodeExpiresAt.getDate() + 2
+  );
     this.isEmailConfirmed = false; // Сбрасываем статус подтверждения
   }
 
+  setRecoveryCode(code: string): void {
+    if (!code || typeof code !== 'string') {
+      throw new Error('Confirmation code must be a non-empty string');
+    }
 
+    this.recoveryCode = code;
+    this.recoveryCodeCreatedAt = new Date(); // Добавляем timestamp создания кода
+    this.recoveryCodeExpiresAt = new Date();
+   this.recoveryCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  }
+
+confirmEmail(): void {
+  this.isEmailConfirmed = true;
+  
+  // Очищаем поля кода подтверждения (опционально, но рекомендуется)
+  this.confirmationCode = null;
+  this.confirmationCodeCreatedAt = null;
+  this.confirmationCodeExpiresAt = null;
+}
   update(dto: UpdateUserDto) {
     if (dto.email !== this.email) {
       this.isEmailConfirmed = false;
       this.email = dto.email;
     }
+  }
+
+  setNewPasswordHash(newPasswordHash: string) {
+    this.passwordHash = newPasswordHash
   }
 }
 

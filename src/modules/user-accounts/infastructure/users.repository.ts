@@ -45,7 +45,27 @@ export class UsersRepository {
   });
   }
 
+  findByEmail(email: string): Promise<UserDocument | null> {
+   return this.UserModel.findOne({
+   email
+  });
+  }
+
   async loginIsExist(login: string): Promise<boolean> {
     return !!(await this.UserModel.countDocuments({ login: login }));
   }
+
+  findUserByConfirmationCode(code: string): Promise<UserDocument | null> {
+   return this.UserModel.findOne({
+   confirmationCode: code
+  });
 }
+
+  findUserByRecoveryCode(code: string): Promise<UserDocument | null> {
+   return this.UserModel.findOne({
+   recoveryCode: code
+  });
+  }
+}
+
+

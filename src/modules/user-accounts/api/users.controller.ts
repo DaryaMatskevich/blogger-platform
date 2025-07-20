@@ -22,6 +22,7 @@ import { UsersQueryRepository } from '../infastructure/query/users.query-reposit
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view.dto';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
 import { Public } from '../guards/decorators/param/public.decorator';
+import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)
@@ -35,7 +36,7 @@ export class UsersController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
-  async getById(@Param('id') id: string): Promise<UserViewDto> {
+  async getById(@Param('id', ObjectIdValidationPipe) id: string): Promise<UserViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
@@ -58,7 +59,7 @@ export class UsersController {
 
   @Put(':id')
   async updateUser(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateUserInputDto,
   ): Promise<UserViewDto> {
     const userId = await this.usersService.updateUser(id, body);
@@ -69,7 +70,7 @@ export class UsersController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param('id') id: string): Promise<void> {
+  async deleteUser(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
     return this.usersService.deleteUser(id);
   }
 }

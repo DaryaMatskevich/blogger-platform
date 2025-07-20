@@ -5,8 +5,8 @@ import { UserContextDto } from '../guards/dto/user-contex.dto';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from '../../../modules/notifications/email.service';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 
 
 @Injectable()

@@ -25,7 +25,10 @@ export class AuthService {
     const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
     console.log("FUF")
     if (!user) {
-      return null;
+     throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "Bad request"
+        })
     }
 
     const isPasswordValid = await this.cryptoService.comparePasswords({

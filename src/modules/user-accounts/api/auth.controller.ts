@@ -28,8 +28,9 @@ export class AuthController {
     private authQueryRepository: AuthQueryRepository,
   ) {}
   @Post('registration')
-     registration(@Body() body: CreateUserInputDto): Promise<void> {
-    return this.usersService.registerUser(body);
+  @HttpCode(HttpStatus.NO_CONTENT)
+     async registration(@Body() body: CreateUserInputDto): Promise<void> {
+    await this.usersService.registerUser(body);
   }
 
   @Post('login')

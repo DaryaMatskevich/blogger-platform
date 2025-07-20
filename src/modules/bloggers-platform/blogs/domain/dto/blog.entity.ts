@@ -11,13 +11,14 @@ import { UpdateBlogDto } from '../../dto/update-blog.dto';
  */
 @Schema({ timestamps: true })
 export class Blog {
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, maxlength: 15 })
   name: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, maxlength: 500,})
   description: string;
 
-  @Prop({ type: String, min: 5, required: true })
+  @Prop({ type: String, min: 5, required: true, maxlength: 100, // Соответствует @MaxLength(100) в DTO
+    match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/, })
   websiteUrl: string;
 
   @Prop({ type: Boolean, default: false })

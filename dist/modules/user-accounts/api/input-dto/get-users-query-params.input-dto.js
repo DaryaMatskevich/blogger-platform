@@ -19,13 +19,13 @@ class GetUsersQueryParams extends base_query_params_input_dto_1.BaseQueryParams 
     searchLoginTerm = null;
     searchEmailTerm = null;
     static _OPENAPI_METADATA_FACTORY() {
-        return { sortBy: { required: true, type: () => Object, default: users_sort_by_1.UsersSortBy.CreatedAt, enum: require("./users-sort-by").UsersSortBy }, searchLoginTerm: { required: true, type: () => String, nullable: true, default: null }, searchEmailTerm: { required: true, type: () => String, nullable: true, default: null } };
+        return { sortBy: { required: true, default: users_sort_by_1.UsersSortBy.CreatedAt, enum: require("./users-sort-by").UsersSortBy }, searchLoginTerm: { required: true, type: () => String, nullable: true, default: null }, searchEmailTerm: { required: true, type: () => String, nullable: true, default: null } };
     }
 }
 exports.GetUsersQueryParams = GetUsersQueryParams;
 __decorate([
     (0, class_validator_1.IsEnum)(users_sort_by_1.UsersSortBy),
-    __metadata("design:type", Object)
+    __metadata("design:type", String)
 ], GetUsersQueryParams.prototype, "sortBy", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),

@@ -63,7 +63,8 @@ let UsersService = class UsersService {
     }
     async registerUser(dto) {
         const userWithTheSameLogin = await this.usersRepository.findByLogin(dto.login);
-        if (!!userWithTheSameLogin) {
+        const userWithTheSameEmail = await this.usersRepository.findByEmail(dto.email);
+        if (!!userWithTheSameLogin || !!userWithTheSameEmail) {
             throw new domain_exeptions_1.DomainException({
                 code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
                 message: "User with the same login already exists"

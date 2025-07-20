@@ -9,8 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SortDirection = exports.BaseQueryParams = void 0;
+exports.BaseQueryParams = exports.SortDirection = void 0;
 const class_transformer_1 = require("class-transformer");
+const class_validator_1 = require("class-validator");
+var SortDirection;
+(function (SortDirection) {
+    SortDirection["Asc"] = "asc";
+    SortDirection["Desc"] = "desc";
+})(SortDirection || (exports.SortDirection = SortDirection = {}));
 class BaseQueryParams {
     pageNumber = 1;
     pageSize = 10;
@@ -22,15 +28,16 @@ class BaseQueryParams {
 exports.BaseQueryParams = BaseQueryParams;
 __decorate([
     (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], BaseQueryParams.prototype, "pageNumber", void 0);
 __decorate([
     (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], BaseQueryParams.prototype, "pageSize", void 0);
-var SortDirection;
-(function (SortDirection) {
-    SortDirection["Asc"] = "asc";
-    SortDirection["Desc"] = "desc";
-})(SortDirection || (exports.SortDirection = SortDirection = {}));
+__decorate([
+    (0, class_validator_1.IsEnum)(SortDirection),
+    __metadata("design:type", String)
+], BaseQueryParams.prototype, "sortDirection", void 0);
 //# sourceMappingURL=base.query.params.input.dto.js.map

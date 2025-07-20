@@ -22,7 +22,7 @@ import { UsersQueryRepository } from '../infastructure/query/users.query-reposit
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view.dto';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
 import { Public } from '../guards/decorators/param/public.decorator';
-import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
+import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe.service';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)

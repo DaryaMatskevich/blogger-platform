@@ -7,8 +7,8 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { EmailService } from '../../../modules/notifications/email.service';
 import { CryptoService } from './crypto.service';
 import { v4 as uuidv4 } from 'uuid';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 
 
 @Injectable()

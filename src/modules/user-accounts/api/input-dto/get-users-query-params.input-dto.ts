@@ -1,5 +1,5 @@
 
-import { IsEnum, isEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum,  IsOptional, IsString } from 'class-validator';
 import { BaseQueryParams } from '../../../../core/dto/base.query.params.input.dto';
 import { UsersSortBy } from './users-sort-by';
 

@@ -68,7 +68,11 @@ if(!!userWithTheSameLogin) {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
 dto.login
 )
-if(!!userWithTheSameLogin) {
+
+ const userWithTheSameEmail = await this.usersRepository.findByEmail(
+dto.email
+)
+if(!!userWithTheSameLogin || !!userWithTheSameEmail) {
   throw new DomainException({
     code: DomainExceptionCode.BadRequest,
     message: "User with the same login already exists"

@@ -46,15 +46,16 @@ let Blog = class Blog {
 };
 exports.Blog = Blog;
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true }),
+    (0, mongoose_1.Prop)({ type: String, required: true, maxlength: 15 }),
     __metadata("design:type", String)
 ], Blog.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true }),
+    (0, mongoose_1.Prop)({ type: String, required: true, maxlength: 500, }),
     __metadata("design:type", String)
 ], Blog.prototype, "description", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, min: 5, required: true }),
+    (0, mongoose_1.Prop)({ type: String, min: 5, required: true, maxlength: 100,
+        match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/, }),
     __metadata("design:type", String)
 ], Blog.prototype, "websiteUrl", void 0);
 __decorate([

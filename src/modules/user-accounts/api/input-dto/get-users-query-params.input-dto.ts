@@ -6,7 +6,7 @@ import { UsersSortBy } from './users-sort-by';
 //наследуемся от класса BaseQueryParams, где уже есть pageNumber, pageSize и т.п., чтобы не дублировать эти свойства
 export class GetUsersQueryParams extends BaseQueryParams {
   @IsEnum(UsersSortBy)
-  sortBy = UsersSortBy.CreatedAt;
+  sortBy: UsersSortBy = UsersSortBy.CreatedAt;
   
   @IsString()
   @IsOptional()

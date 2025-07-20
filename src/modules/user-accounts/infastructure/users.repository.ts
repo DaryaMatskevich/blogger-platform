@@ -30,9 +30,19 @@ export class UsersRepository {
     return user;
   }
 
+   findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument | null> {
+   return this.UserModel.findOne({
+    $or: [
+      { login: loginOrEmail },
+      { email: loginOrEmail },
+    ],
+  });
+  }
+
    findByLogin(login: string): Promise<UserDocument | null> {
-    console.log("FUF")
-    return this.UserModel.findOne({ login });
+   return this.UserModel.findOne({
+   login
+  });
   }
 
   async loginIsExist(login: string): Promise<boolean> {

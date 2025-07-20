@@ -7,6 +7,8 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { EmailService } from '../../../modules/notifications/email.service';
 import { CryptoService } from './crypto.service';
 import { v4 as uuidv4 } from 'uuid';
+import { DomainException } from '@src/core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
 
 
 @Injectable()
@@ -21,7 +23,15 @@ export class UsersService {
   ) { }
 
   async createUser(dto: CreateUserDto): Promise<string> {
-
+const userWithTheSameLogin = await this.usersRepository.findByLogin(
+dto.login
+)
+if(!!userWithTheSameLogin) {
+  throw new DomainException({
+    code: DomainExceptionCode.BadRequest,
+    message: "User with the same login already exists"
+  })
+}
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({

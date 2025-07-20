@@ -4,7 +4,7 @@ import { UsersRepository } from '../infastructure/users.repository';
 import { UserContextDto } from '../guards/dto/user-contex.dto';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
-import { EmailService } from '@src/modules/notifications/email.service';
+import { EmailService } from '../../../modules/notifications/email.service';
 
 
 @Injectable()

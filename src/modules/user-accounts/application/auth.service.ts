@@ -95,7 +95,7 @@ export class AuthService {
         })
     }
 
-    if (user.isEmailConfirmed) {
+    if (user.isEmailConfirmed === true) {
       throw new DomainException({
           code: DomainExceptionCode.BadRequest,
           message: "User with the same login already exists"

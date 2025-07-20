@@ -5,6 +5,8 @@ import { UserContextDto } from '../guards/dto/user-contex.dto';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from '../../../modules/notifications/email.service';
+import { DomainException } from '@src/core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
 
 
 @Injectable()
@@ -32,7 +34,10 @@ export class AuthService {
     });
 
     if (!isPasswordValid) {
-      return null;
+               throw new DomainException({
+          code: DomainExceptionCode.Unauthorized,
+          message: "User with the same login already exists"
+        })
     }
 
     return { id: user._id.toString() };
@@ -51,12 +56,23 @@ export class AuthService {
 
     if (!user) {
 
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
-    if (user.confirmationCodeExpiresAt! < new Date()) return null;
+    if (user.confirmationCodeExpiresAt! < new Date()) {
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
+    };
 
     if (user.isEmailConfirmed) {
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
 
     user.confirmEmail()
@@ -70,11 +86,17 @@ export class AuthService {
     let user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: "User with the same login already exists"
+        })
     }
 
     if (user.isEmailConfirmed) {
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
     const confirmCode = uuidv4();
     user.setConfirmationCode(confirmCode)
@@ -94,7 +116,10 @@ export class AuthService {
     const user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
-      return null   
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
 
     const recoveryCode = uuidv4();
@@ -109,15 +134,24 @@ export class AuthService {
   async setNewPassword(newPassword: string, recoveryCode: string): Promise<boolean | any> {
     const user = await this.usersRepository.findUserByRecoveryCode(recoveryCode)
     if (!user) {
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
 
     const isSamePassword = await this.cryptoService.checkPassword(newPassword, user.passwordHash);
     if (isSamePassword) {
-      return null
+      throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
     if(user.recoveryCodeExpiresAt && user.recoveryCodeExpiresAt < new Date()) {
-return null
+throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: "User with the same login already exists"
+        })
     }
     const newPasswordHash = await this.cryptoService.createPasswordHash(newPassword)
     

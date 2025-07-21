@@ -90,15 +90,15 @@ export class AuthService {
 
     if (!user) {
       throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          message: "User with the same login already exists"
+          code: DomainExceptionCode.BadRequest,
+          message: "User with this email not found"
         })
     }
 
     if (user.isEmailConfirmed === true) {
       throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: "User with the same login already exists"
+          message: "User is already confirmed"
         })
     }
     const confirmCode = uuidv4();
@@ -121,7 +121,7 @@ export class AuthService {
     if (!user) {
       throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: "User with the same login already exists"
+          message: "User with this email not found"
         })
     }
 
@@ -139,7 +139,7 @@ export class AuthService {
     if (!user) {
       throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: "User with the same login already exists"
+          message: "User not found"
         })
     }
 
@@ -147,13 +147,13 @@ export class AuthService {
     if (isSamePassword) {
       throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: "User with the same login already exists"
+          message: "Password is invalid"
         })
     }
     if(user.recoveryCodeExpiresAt && user.recoveryCodeExpiresAt < new Date()) {
 throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: "User with the same login already exists"
+          message: "Bad request"
         })
     }
     const newPasswordHash = await this.cryptoService.createPasswordHash(newPassword)

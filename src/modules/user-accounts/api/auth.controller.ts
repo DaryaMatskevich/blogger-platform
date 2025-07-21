@@ -28,7 +28,7 @@ export class AuthController {
     private authQueryRepository: AuthQueryRepository,
   ) {}
   @Post('registration')
-  @HttpCode(HttpStatus.NO_CONTENT)
+ 
      registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.usersService.registerUser(body);
   }

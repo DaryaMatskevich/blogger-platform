@@ -108,10 +108,13 @@ export class AuthService {
       })
     }
 
-    if (user.isEmailConfirmed === true) {
+    if (user.isEmailConfirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "User is already confirmed",
+        extensions: [
+          new Extension("Email is confirmed", "email")
+        ]
         
       })
     }

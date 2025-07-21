@@ -94,7 +94,7 @@ export class AuthService {
   }
 
 
-  async resendConfirmationEmail(email: string): Promise<boolean | any> {
+  async resendConfirmationEmail(email: string): Promise<void> {
     let user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
@@ -127,7 +127,7 @@ export class AuthService {
 
   }
 
-  async sendPasswordRecoveryEmail(email: string): Promise<boolean | any> {
+  async sendPasswordRecoveryEmail(email: string) {
 
     const user = await this.usersRepository.findByEmail(email)
 

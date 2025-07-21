@@ -25,13 +25,7 @@ export class AuthService {
     const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
-        message: "User is not found",
-        extensions: [
-          new Extension("User is not found", "loginOrEmail")
-        ]
-      })
+      return null
     }
 
     const isPasswordValid = await this.cryptoService.comparePasswords({
@@ -40,19 +34,14 @@ export class AuthService {
     });
 
     if (!isPasswordValid) {
-      throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
-        message: "Password is wrong",
-        extensions: [
-          new Extension("Password is wrong", "password")
-        ]
-      })
+      return null
     }
 
     return { id: user._id.toString() };
   }
 
   async login(userId: string) {
+     
     const accessToken = this.jwtService.sign({ id: userId } as UserContextDto);
 
     return {

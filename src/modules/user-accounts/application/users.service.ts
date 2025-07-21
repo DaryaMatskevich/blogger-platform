@@ -58,13 +58,7 @@ if(!!userWithTheSameLogin) {
 
   async deleteUser(id: string) {
     const user = await this.usersRepository.findOrNotFoundFail(id);
-if(!user) {
-  throw new DomainException({
-    code: DomainExceptionCode.BadRequest,
-    message: "User not found"
-  })
 
-}
     user.makeDeleted();
 
     await this.usersRepository.save(user);

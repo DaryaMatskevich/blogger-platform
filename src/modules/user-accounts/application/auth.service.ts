@@ -57,6 +57,9 @@ export class AuthService {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "User not found",
+        extensions: [
+          new Extension("Code is wrong", "code")
+        ]
          
         
       })

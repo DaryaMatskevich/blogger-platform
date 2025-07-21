@@ -7,7 +7,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { EmailService } from '../../../modules/notifications/email.service';
 import { CryptoService } from './crypto.service';
 import { v4 as uuidv4 } from 'uuid';
-import { DomainException } from '../../../core/exeptions/domain-exeptions';
+import { DomainException, Extension } from '../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 
 
@@ -29,9 +29,30 @@ export class UsersService {
     if (!!userWithTheSameLogin) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: "User with the same login already exists"
+        message: "User with the same login already exists",
+        extensions: [
+          new Extension("User with the same login already exists", "login")
+        ]
       })
+
     }
+
+       const userWithTheSameEmail = await this.usersRepository.findByLogin(
+      dto.email
+    )
+    if (!!userWithTheSameEmail) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: "User with the same email already exists",
+        extensions: [
+          new Extension("User with the same email already exists", "email")
+        ]
+      })
+
+    }
+
+
+    
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({
@@ -68,10 +89,13 @@ export class UsersService {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
       dto.login
     )
- if (!!userWithTheSameLogin) {
+    if (!!userWithTheSameLogin) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: "User with the same login already exists"
+        message: "User with the same login already exists",
+        extensions: [
+          new Extension("User with the same login already exists", "login")
+        ]
       })
     }
     const userWithTheSameEmail = await this.usersRepository.findByEmail(
@@ -80,7 +104,10 @@ export class UsersService {
     if (!!userWithTheSameEmail) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: "User with the same email already exists"
+        message: "User with the same email already exists",
+        extensions: [
+          new Extension("User with the same email already exists", "email")
+        ]
       })
     }
 

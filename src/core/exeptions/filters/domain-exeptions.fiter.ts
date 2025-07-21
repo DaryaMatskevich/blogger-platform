@@ -22,7 +22,7 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const status = this.mapToHttpStatus(exception.code);
-    const responseBody = this.buildResponseBody(exception, request.url);
+    const responseBody = this.buildResponseBody(exception);
 
     response.status(status).json(responseBody);
   }
@@ -49,15 +49,36 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
   }
 
   private buildResponseBody(
-    exception: DomainException,
-    requestUrl: string,
-  ): ErrorResponseBody {
-    return {
-      timestamp: new Date().toISOString(),
-      path: requestUrl,
-      message: exception.message,
-      code: exception.code,
-      extensions: exception.extensions,
+    exception: DomainException,): 
+   { errorsMessages: Array<{ message: string; field: string }> } {
+    if (exception.extensions && exception.extensions.length > 0) {
+      return {
+        errorsMessages: exception.extensions.map((ext) => ({
+          message: ext.message,
+          field: ext.key,
+        })),
+      };
+    }
+return {
+      errorsMessages: [
+        {
+          message: exception.message,
+          field: this.getFieldByExceptionCode(exception.code),
+        },
+      ],
     };
   }
+
+private getFieldByExceptionCode(code: DomainExceptionCode): string {
+    switch (code) {
+      case DomainExceptionCode.BadRequest:
+        return 'email'; // Для BadRequest используем 'email' по умолчанию
+      // Добавьте другие коды при необходимости
+      default:
+        return '';
+    }
+  }
 }
+
+
+  

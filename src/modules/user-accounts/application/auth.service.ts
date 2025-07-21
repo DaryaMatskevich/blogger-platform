@@ -57,9 +57,7 @@ export class AuthService {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "User not found",
-         extensions: [
-          new Extension("Code is wrong", "code")
-        ]
+         
         
       })
     }
@@ -79,6 +77,14 @@ export class AuthService {
       })
     }
 
+    if(user.confirmationCode !== code)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: "Bad requet",
+       extensions: [
+          new Extension("Code is wrong", "code")
+        ]
+      })
     user.confirmEmail()
     await this.usersRepository.save(user);
 
@@ -87,7 +93,7 @@ export class AuthService {
 
 
   async resendConfirmationEmail(email: string): Promise<void> {
-    let user = await this.usersRepository.findByEmail(email)
+    const user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
       throw new DomainException({
@@ -109,7 +115,7 @@ export class AuthService {
     const confirmCode = uuidv4();
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
-
+console.log("хохохо")
     this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       .catch(console.error);

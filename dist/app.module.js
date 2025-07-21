@@ -52,13 +52,12 @@ exports.AppModule = AppModule = __decorate([
         providers: [app_service_1.AppService,
             {
                 provide: core_1.APP_FILTER,
-                useClass: domain_exeptions_fiter_1.DomainHttpExceptionsFilter,
+                useClass: all_exeptions_filter_1.AllHttpExceptionsFilter
             },
             {
                 provide: core_1.APP_FILTER,
-                useClass: all_exeptions_filter_1.AllHttpExceptionsFilter
-            },
-        ],
+                useClass: domain_exeptions_fiter_1.DomainHttpExceptionsFilter,
+            }],
     }),
     __metadata("design:paramtypes", [])
 ], AppModule);

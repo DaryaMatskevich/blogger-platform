@@ -38,7 +38,20 @@ let UsersService = class UsersService {
         if (!!userWithTheSameLogin) {
             throw new domain_exeptions_1.DomainException({
                 code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
-                message: "User with the same login already exists"
+                message: "User with the same login already exists",
+                extensions: [
+                    new domain_exeptions_1.Extension("User with the same login already exists", "login")
+                ]
+            });
+        }
+        const userWithTheSameEmail = await this.usersRepository.findByLogin(dto.email);
+        if (!!userWithTheSameEmail) {
+            throw new domain_exeptions_1.DomainException({
+                code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
+                message: "User with the same email already exists",
+                extensions: [
+                    new domain_exeptions_1.Extension("User with the same email already exists", "email")
+                ]
             });
         }
         const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
@@ -63,11 +76,23 @@ let UsersService = class UsersService {
     }
     async registerUser(dto) {
         const userWithTheSameLogin = await this.usersRepository.findByLogin(dto.login);
-        const userWithTheSameEmail = await this.usersRepository.findByEmail(dto.email);
-        if (!!userWithTheSameLogin || !!userWithTheSameEmail) {
+        if (!!userWithTheSameLogin) {
             throw new domain_exeptions_1.DomainException({
                 code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
-                message: "User with the same login already exists"
+                message: "User with the same login already exists",
+                extensions: [
+                    new domain_exeptions_1.Extension("User with the same login already exists", "login")
+                ]
+            });
+        }
+        const userWithTheSameEmail = await this.usersRepository.findByEmail(dto.email);
+        if (!!userWithTheSameEmail) {
+            throw new domain_exeptions_1.DomainException({
+                code: domain_exeption_codes_1.DomainExceptionCode.BadRequest,
+                message: "User with the same email already exists",
+                extensions: [
+                    new domain_exeptions_1.Extension("User with the same email already exists", "email")
+                ]
             });
         }
         const createdUserId = await this.createUser(dto);

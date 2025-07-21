@@ -16,6 +16,8 @@ exports.UsersRepository = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const common_1 = require("@nestjs/common");
 const user_entity_1 = require("../domain/dto/user.entity");
+const domain_exeptions_1 = require("../../../core/exeptions/domain-exeptions");
+const domain_exeption_codes_1 = require("../../../core/exeptions/domain-exeption-codes");
 let UsersRepository = class UsersRepository {
     UserModel;
     constructor(UserModel) {
@@ -33,7 +35,10 @@ let UsersRepository = class UsersRepository {
     async findOrNotFoundFail(id) {
         const user = await this.findById(id);
         if (!user) {
-            throw new common_1.NotFoundException('user not found');
+            throw new domain_exeptions_1.DomainException({
+                code: domain_exeption_codes_1.DomainExceptionCode.NotFound,
+                message: "User not found"
+            });
         }
         return user;
     }

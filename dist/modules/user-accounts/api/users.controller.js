@@ -22,6 +22,7 @@ const update_user_input_dto_1 = require("./input-dto/update-user.input-dto");
 const get_users_query_params_input_dto_1 = require("./input-dto/get-users-query-params.input-dto");
 const users_query_repository_1 = require("../infastructure/query/users.query-repository");
 const basic_auth_guard_1 = require("../guards/basic/basic-auth.guard");
+const object_id_validation_pipe_service_1 = require("../../../core/pipes/object-id-validation-pipe.service");
 let UsersController = class UsersController {
     usersQueryRepository;
     usersService;
@@ -53,7 +54,7 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id' }),
     (0, common_1.Get)(':id'),
     openapi.ApiResponse({ status: 200, type: require("./view-dto/users.view-dto").UserViewDto }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', object_id_validation_pipe_service_1.ObjectIdValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
@@ -77,7 +78,7 @@ __decorate([
 __decorate([
     (0, common_1.Put)(':id'),
     openapi.ApiResponse({ status: 200, type: require("./view-dto/users.view-dto").UserViewDto }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', object_id_validation_pipe_service_1.ObjectIdValidationPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_user_input_dto_1.UpdateUserInputDto]),
@@ -88,7 +89,7 @@ __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     openapi.ApiResponse({ status: common_1.HttpStatus.NO_CONTENT }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', object_id_validation_pipe_service_1.ObjectIdValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)

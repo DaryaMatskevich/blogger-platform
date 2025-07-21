@@ -7,11 +7,13 @@ export class EmailService {
 
   async sendConfirmationEmail(email: string, code: string): Promise<void> {
     //can add html templates, implement advertising and other logic for mailing...
+    const confirmationLink = `https://some-front.com/confirm-registration?code=${code}`;
+
     await this.mailerService.sendMail({
       to: email,
       subject: 'Confirm your registration', 
-      text: `confirm registration via link https://some.com?code=${code}`,
-       html: `<p>Please confirm your registration by clicking <a href="https://some.com?code=${code}">here</a></p>`
+      text: `confirm registration via link ${confirmationLink}`,
+       html: `<p>Please confirm your registration by clicking <a href="${confirmationLink}">here</a></p>`
     });
   }
 

@@ -68,14 +68,19 @@ export class UsersService {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
       dto.login
     )
-
-    const userWithTheSameEmail = await this.usersRepository.findByEmail(
-      dto.email
-    )
-    if (!!userWithTheSameLogin || !!userWithTheSameEmail) {
+ if (!!userWithTheSameLogin) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "User with the same login already exists"
+      })
+    }
+    const userWithTheSameEmail = await this.usersRepository.findByEmail(
+      dto.email
+    )
+    if (!!userWithTheSameEmail) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: "User with the same email already exists"
       })
     }
 

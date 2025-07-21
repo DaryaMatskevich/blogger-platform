@@ -16,7 +16,10 @@ export class BasicAuthGuard implements CanActivate {
         const authHeader = request.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith("Basic ")) {
-            throw new NotFoundException()
+            throw new DomainException({
+                code: DomainExceptionCode.Unauthorized,
+                message: 'unauthorised'
+            })
         }
 
 

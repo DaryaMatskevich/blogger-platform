@@ -23,15 +23,15 @@ export class UsersService {
   ) { }
 
   async createUser(dto: CreateUserDto): Promise<string> {
-const userWithTheSameLogin = await this.usersRepository.findByLogin(
-dto.login
-)
-if(!!userWithTheSameLogin) {
-  throw new DomainException({
-    code: DomainExceptionCode.BadRequest,
-    message: "User with the same login already exists"
-  })
-}
+    const userWithTheSameLogin = await this.usersRepository.findByLogin(
+      dto.login
+    )
+    if (!!userWithTheSameLogin) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: "User with the same login already exists"
+      })
+    }
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({
@@ -66,19 +66,19 @@ if(!!userWithTheSameLogin) {
 
   async registerUser(dto: CreateUserDto) {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
-dto.login
-)
+      dto.login
+    )
 
- const userWithTheSameEmail = await this.usersRepository.findByEmail(
-dto.email
-)
-if(!!userWithTheSameLogin || !!userWithTheSameEmail) {
-  throw new DomainException({
-    code: DomainExceptionCode.BadRequest,
-    message: "User with the same login already exists"
-  })
-}
-    
+    const userWithTheSameEmail = await this.usersRepository.findByEmail(
+      dto.email
+    )
+    if (!!userWithTheSameLogin || !!userWithTheSameEmail) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: "User with the same login already exists"
+      })
+    }
+
     const createdUserId = await this.createUser(dto);
 
     const confirmCode = uuidv4();

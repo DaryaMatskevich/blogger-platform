@@ -2,8 +2,8 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserDocument, UserModelType } from '../domain/dto/user.entity';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class UsersRepository {

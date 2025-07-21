@@ -26,7 +26,7 @@ export class AuthService {
     console.log("FUF")
     if (!user) {
      throw new DomainException({
-          code: DomainExceptionCode.BadRequest,
+          code: DomainExceptionCode.Unauthorized,
           message: "Bad request"
         })
     }

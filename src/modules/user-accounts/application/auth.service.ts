@@ -121,7 +121,7 @@ export class AuthService {
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
 
-    this.emailService
+    await this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       .catch(console.error);
 

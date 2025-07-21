@@ -34,19 +34,19 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
   ],
   controllers: [AppController],
   providers: [AppService,
-     {
+    {
+      provide: APP_FILTER,
+      useClass: AllHttpExceptionsFilter
+    },
+    {
       provide: APP_FILTER,
       useClass: DomainHttpExceptionsFilter,
-    },
-     {
-      provide: APP_FILTER,
-      useClass: AllHttpExceptionsFilter},
-     ],
+    }],
 })
 export class AppModule {
   constructor() {
     Logger.log(`MongoDB URL: ${process.env.MONGO_URL}`, 'AppModule');
   }
- }
+}
 
 

@@ -151,7 +151,7 @@ console.log("хохохо")
     user.setRecoveryCode(recoveryCode)
     await this.usersRepository.save(user);
 
-    this.emailService
+    await this.emailService
       .sendPasswordRecoveryEmail(user.email, recoveryCode)
       .catch(console.error);
   }

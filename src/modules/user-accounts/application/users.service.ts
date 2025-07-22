@@ -50,9 +50,7 @@ export class UsersService {
       })
 
     }
-
-
-
+    
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({

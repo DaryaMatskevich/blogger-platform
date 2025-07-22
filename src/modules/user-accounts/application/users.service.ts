@@ -85,7 +85,7 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
-  async registerUser(dto: CreateUserDto) {
+  async registerUser(dto: CreateUserDto): Promise<void> {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
       dto.login
     )
@@ -121,9 +121,10 @@ export class UsersService {
 
     user.setConfirmationCode(confirmCode);
     await this.usersRepository.save(user);
+     console.log('User registered successfully');
 
-    this.emailService
-      .sendConfirmationEmail(user.email, confirmCode)
+    // await this.emailService
+    //   .sendConfirmationEmail(user.email, confirmCode)
       
   }
 }

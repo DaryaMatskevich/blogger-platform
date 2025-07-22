@@ -11,9 +11,9 @@ export class CreateUserInputDto {
   @IsStringWithTrim(passwordConstraints.minLength, passwordConstraints.maxLength)
   password: string;
 
+  @Trim()
   @IsString()
   @Matches(emailConstraints.match)
-  @Trim()
   email: string;
 }
 

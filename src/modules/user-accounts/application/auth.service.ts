@@ -123,8 +123,8 @@ extensions: [
     const confirmCode = uuidv4();
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
-console.log("хохохо")
-     this.emailService
+
+    await this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       
 

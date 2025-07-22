@@ -65,7 +65,7 @@ export class AuthController {
 
    @Post('registration-confirmation')
      @HttpCode(HttpStatus.NO_CONTENT)
-  registrationConfirmation(@Body() body : {code: string}): Promise<any> {
+  registrationConfirmation(@Body() body : {code: string}): Promise<void> {
     return this.authService.confirmEmail(body.code)
   }
 

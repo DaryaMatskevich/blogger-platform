@@ -124,7 +124,7 @@ export class AuthService {
 console.log("хохохо")
     this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
-      .catch(console.error);
+      
 
 
 

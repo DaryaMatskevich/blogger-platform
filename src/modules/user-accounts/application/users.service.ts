@@ -124,6 +124,6 @@ export class UsersService {
 
     this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
-      .catch(console.error);
+      
   }
 }

@@ -41,7 +41,7 @@ export class UsersRepository {
       { login: loginOrEmail },
       { email: loginOrEmail },
     ],
-  });
+  }).exec();
   }
 
    findByLogin(login: string): Promise<UserDocument | null> {

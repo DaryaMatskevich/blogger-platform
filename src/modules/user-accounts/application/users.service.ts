@@ -122,7 +122,7 @@ export class UsersService {
     user.setConfirmationCode(confirmCode);
     await this.usersRepository.save(user);
 
-    await this.emailService
+    this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       
   }

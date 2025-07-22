@@ -122,7 +122,7 @@ export class AuthService {
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
 console.log("хохохо")
-    await this.emailService
+     this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       
 

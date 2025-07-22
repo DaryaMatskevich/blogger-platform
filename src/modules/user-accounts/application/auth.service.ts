@@ -124,7 +124,7 @@ extensions: [
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
 
-    this.emailService
+    await this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
       
 

@@ -70,6 +70,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
     registrationEmailResending(@Body() body : EmailDto): Promise<void> {
     return this.authService.resendConfirmationEmail(body.email)
   }

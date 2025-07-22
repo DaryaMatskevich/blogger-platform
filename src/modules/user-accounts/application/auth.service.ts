@@ -36,15 +36,7 @@ export class AuthService {
     if (!isPasswordValid) {
       return null
     }
-    if (user.isEmailConfirmed === false) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: "Bad requet",
-extensions: [
-          new Extension("Email is not confirmed", "email")
-        ]
-      })
-    }
+   
 
     return { id: user._id.toString() };
   }

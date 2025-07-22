@@ -76,7 +76,9 @@ export class AuthService {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "Bad requet",
-       
+extensions: [
+          new Extension("Email is already confirmed", "email")
+        ]
       })
     }
 

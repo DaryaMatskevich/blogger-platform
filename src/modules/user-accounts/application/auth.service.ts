@@ -49,7 +49,7 @@ export class AuthService {
     };
   }
 
-  async confirmEmail(code: string): Promise<string | null> {
+  async confirmEmail(code: string) {
     let user = await this.usersRepository.findUserByConfirmationCode(code)
 
     if (!user) {
@@ -91,7 +91,7 @@ export class AuthService {
     user.confirmEmail()
     await this.usersRepository.save(user);
 
-    return user._id.toString();
+    
   }
 
 

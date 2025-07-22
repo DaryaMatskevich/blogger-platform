@@ -9,7 +9,7 @@ export class EmailService {
     //can add html templates, implement advertising and other logic for mailing...
     const confirmationLink = `https://some-front.com/confirm-registration?code=${code}`;
 
-    await this.mailerService.sendMail({
+    this.mailerService.sendMail({
       to: email,
       subject: 'Confirm your registration', 
       text: `confirm registration via link ${confirmationLink}`,
@@ -19,8 +19,7 @@ export class EmailService {
 
  async sendPasswordRecoveryEmail(email: string, recoveryCode: string): Promise<void> {
     const recoveryLink = `https://some-front.com/password-recovery?code=${recoveryCode}`;
-
-    await this.mailerService.sendMail({
+this.mailerService.sendMail({
       to: email,
       subject: 'Password Recovery',
       text: `To reset your password, please visit: ${recoveryLink}`,

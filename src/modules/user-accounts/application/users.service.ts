@@ -37,7 +37,7 @@ export class UsersService {
 
     }
 
-       const userWithTheSameEmail = await this.usersRepository.findByLogin(
+    const userWithTheSameEmail = await this.usersRepository.findByLogin(
       dto.email
     )
     if (!!userWithTheSameEmail) {
@@ -52,7 +52,7 @@ export class UsersService {
     }
 
 
-    
+
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({
@@ -121,10 +121,10 @@ export class UsersService {
 
     user.setConfirmationCode(confirmCode);
     await this.usersRepository.save(user);
-     console.log('User registered successfully');
+    console.log('User registered successfully');
 
-    // await this.emailService
-    //   .sendConfirmationEmail(user.email, confirmCode)
-      
+    this.emailService
+      .sendConfirmationEmail(user.email, confirmCode)
+
   }
 }

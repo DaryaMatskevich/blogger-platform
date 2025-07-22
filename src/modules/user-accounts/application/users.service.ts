@@ -50,7 +50,7 @@ export class UsersService {
       })
 
     }
-    
+
     const passwordHash = await this.cryptoService.createPasswordHash(dto.password);
 
     const user = this.UserModel.createInstance({
@@ -121,7 +121,7 @@ export class UsersService {
     await this.usersRepository.save(user);
     console.log('User registered successfully');
 
-    this.emailService
+    await this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
 
   }

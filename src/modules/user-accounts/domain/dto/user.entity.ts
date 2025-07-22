@@ -114,7 +114,7 @@ export class User {
     this.isEmailConfirmed = false; // Сбрасываем статус подтверждения
   }
 
-  setRecoveryCode(code: string): void {
+  setRecoveryCode(code: string) {
     if (!code || typeof code !== 'string') {
       throw new Error('Confirmation code must be a non-empty string');
     }
@@ -125,7 +125,7 @@ export class User {
    this.recoveryCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
   }
 
-confirmEmail(): void {
+confirmEmail() {
   this.isEmailConfirmed = true;
   
   // Очищаем поля кода подтверждения (опционально, но рекомендуется)

@@ -19,9 +19,18 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post-usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post-usecase';
 import { CreatePostForBlogUseCase } from './posts/application/usecases/create-post-for-blog-usecase';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ChangeLikeStatusUseCase } from './comments/application/usecases/change-likeStatus.usecase';
+import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment-usecase';
+import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
+import { CommentsController } from './comments/api/comments.controller';
+import { CommentsRepository } from './comments/infrastructute/comments.repository';
+import { CommentsQueryRepository } from './comments/infrastructute/query/comments.query-repository';
+import { Comment, CommentSchema } from './comments/domain/comment.entity';
 
 
-const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase, CreatePostForBlogUseCase]
+const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
+  CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
+ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [
@@ -29,10 +38,11 @@ const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, Creat
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
+      { name: Comment.name, schema: CommentSchema },
       
     ]),
   ],
-  controllers: [BlogsController, PostsController],
+  controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     BlogsService,
     BlogsRepository,
@@ -41,6 +51,8 @@ const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, Creat
     PostsService,
     PostsRepository,
     PostsQueryRepository,
+    CommentsRepository,
+    CommentsQueryRepository,
     ...useCases
   ],
   exports: [BlogsExternalQueryRepository],

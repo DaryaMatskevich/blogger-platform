@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { InjectModel } from "@nestjs/mongoose";
-import { BlogsQueryRepository } from "@src/modules/bloggers-platform/blogs/infastructure/query/blogs.query-repository";
+import { BlogsQueryRepository } from "../../../../../modules/bloggers-platform/blogs/infastructure/query/blogs.query-repository";
 import { Post, PostModelType } from "../../domain/post.entity";
 
 import { CreatePostForBlogInputDto } from "../../api/input-dto/posts.input-dto";

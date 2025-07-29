@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { DomainExceptionCode } from "../../../../core/exeptions/domain-exeption-codes";
 import { DomainException } from "../../../../core/exeptions/domain-exeptions";

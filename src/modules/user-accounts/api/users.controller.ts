@@ -21,8 +21,10 @@ import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dt
 import { UsersQueryRepository } from '../infastructure/query/users.query-repository';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view.dto';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
-import { Public } from '../guards/decorators/param/public.decorator';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { UpdateUserCommand } from '../application/users-usecases/update-user-usecase';
+import { DeleteUserCommand } from '../application/users-usecases/delete-user-usecase';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)
@@ -30,6 +32,7 @@ export class UsersController {
   constructor(
     private usersQueryRepository: UsersQueryRepository,
     private usersService: UsersService,
+    private commandBus: CommandBus
   ) {
     console.log('UsersController created');
   }
@@ -41,7 +44,7 @@ export class UsersController {
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
   }
- 
+
   @Get()
   async getAll(
     @Query() query: GetUsersQueryParams,
@@ -51,9 +54,7 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
-        
     const userId = await this.usersService.createUser(body);
-
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }
 
@@ -62,7 +63,7 @@ export class UsersController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateUserInputDto,
   ): Promise<UserViewDto> {
-    const userId = await this.usersService.updateUser(id, body);
+    const userId = await this.commandBus.execute(new UpdateUserCommand(id, body));
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }
@@ -71,6 +72,6 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
-    return this.usersService.deleteUser(id);
+    return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

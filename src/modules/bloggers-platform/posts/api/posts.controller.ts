@@ -19,12 +19,17 @@ import { PostViewDto } from './view-dto/posts.view-dto';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { CreatePostInputDto } from './input-dto/posts.input-dto';
 import { UpdatePostDto } from './input-dto/posts.update-input.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/usecases/create-post-usecase';
+import { UpdatePostCommand } from '../application/usecases/update-post-usecase';
+import { DeletePostCommand } from '../application/usecases/delete-post-usecase';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-     private postsService: PostsService,
-    private postsQueryRepository: PostsQueryRepository
+     
+    private postsQueryRepository: PostsQueryRepository,
+    private commandBus: CommandBus
      ) {
     console.log('UsersController created');
   }
@@ -46,7 +51,7 @@ export class PostsController {
 
   @Post()
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
-    const postId = await this.postsService.createPost(body);
+    const postId = await this.commandBus.execute(new CreatePostCommand(body))
 
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }
@@ -57,7 +62,7 @@ export class PostsController {
     @Param('id') id: string,
     @Body() body: UpdatePostDto,
   ): Promise<void> {
-    await this.postsService.updatePost(id, body);
+    await this.commandBus.execute(new UpdatePostCommand(id, body));
 
     ;
   }
@@ -66,6 +71,6 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    return this.postsService.deletePost(id);
+    return this.commandBus.execute(new DeletePostCommand(id));
   }
 }

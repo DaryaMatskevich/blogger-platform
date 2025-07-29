@@ -25,6 +25,11 @@ import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { CreatePostForBlogInputDto } from '../../posts/api/input-dto/posts.input-dto';
 import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infactructure/query/posts.query-repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
+import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
 
 @Controller('blogs')
 export class BlogsController {
@@ -32,7 +37,8 @@ export class BlogsController {
     private blogsService: BlogsService,
     private postsService: PostsService,
     private blogsQueryRepository: BlogsQueryRepository,
-    private postsQueryRepository: PostsQueryRepository
+    private postsQueryRepository: PostsQueryRepository,
+    private commandBus: CommandBus
   ) {
     console.log('UsersController created');
   }
@@ -54,7 +60,7 @@ export class BlogsController {
 
   @Post()
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
-    const blogId = await this.blogsService.createBlog(body);
+    const blogId = await this.commandBus.execute(new CreateBlogCommand( body));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
@@ -65,7 +71,7 @@ export class BlogsController {
     @Param('id') id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
-    await this.blogsService.updateBlog(id, body);
+    await this.commandBus.execute(new UpdateBlogCommand(id, body));
 
   }
 
@@ -73,7 +79,7 @@ export class BlogsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    return this.blogsService.deleteBlog(id);
+    return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
 
@@ -99,7 +105,7 @@ const blogExists = await this.blogsService.blogExists(id)
  if (!blogExists) {
     throw new NotFoundException('Blog not found');
   }
-      const postId = await this.postsService.createPostForBlog(blogId, body);
+      const postId = await this.commandBus.execute(new CreatePostForBlogCommand(blogId, body));
 
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }

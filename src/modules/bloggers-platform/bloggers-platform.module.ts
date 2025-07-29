@@ -11,13 +11,25 @@ import { PostsController } from './posts/api/posts.controller';
 import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infactructure/posts.repository';
 import { PostsQueryRepository } from './posts/infactructure/query/posts.query-repository';
+import { CreateBlogUseCase } from './blogs/application/usecases/create-blog-usecase';
+import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
+import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog-usecase';
+import { CreatePostUseCase } from './posts/application/usecases/create-post-usecase';
+import { UpdatePostUseCase } from './posts/application/usecases/update-post-usecase';
+import { DeletePostUseCase } from './posts/application/usecases/delete-post-usecase';
+import { CreatePostForBlogUseCase } from './posts/application/usecases/create-post-for-blog-usecase';
+import { CqrsModule } from '@nestjs/cqrs';
 
+
+const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase, CreatePostForBlogUseCase]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [
+    CqrsModule,
     MongooseModule.forFeature([
+      { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
-      { name: Post.name, schema: PostSchema }
+      
     ]),
   ],
   controllers: [BlogsController, PostsController],
@@ -29,6 +41,7 @@ import { PostsQueryRepository } from './posts/infactructure/query/posts.query-re
     PostsService,
     PostsRepository,
     PostsQueryRepository,
+    ...useCases
   ],
   exports: [BlogsExternalQueryRepository],
 })

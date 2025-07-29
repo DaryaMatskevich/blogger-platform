@@ -13,10 +13,13 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllHttpExceptionsFilter } from './core/exeptions/filters/all-exeptions.filter';
 import { DomainHttpExceptionsFilter } from './core/exeptions/filters/domain-exeptions.fiter';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CqrsModule } from '@nestjs/cqrs';
+
+
 
 
 @Module({
-  imports: [
+  imports: [CqrsModule,
     ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
@@ -30,7 +33,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     TestingModule,
     BloggersPlatformModule,
     CoreModule,
-    NotificationsModule
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService,

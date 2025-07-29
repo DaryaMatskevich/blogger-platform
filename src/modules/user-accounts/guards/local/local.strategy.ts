@@ -5,17 +5,22 @@ import { AuthService } from '../../application/auth.service';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { DomainException} from '../../../../core/exeptions/domain-exeptions';
 import { UserContextDto } from '../dto/user-contex.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { ValidateUserCommand } from '../../application/auth-usecases/validate-user-usecase';
 
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService) {
+  constructor(
+    private commandBus: CommandBus
+
+  ) {
     super({ usernameField: 'loginOrEmail' });
   }
 
   //validate возвращает то, что впоследствии будет записано в req.user
   async validate(username: string, password: string): Promise<UserContextDto> {
-    const user = await this.authService.validateUser(username, password);
+    const user = await this.commandBus.execute(new ValidateUserCommand(username, password));
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,

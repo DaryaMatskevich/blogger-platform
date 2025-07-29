@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
-import { CreateUserInputDto, EmailDto, NewPasswordDto } from './input-dto/users.input-dto';
+import { CreateUserInputDto, EmailDto, NewPasswordDto } from '../api/input-dto/users.input-dto';
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
@@ -19,18 +19,25 @@ import { ExtractUserIfExistsFromRequest } from '../guards/param/extract-user-if-
 import { JwtOptionalAuthGuard } from '../guards/bearer/jwt-optional-auth.guard';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { AuthQueryRepository } from '../infastructure/query/auth.query-repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginCommand } from '../application/auth-usecases/login-usecase';
+import { ResendConfirmationEmailCommand } from '../application/auth-usecases/resend-confirmation-email-usecase';
+import { SendPasswordRecoveryEmailCommand } from '../application/auth-usecases/send-password-recovery-email-usecase';
+import { SetNewPasswordCommand } from '../application/auth-usecases/set-new-password-usecase';
+import { RegisterUserCommand } from '../application/users-usecases/register-user-usecase';
+import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-usecase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private usersService: UsersService,
-    private authService: AuthService,
+    
     private authQueryRepository: AuthQueryRepository,
+    private commandBus: CommandBus
   ) {}
   @Post('registration')
  @HttpCode(HttpStatus.NO_CONTENT)
      registration(@Body() body: CreateUserInputDto): Promise<void> {
-    return this.usersService.registerUser(body);
+    return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('login')
@@ -50,29 +57,32 @@ export class AuthController {
     /*@Request() req: any*/
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<{ accessToken: string }> {
-    return this.authService.login(user.id);
+    return this.commandBus.execute(
+      new LoginCommand(user.id)
+    )
   }
 
  @Post('password-recovery')
   passwordRecovery(@Body() body : EmailDto): Promise<void> {
-    return this.authService.sendPasswordRecoveryEmail(body.email)
+    return this.commandBus.execute
+    (new SendPasswordRecoveryEmailCommand(body.email))
   }
 
  @Post('new-password')
   newPassword(@Body() body : NewPasswordDto): Promise<void> {
-    return this.authService.setNewPassword(body.newPassword, body.recoveryCode)
+    return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
    @Post('registration-confirmation')
      @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body : {code: string}): Promise<void> {
-    return this.authService.confirmEmail(body.code)
+    return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
     registrationEmailResending(@Body() body : EmailDto): Promise<void> {
-    return this.authService.resendConfirmationEmail(body.email)
+    return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
   }
 
 
@@ -100,6 +110,4 @@ export class AuthController {
       };
     }
   }
-
-
 }

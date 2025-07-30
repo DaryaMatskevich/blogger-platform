@@ -34,6 +34,7 @@ import { CreatePostForBlogCommand } from '../../posts/application/usecases/creat
 import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { GetBlogByIdQuery } from '../application/queries/get-blogs-by-id.query-handler';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 
 @Controller('blogs')
 export class BlogsController {
@@ -50,7 +51,7 @@ export class BlogsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
-  async getById(@Param('id') id: string): Promise<BlogViewDto> {
+  async getById(@Param('id', ObjectIdValidationPipe) id: string): Promise<BlogViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.queryBus.execute(new GetBlogByIdQuery(id));
@@ -75,7 +76,7 @@ export class BlogsController {
   @HttpCode(204)
   @UseGuards(BasicAuthGuard)
   async updateBlog(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
     await this.commandBus.execute(new UpdateBlogCommand(id, body));
@@ -87,7 +88,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   
-  async deleteBlog(@Param('id') id: string): Promise<void> {
+  async deleteBlog(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 

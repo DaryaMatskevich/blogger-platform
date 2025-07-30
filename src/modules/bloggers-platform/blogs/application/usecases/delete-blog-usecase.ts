@@ -16,6 +16,7 @@ export class DeleteBlogUseCase
     async execute(command: DeleteBlogCommand) {
         const blog = await this.blogsRepository.findOrNotFoundFail(command.id);
 
+        
         blog.makeDeleted();
 
         await this.blogsRepository.save(blog);

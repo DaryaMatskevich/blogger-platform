@@ -67,10 +67,8 @@ export class AuthController {
 
     response.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // В production отправлять только по HTTPS
-      sameSite: 'lax', // Защита от CSRF
-      maxAge: 24 * 60 * 60 * 1000, // 1 день (должен совпадать с TTL refresh токена)
-      // path: '/auth/refresh', // Ограничьте путь, где доступна кука
+      secure: true
+       
     });
 
     return { accessToken: tokens.accessToken }; // Возвращаем accessToken в теле

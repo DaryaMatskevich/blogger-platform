@@ -31,7 +31,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
-import { BasicAuthGuard } from '@src/modules/user-accounts/guards/basic/basic-auth.guard';
+import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {

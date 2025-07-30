@@ -22,8 +22,8 @@ import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { LikeInputModel } from '../domain/dto/like-status.dto';
 import { ChangeLikeStatusCommand } from '../application/usecases/change-likeStatus.usecase';
-import { JwtAuthGuard } from '@src/modules/user-accounts/guards/bearer/jwt-auth.guard';
-import { Public } from '@src/modules/user-accounts/guards/decorators/public.decorator';
+import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
 
 
 

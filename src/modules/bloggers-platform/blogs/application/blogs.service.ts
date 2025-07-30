@@ -23,9 +23,7 @@ export class BlogsService {
   }
 
   async blogExists(id: string) {
-    return this.BlogModel.exists({
-      _id: id,
-      deletedAt: null
-    })
-  }
+   const exists = await this.BlogModel.findOne({ _id: id, deletedAt: null }).lean();
+return !!exists;
+}
 }

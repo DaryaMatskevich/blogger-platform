@@ -35,6 +35,8 @@ import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/b
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { GetBlogByIdQuery } from '../application/queries/get-blogs-by-id.query-handler';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 @Controller('blogs')
 export class BlogsController {
@@ -102,7 +104,10 @@ export class BlogsController {
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
 const blogExists = await this.blogsService.blogExists(id)
  if (!blogExists) {
-    throw new NotFoundException('Blog not found');
+     throw new DomainException({
+            code: DomainExceptionCode.NotFound,
+            message: "Blog not found",
+          })
   }
   return this.blogsService.getAllPostsForBlog(id, query)
   }

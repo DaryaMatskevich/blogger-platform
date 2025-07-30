@@ -88,7 +88,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   
-  async deleteBlog(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
+  async deleteBlog(@Param('id',ObjectIdValidationPipe) id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 

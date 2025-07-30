@@ -26,7 +26,7 @@ export class BlogsRepository {
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: "Blog not found"
+        message: "Blog not found",
       })
     }
 

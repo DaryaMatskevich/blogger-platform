@@ -33,15 +33,6 @@ export class BlogsQueryRepository {
       deletedAt: null,
     };
 
-    if (query.searchNameTerm) {
-      filter.name = { 
-      $regex: query.searchNameTerm, 
-      $options: 'i' // регистронезависимый поиск
-    };
-  }
-
-   
-
     const blogs = await this.BlogModel.find(filter)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())

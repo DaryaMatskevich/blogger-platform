@@ -26,12 +26,14 @@ import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { CreatePostForBlogInputDto } from '../../posts/api/input-dto/posts.input-dto';
 import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infactructure/query/posts.query-repository';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
 import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
+import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
+import { GetBlogByIdQuery } from '../application/queries/get-blogs-by-id.query-handler';
 
 @Controller('blogs')
 export class BlogsController {
@@ -40,7 +42,8 @@ export class BlogsController {
     private postsService: PostsService,
     private blogsQueryRepository: BlogsQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
-    private commandBus: CommandBus
+    private commandBus: CommandBus,
+    private queryBus: QueryBus
   ) {
     console.log('UsersController created');
   }
@@ -50,14 +53,14 @@ export class BlogsController {
   async getById(@Param('id') id: string): Promise<BlogViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(id);
+    return this.queryBus.execute(new GetBlogByIdQuery(id));
   }
 
   @Get()
   async getAll(
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
-    return this.blogsQueryRepository.getAll(query);
+    return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
   @Post()

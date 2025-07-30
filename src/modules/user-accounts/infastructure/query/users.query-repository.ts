@@ -40,12 +40,6 @@ export class UsersQueryRepository {
       });
     }
 
-    if (query.searchEmailTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        email: { $regex: query.searchEmailTerm, $options: 'i' },
-      });
-    }
 
     const users = await this.UserModel.find(filter)
       .sort({ [query.sortBy]: query.sortDirection })

@@ -1,9 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { Blog, BlogDocument, BlogModelType } from '../domain/dto/blog.entity';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class BlogsRepository {

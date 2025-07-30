@@ -5,8 +5,8 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view.dt
 import { Blog, BlogModelType } from '../../domain/dto/blog.entity';
 import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.input-dto';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class BlogsQueryRepository {

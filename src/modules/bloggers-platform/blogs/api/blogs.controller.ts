@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { BlogViewDto } from './view-dto/blogs.view-dto';
@@ -30,6 +31,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
+import { BasicAuthGuard } from '@src/modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -59,6 +61,7 @@ export class BlogsController {
   }
 
   @Post()
+   @UseGuards(BasicAuthGuard)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
     const blogId = await this.commandBus.execute(new CreateBlogCommand( body));
 
@@ -67,6 +70,7 @@ export class BlogsController {
 
   @Put(':id')
   @HttpCode(204)
+  @UseGuards(BasicAuthGuard)
   async updateBlog(
     @Param('id') id: string,
     @Body() body: UpdateBlogInputDto,
@@ -78,6 +82,7 @@ export class BlogsController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
   }
@@ -98,6 +103,7 @@ const blogExists = await this.blogsService.blogExists(id)
   }
 
   @Post(':id/posts')
+  @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('id') blogId: string,
     @Body() body: CreatePostForBlogInputDto): Promise<PostViewDto> {

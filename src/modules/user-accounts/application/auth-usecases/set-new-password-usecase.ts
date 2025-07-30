@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { UsersRepository } from "../../infastructure/users.repository";
 import { DomainException, Extension } from "../../../../core/exeptions/domain-exeptions";
 import { DomainExceptionCode } from "../../../../core/exeptions/domain-exeption-codes";
-import { CryptoService } from "../crypto.service";
+import { CryptoService } from "../services/crypto.service";
 
 export class SetNewPasswordCommand {
     constructor(public newPassword: string, 

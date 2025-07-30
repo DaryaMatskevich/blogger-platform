@@ -12,10 +12,10 @@ import { CreateUserInputDto, EmailDto, NewPasswordDto } from '../api/input-dto/u
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
-import { AuthService } from '../application/auth.service';
+import { AuthService } from '../application/services/auth.service';
 import { Nullable, UserContextDto } from '../guards/dto/user-contex.dto';
-import { ExtractUserFromRequest } from '../guards/param/extracr-user-from-request.decorator';
-import { ExtractUserIfExistsFromRequest } from '../guards/param/extract-user-if-exists-from-request.decorator';
+import { ExtractUserFromRequest } from '../guards/decorators/param/extracr-user-from-request.decorator';
+import { ExtractUserIfExistsFromRequest } from '../guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { JwtOptionalAuthGuard } from '../guards/bearer/jwt-optional-auth.guard';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { AuthQueryRepository } from '../infastructure/query/auth.query-repository';

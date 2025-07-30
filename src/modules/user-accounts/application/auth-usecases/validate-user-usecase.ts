@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infastructure/users.repository';
-import { CryptoService } from '../crypto.service';
+import { CryptoService } from '../services/crypto.service';
 import { UserContextDto } from '../../guards/dto/user-contex.dto';
 
 export class ValidateUserCommand {

@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiParam } from '@nestjs/swagger';
@@ -21,6 +22,8 @@ import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { LikeInputModel } from '../domain/dto/like-status.dto';
 import { ChangeLikeStatusCommand } from '../application/usecases/change-likeStatus.usecase';
+import { JwtAuthGuard } from '@src/modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { Public } from '@src/modules/user-accounts/guards/decorators/public.decorator';
 
 
 
@@ -33,6 +36,7 @@ export class CommentsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') 
+  @Public()
   async getById(@Param('id') id: string): Promise<CommentViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
@@ -42,12 +46,14 @@ export class CommentsController {
  @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   @Put(':id')
     @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
     async updateComment(
       @Param('id') id: string,
       @Body() body: UpdateCommentDto,
@@ -57,6 +63,7 @@ export class CommentsController {
 
  @Put(':id')
     @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
     async changeLikeStatus(
       @Param('id') id: string,
       @Body() body: LikeInputModel,

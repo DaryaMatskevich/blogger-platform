@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { User, UserModelType } from '../domain/dto/user.entity';
 import { UsersRepository } from '../infastructure/users.repository';
-import { CryptoService } from './crypto.service';
+import { CryptoService } from './services/crypto.service';
 import { DomainException, Extension } from '../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserModelType } from '../domain/dto/user.entity';
-import { UsersRepository } from '../infastructure/users.repository';
+import { User, UserModelType } from '../../domain/dto/user.entity';
+import { UsersRepository } from '../../infastructure/users.repository';
 
 @Injectable()
 export class UsersExternalService {

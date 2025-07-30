@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { appSetup } from './setup/app.setup';
 import { createWriteStream } from 'fs';
 import { get } from 'http'; 
+import cookieParser from 'cookie-parser';
 
 
 
@@ -13,7 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors()
   appSetup(app)
-
+app.use(cookieParser())
     
 
   //TODO: move to configService. will be in the following lessons

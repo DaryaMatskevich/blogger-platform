@@ -1,4 +1,4 @@
-import { IsStringWithTrim } from "@src/core/decorators/validation/is-string-with-trim";
+import { IsStringWithTrim } from "../../../../../core/decorators/validation/is-string-with-trim";
 import { UpdateBlogDto } from "../../dto/update-blog.dto";
 import { descriptionConstraints, nameConstraints, websiteUrlConstraints } from "../../domain/dto/blog.entity";
 import { IsUrl } from "class-validator";

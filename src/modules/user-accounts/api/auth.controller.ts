@@ -6,6 +6,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Res,
+
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { CreateUserInputDto, EmailDto, NewPasswordDto } from '../api/input-dto/users.input-dto';
@@ -26,17 +28,18 @@ import { SendPasswordRecoveryEmailCommand } from '../application/auth-usecases/s
 import { SetNewPasswordCommand } from '../application/auth-usecases/set-new-password-usecase';
 import { RegisterUserCommand } from '../application/users-usecases/register-user-usecase';
 import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-usecase';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    
+
     private authQueryRepository: AuthQueryRepository,
     private commandBus: CommandBus
-  ) {}
+  ) { }
   @Post('registration')
- @HttpCode(HttpStatus.NO_CONTENT)
-     registration(@Body() body: CreateUserInputDto): Promise<void> {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
@@ -53,35 +56,46 @@ export class AuthController {
       },
     },
   })
-  login(
+  async login(
     /*@Request() req: any*/
     @ExtractUserFromRequest() user: UserContextDto,
+    @Res({ passthrough: true }) response: Response
   ): Promise<{ accessToken: string }> {
-    return this.commandBus.execute(
+    const tokens = await this.commandBus.execute(
       new LoginCommand(user.id)
     )
+
+    response.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // В production отправлять только по HTTPS
+      sameSite: 'lax', // Защита от CSRF
+      maxAge: 24 * 60 * 60 * 1000, // 1 день (должен совпадать с TTL refresh токена)
+      // path: '/auth/refresh', // Ограничьте путь, где доступна кука
+    });
+
+    return { accessToken: tokens.accessToken }; // Возвращаем accessToken в теле
   }
 
- @Post('password-recovery')
-  passwordRecovery(@Body() body : EmailDto): Promise<void> {
+  @Post('password-recovery')
+  passwordRecovery(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute
-    (new SendPasswordRecoveryEmailCommand(body.email))
+      (new SendPasswordRecoveryEmailCommand(body.email))
   }
 
- @Post('new-password')
-  newPassword(@Body() body : NewPasswordDto): Promise<void> {
+  @Post('new-password')
+  newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
-   @Post('registration-confirmation')
-     @HttpCode(HttpStatus.NO_CONTENT)
-  registrationConfirmation(@Body() body : {code: string}): Promise<void> {
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
-    registrationEmailResending(@Body() body : EmailDto): Promise<void> {
+  registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
   }
 
@@ -106,7 +120,7 @@ export class AuthController {
         login: 'anonymous',
         userId: null,
         email: null,
-        
+
       };
     }
   }

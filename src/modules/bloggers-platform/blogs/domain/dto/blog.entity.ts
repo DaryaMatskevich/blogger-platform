@@ -2,6 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateBlogInputDto } from '../../api/input-dto/blogs.input-dto';
 import { UpdateBlogDto } from '../../dto/update-blog.dto';
+import { minLength } from 'class-validator';
 
 
 //флаг timestemp автоматичеки добавляет поля upatedAt и createdAt
@@ -9,34 +10,50 @@ import { UpdateBlogDto } from '../../dto/update-blog.dto';
  * User Entity Schema
  * This class represents the schema and behavior of a User entity.
  */
+
+export const nameConstraints = {
+  minLength: 1,
+  maxLength: 15
+}
+
+export const descriptionConstraints = {
+  minLength: 1,
+  maxLength: 500
+}
+
+export const websiteUrlConstraints = {
+  minLength: 1,
+  maxlength: 100,
+  match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
+}
+
 @Schema({ timestamps: true })
 export class Blog {
-  @Prop({ type: String, required: true, maxlength: 15 })
+  @Prop({ type: String, required: true, ...nameConstraints })
   name: string;
 
-  @Prop({ type: String, required: true, maxlength: 500,})
+  @Prop({ type: String, required: true, ...descriptionConstraints })
   description: string;
 
-  @Prop({ type: String, min: 5, required: true, maxlength: 100, // Соответствует @MaxLength(100) в DTO
-    match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/, })
+  @Prop({ type: String, min: 5, required: true, ...websiteUrlConstraints })
   websiteUrl: string;
 
   @Prop({ type: Boolean, default: false })
   isMembership: Boolean;
 
-   createdAt: Date;
+  createdAt: Date;
 
   updatedAt: Date;
-  
-  @Prop({ type: Date, nullable: true,   default: null })
+
+  @Prop({ type: Date, nullable: true, default: null })
   deletedAt: Date | null;
 
-    static createInstance(dto: CreateBlogInputDto): BlogDocument {
+  static createInstance(dto: CreateBlogInputDto): BlogDocument {
     const blog = new this();
     blog.name = dto.name;
     blog.description = dto.description;
     blog.websiteUrl = dto.websiteUrl;
-    
+
     return blog as BlogDocument;
   }
 

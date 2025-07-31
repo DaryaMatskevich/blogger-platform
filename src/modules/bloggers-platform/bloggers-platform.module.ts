@@ -28,11 +28,12 @@ import { CommentsQueryRepository } from './comments/infrastructute/query/comment
 import { Comment, CommentSchema } from './comments/domain/comment.entity';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blogs-by-id.query-handler';
 import {GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
+import { GetPostByIdQuery } from './posts/application/queries/get-post-by-id.query-handler';
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
   CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
-ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler ]
+ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQuery ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [

@@ -5,6 +5,8 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view.dt
 import { Post, PostModelType } from '../../domain/post.entity';
 import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
+import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '@src/core/exeptions/domain-exeptions';
 
 
 @Injectable()
@@ -12,7 +14,7 @@ export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)
     private PostModel: PostModelType,
-  ) {}
+  ) { }
 
   async getByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
     const post = await this.PostModel.findOne({
@@ -21,7 +23,10 @@ export class PostsQueryRepository {
     });
 
     if (!post) {
-      throw new NotFoundException('user not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Post not found"
+      })
     }
 
     return PostViewDto.mapToView(post);
@@ -34,7 +39,7 @@ export class PostsQueryRepository {
       deletedAt: null,
     };
 
-      const posts = await this.PostModel.find(filter)
+    const posts = await this.PostModel.find(filter)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize);
@@ -51,7 +56,7 @@ export class PostsQueryRepository {
     });
   }
 
-async getPostsForBlog(
+  async getPostsForBlog(
     query: GetPostsQueryParams, blogId: string
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const filter: FilterQuery<Post> = {
@@ -59,7 +64,7 @@ async getPostsForBlog(
       blogId: blogId
     };
 
-      const posts = await this.PostModel.find(filter)
+    const posts = await this.PostModel.find(filter)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize);

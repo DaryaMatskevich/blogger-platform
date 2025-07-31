@@ -19,17 +19,20 @@ import { PostViewDto } from './view-dto/posts.view-dto';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { CreatePostInputDto } from './input-dto/posts.input-dto';
 import { UpdatePostDto } from './input-dto/posts.update-input.dto';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post-usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post-usecase';
+import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
+import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
 
 @Controller('posts')
 export class PostsController {
   constructor(
      
     private postsQueryRepository: PostsQueryRepository,
-    private commandBus: CommandBus
+    private commandBus: CommandBus,
+    private queryBus: QueryBus
      ) {
     console.log('UsersController created');
   }
@@ -39,7 +42,7 @@ export class PostsController {
   async getById(@Param('id') id: string): Promise<PostViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
-    return this.postsQueryRepository.getByIdOrNotFoundFail(id);
+    return this.queryBus.execute(new GetPostByIdQuery(id));
   }
 
   @Get()
@@ -73,4 +76,6 @@ export class PostsController {
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeletePostCommand(id));
   }
+
+
 }

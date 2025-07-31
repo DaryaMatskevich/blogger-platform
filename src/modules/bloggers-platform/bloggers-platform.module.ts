@@ -30,11 +30,12 @@ import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blogs-b
 import {GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
 import { GetPostByIdQuery, GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query-handler';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
+import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
   CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
-ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
+ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [

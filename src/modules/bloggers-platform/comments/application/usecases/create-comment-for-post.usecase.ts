@@ -14,7 +14,7 @@ export class CreateCommentForPostCommand {
 }
 
 @CommandHandler(CreateCommentForPostCommand)
-export class CreateCommentForUseCase
+export class CreateCommentForPostUseCase
     implements ICommandHandler<CreateCommentForPostCommand> {
     constructor(
         private commentsRepository: CommentsRepository,

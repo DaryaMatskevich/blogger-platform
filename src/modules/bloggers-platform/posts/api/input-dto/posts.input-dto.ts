@@ -19,7 +19,13 @@ export class CreatePostInputDto {
  }
 
  export class CreatePostForBlogInputDto {
+
+   @IsStringWithTrim(titleConstraints.minLength, titleConstraints.maxLength)
   title: string;
+
+   @IsStringWithTrim(shortDescriptionConstraints.minLength, shortDescriptionConstraints.maxLength)
   shortDescription: string;
+  
+  @IsStringWithTrim(contentConstraints.minLength, contentConstraints.maxLength)
   content: string;
   }

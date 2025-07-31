@@ -67,9 +67,9 @@ export class BlogsController {
   }
 
   @Post()
-   @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
-    const blogId = await this.commandBus.execute(new CreateBlogCommand( body));
+    const blogId = await this.commandBus.execute(new CreateBlogCommand(body));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
   }
@@ -89,8 +89,8 @@ export class BlogsController {
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  
-  async deleteBlog(@Param('id',ObjectIdValidationPipe) id: string): Promise<void> {
+
+  async deleteBlog(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
@@ -102,14 +102,14 @@ export class BlogsController {
     @Param('id') id: string,
     @Query() query: GetPostsQueryParams
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-const blogExists = await this.blogsService.blogExists(id)
- if (!blogExists) {
-     throw new DomainException({
-            code: DomainExceptionCode.NotFound,
-            message: "Blog not found",
-          })
-  }
-  return this.blogsService.getAllPostsForBlog(id, query)
+    const blogExists = await this.blogsService.blogExists(id)
+    if (!blogExists) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Blog not found",
+      })
+    }
+    return this.blogsService.getAllPostsForBlog(id, query)
   }
 
   @Post(':id/posts')
@@ -118,10 +118,13 @@ const blogExists = await this.blogsService.blogExists(id)
     @Param('id') blogId: string,
     @Body() body: CreatePostForBlogInputDto): Promise<PostViewDto> {
     const blogExists = await this.blogsService.blogExists(blogId)
- if (!blogExists) {
-    throw new NotFoundException('Blog not found');
-  }
-      const postId = await this.commandBus.execute(new CreatePostForBlogCommand(blogId, body));
+    if (!blogExists) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Blog not found",
+      })
+    }
+    const postId = await this.commandBus.execute(new CreatePostForBlogCommand(blogId, body));
 
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }

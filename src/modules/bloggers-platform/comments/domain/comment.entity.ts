@@ -5,13 +5,18 @@ import { CommentatorInfo, CommentatorInfoSchema } from './commentatorInfo.schema
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
-
+export const contentConstraints = {
+  minLength: 20,
+  maxLength: 300
+}
 
 @Schema({ timestamps: true })
 
 export class Comment {
 
-  @Prop({ type: String, required: true })
+
+
+  @Prop({ type: String, required: true, ...contentConstraints })
   content: string;
 
   @Prop({ type: CommentatorInfoSchema })

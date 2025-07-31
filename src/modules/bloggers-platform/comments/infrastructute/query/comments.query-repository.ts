@@ -1,7 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Comment, CommentModelType } from '../../domain/comment.entity';
 import { CommentViewDto } from '../../api/view-dto.ts/comments.view.dto';
+import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 
 
 
@@ -19,7 +21,10 @@ export class CommentsQueryRepository {
         });
 
         if (!comment) {
-            throw new NotFoundException('user not found');
+            throw new DomainException({
+                code: DomainExceptionCode.NotFound,
+                message: "Post not found",
+            })
         }
 
         return CommentViewDto.mapToView(comment);

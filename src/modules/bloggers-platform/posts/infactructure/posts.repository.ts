@@ -21,7 +21,10 @@ export class PostsRepository {
   }
 
   async findOrNotFoundFail(id: string): Promise<PostDocument> {
-    const post = await this.PostModel.findById(id);
+    const post = await this.PostModel.findOne({
+      _id: id,
+      deletedAt: null,
+  });
 
     if (!post) {
       throw new DomainException({

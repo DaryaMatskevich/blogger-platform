@@ -5,6 +5,7 @@ import { Comment, CommentModelType } from "../../domain/comment.entity";
 import { CommentsRepository } from "../../infrastructute/comments.repository";
 import { PostsRepository } from "../../../../../modules/bloggers-platform/posts/infactructure/posts.repository";
 import { UsersRepository } from "../../../../../modules/user-accounts/infastructure/users.repository";
+import { UsersExternalQueryRepository } from "@src/modules/user-accounts/infastructure/external-query/external-dto/users.external-query-repository";
 
 export class CreateCommentForPostCommand {
     constructor(public postId: string,
@@ -17,20 +18,21 @@ export class CreateCommentForPostCommand {
 export class CreateCommentForPostUseCase
     implements ICommandHandler<CreateCommentForPostCommand> {
     constructor(
-        private commentsRepository: CommentsRepository,
-        private usersRepository: UsersRepository,
-        private postsRepository: PostsRepository,
-        @InjectModel(Comment.name)
+         @InjectModel(Comment.name)
         private commentModel: CommentModelType,
+        private commentsRepository: CommentsRepository,
+        private usersExternalQueryRepository: UsersExternalQueryRepository,
+        private postsRepository: PostsRepository,
+       
     ) { }
 
     async execute(command: CreateCommentForPostCommand): Promise<string> {
         const post = await this.postsRepository.findOrNotFoundFail(command.postId)
-const user = await this.usersRepository.findOrNotFoundFail(command.userId)
+const user = await this.usersExternalQueryRepository.getByIdOrNotFoundFail(command.userId)
 const commentDto = {
      content: command.dto.content,
         commentatorInfo: {
-            userId: user._id.toString(),
+            userId: user.id,
             userLogin: user.login
         }
 }

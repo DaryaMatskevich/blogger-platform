@@ -24,6 +24,7 @@ import { LikeInputModel } from '../domain/dto/like-status.dto';
 import { ChangeLikeStatusCommand } from '../application/usecases/change-likeStatus.usecase';
 import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
+import { DeleteCommentCommand } from '../application/usecases/delete-comment-usecase';
 
 
 
@@ -48,7 +49,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteBlogCommand(id));
+    return this.commandBus.execute(new DeleteCommentCommand(id));
   }
 
   @Put(':id')

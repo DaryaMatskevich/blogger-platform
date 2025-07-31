@@ -4,8 +4,7 @@ import { CreateCommentInputDto } from "../../api/input-dto.ts/comment.input-dto"
 import { Comment, CommentModelType } from "../../domain/comment.entity";
 import { CommentsRepository } from "../../infrastructute/comments.repository";
 import { PostsRepository } from "../../../../../modules/bloggers-platform/posts/infactructure/posts.repository";
-import { UsersRepository } from "../../../../../modules/user-accounts/infastructure/users.repository";
-import { UsersExternalQueryRepository } from "@src/modules/user-accounts/infastructure/external-query/external-dto/users.external-query-repository";
+import { UsersExternalQueryRepository } from "../.../../../../../../modules/user-accounts/infastructure/external-query/external-dto/users.external-query-repository";
 
 export class CreateCommentForPostCommand {
     constructor(public postId: string,

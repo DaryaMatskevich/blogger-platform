@@ -31,6 +31,7 @@ import {GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query
 import { GetPostByIdQuery, GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query-handler';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
+import { UserAccountsModule } from '../user-accounts/userAccounts.module';
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
@@ -39,6 +40,7 @@ ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateComme
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [
+    UserAccountsModule,
     CqrsModule,
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },

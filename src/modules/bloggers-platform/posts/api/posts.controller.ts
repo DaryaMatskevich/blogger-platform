@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiParam } from '@nestjs/swagger';
@@ -23,9 +24,10 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post-usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post-usecase';
-import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
+import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -54,6 +56,7 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
     const postId = await this.commandBus.execute(new CreatePostCommand(body))
 
@@ -61,6 +64,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updatePost(
     @Param('id') id: string,
@@ -74,6 +78,7 @@ export class PostsController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeletePostCommand(id));
   }

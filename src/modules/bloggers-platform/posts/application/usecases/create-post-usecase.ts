@@ -2,9 +2,8 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { PostsRepository } from "../../infactructure/posts.repository";
 import { Post, PostModelType } from "../../domain/post.entity";
 import { InjectModel } from "@nestjs/mongoose";
-
 import { CreatePostInputDto } from "../../api/input-dto/posts.input-dto";
-import { BlogsQueryRepository } from "../../../../../modules/bloggers-platform/blogs/infastructure/query/blogs.query-repository";
+import { BlogsRepository } from "../../../../../modules/bloggers-platform/blogs/infastructure/blogs.repository";
 
  export class CreatePostCommand {
    constructor(public dto: CreatePostInputDto,
@@ -16,13 +15,13 @@ import { BlogsQueryRepository } from "../../../../../modules/bloggers-platform/b
    implements ICommandHandler<CreatePostCommand> {
    constructor(
       private postsRepository: PostsRepository,
-     private blogsQueryRepository: BlogsQueryRepository,
+     private blogsRepository: BlogsRepository,
       @InjectModel(Post.name)
     private PostModel: PostModelType,
     ) { }
  
  async execute(command: CreatePostCommand) {
-       const blog = await this.blogsQueryRepository.getByIdOrNotFoundFail(command.dto.blogId)
+    const blog = await this.blogsRepository.findOrNotFoundFail(command.dto.blogId)
      const post = this.PostModel.createInstance({
         title: command.dto.title,
         shortDescription: command.dto.shortDescription,

@@ -25,6 +25,7 @@ import { UpdatePostCommand } from '../application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post-usecase';
 import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
 import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
+import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
 
 @Controller('posts')
 export class PostsController {
@@ -49,7 +50,7 @@ export class PostsController {
   async getAll(
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.postsQueryRepository.getAll(query);
+    return this.queryBus.execute(new GetPostsQuery(query));
   }
 
   @Post()

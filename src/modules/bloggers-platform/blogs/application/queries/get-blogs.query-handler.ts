@@ -16,12 +16,12 @@ export class GetBlogsQueryHandler
 {
   constructor(
     @Inject(BlogsQueryRepository)
-    private readonly queryRepository: BlogsQueryRepository,
+    private readonly blogsQueryRepository: BlogsQueryRepository,
   ) {}
 
   async execute(
     query: GetBlogsQuery,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
-    return this.queryRepository.getAll(query.queryParams);
+    return this.blogsQueryRepository.getAll(query.queryParams);
   }
 }

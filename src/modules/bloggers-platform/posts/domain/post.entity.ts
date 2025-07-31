@@ -10,15 +10,32 @@ import { CreatePostDomainDto } from './create-post.domain.dto';
  * User Entity Schema
  * This class represents the schema and behavior of a User entity.
  */
+
+export const titleConstraints = {
+  minLength: 1,
+  maxLength: 30
+}
+
+export const shortDescriptionConstraints = {
+  minLength: 1,
+  maxLength: 100
+}
+
+export const contentConstraints = {
+  minLength: 1,
+  maxLength: 1000
+}
+
+
 @Schema({ timestamps: true })
 export class Post {
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true,...titleConstraints })
   title: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, ...shortDescriptionConstraints })
   shortDescription: string;
 
-  @Prop({ type: String, min: 5, required: true })
+  @Prop({ type: String,  required: true, ...contentConstraints})
   content: string;
 
    @Prop({ type: String, required: true })

@@ -21,7 +21,11 @@ export class BlogsRepository {
   }
 
   async findOrNotFoundFail(id: string): Promise<BlogDocument> {
-    const blog = await this.BlogModel.findById(id);
+  
+    const blog = await this.BlogModel.findOne({
+      _id: id,
+      deletedAt: null,
+    });
 
     if (!blog) {
       throw new DomainException({

@@ -28,6 +28,15 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validat
 import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
 import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
+import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { CreateCommentInputDto } from '../../comments/api/input-dto.ts/comment.input-dto';
+import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
+import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
+import { CommentViewDto } from '../../comments/api/view-dto.ts/comments.view.dto';
+import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
+import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
+import { ChangeLikeStatusForPostCommand } from '../application/usecases/change-likeStatus.usecase';
+import { LikeInputModel } from '../dto/like-status.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -35,7 +44,8 @@ export class PostsController {
      
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
-    private queryBus: QueryBus
+    private queryBus: QueryBus,
+    private commentsQueryRepository: CommentsQueryRepository
      ) {
     console.log('UsersController created');
   }
@@ -82,6 +92,27 @@ export class PostsController {
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeletePostCommand(id));
   }
+@Post(':id/comments')
+  @UseGuards(JwtAuthGuard)
+  async createCommentForPost(
+    @Param('id') postId: string,
+    @Body() body: CreateCommentInputDto,
+    @ExtractUserFromRequest() user: UserContextDto): Promise<CommentViewDto> {
+  
+    const commentId = await this.commandBus.execute(new CreateCommentForPostCommand(postId, user.id, body));
+
+    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
+  }
+ @Put(':id/like-status')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    async changeLikeStatusForPost(
+      @Param('id') id: string,
+      @Body() body: LikeInputModel,
+    ): Promise<void> {
+      await this.commandBus.execute(new ChangeLikeStatusForPostCommand(id, body.likeStatus));
+      }
+
 
 
 }

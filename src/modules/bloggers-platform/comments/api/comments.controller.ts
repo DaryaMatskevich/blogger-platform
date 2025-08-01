@@ -64,7 +64,7 @@ export class CommentsController {
       await this.commandBus.execute(new UpdateCommentCommand(id, body));
       }
 
- @Put(':id')
+ @Put(':id/like-status')
     @HttpCode(204)
     @UseGuards(JwtAuthGuard)
     async changeLikeStatus(
@@ -74,15 +74,5 @@ export class CommentsController {
       await this.commandBus.execute(new ChangeLikeStatusCommand(id, body.likeStatus));
       }
 
-@Post(':id/comments')
-  @UseGuards(JwtAuthGuard)
-  async createCommentForPost(
-    @Param('id') postId: string,
-    @Body() body: CreateCommentInputDto,
-    @ExtractUserFromRequest() user: UserContextDto): Promise<CommentViewDto> {
-  
-    const commentId = await this.commandBus.execute(new CreateCommentForPostCommand(postId, user.id, body));
 
-    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
-  }
 }

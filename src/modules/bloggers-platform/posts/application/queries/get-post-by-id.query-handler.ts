@@ -7,6 +7,7 @@ import { PostsQueryRepository } from '../../infactructure/query/posts.query-repo
 export class GetPostByIdQuery {
   constructor(
     public id: string,
+    public userId: string
   ) {}
 }
 

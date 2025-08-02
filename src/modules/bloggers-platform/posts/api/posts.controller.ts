@@ -37,6 +37,7 @@ import { CreateCommentForPostCommand } from '../../comments/application/usecases
 import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
 import { ChangeLikeStatusForPostCommand } from '../application/usecases/change-likeStatus.usecase';
 import { LikeInputModel } from '../dto/like-status.dto';
+import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -52,16 +53,18 @@ export class PostsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
-  async getById(@Param('id') id: string): Promise<PostViewDto> {
-    // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
-    // промис зарезолвится и затем NestJS вернёт результат клиенту
-    return this.queryBus.execute(new GetPostByIdQuery(id));
+  async getById( 
+  @ExtractUserIfExistsFromRequest() user: UserContextDto,
+  @Param('id') id: string)
+  :Promise<PostViewDto> {
+
+    return this.queryBus.execute(new GetPostByIdQuery(id, user.id));
   }
 
   @Get()
   async getAll(
     @Query() query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(new GetPostsQuery(query));
   }
 

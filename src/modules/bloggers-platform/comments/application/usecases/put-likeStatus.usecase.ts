@@ -2,24 +2,24 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { CommentsRepository } from "../../infrastructute/comments.repository";
 
 
-export class ChangeLikeStatusCommand {
+export class PutLikeStatusForCommentCommand {
     constructor(public id: string,
-        public likeStatus: "Like" | "Dislike" | "None",
+        public likeStatus: string,
         
     ) { }
 }
 
-@CommandHandler(ChangeLikeStatusCommand)
-export class ChangeLikeStatusUseCase
-    implements ICommandHandler<ChangeLikeStatusCommand> {
+@CommandHandler(PutLikeStatusForCommentCommand)
+export class PutLikeStatusForCommentUseCase
+    implements ICommandHandler<PutLikeStatusForCommentCommand> {
     constructor(
         private commentsRepository: CommentsRepository
     ) { }
 
-    async execute(command: ChangeLikeStatusCommand) {
+    async execute(command: PutLikeStatusForCommentCommand) {
         const comment = await this.commentsRepository.findOrNotFoundFail(command.id);
 
-        comment.changeLikeStatus(command.likeStatus);
+        comment.putLikeStatus(command.likeStatus);
 
         await this.commentsRepository.save(comment);
     }

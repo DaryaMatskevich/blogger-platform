@@ -5,7 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-   Param,
+  Param,
   Post,
   Put,
   Query,
@@ -19,14 +19,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { LikeInputModel } from '../domain/dto/like-status.dto';
-import { ChangeLikeStatusCommand } from '../application/usecases/change-likeStatus.usecase';
 import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment-usecase';
-import { CreateCommentInputDto } from './input-dto/comment.input-dto';
-import { CreateCommentForPostCommand } from '../application/usecases/create-comment-for-post.usecase';
-import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
-import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
+import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
+
+
 
 
 
@@ -35,10 +33,10 @@ export class CommentsController {
   constructor(
     private commandBus: CommandBus,
     private commentsQueryRepository: CommentsQueryRepository
-  ) {}
+  ) { }
 
   @ApiParam({ name: 'id' }) //для сваггера
-  @Get(':id') 
+  @Get(':id')
   @Public()
   async getById(@Param('id') id: string): Promise<CommentViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
@@ -46,33 +44,34 @@ export class CommentsController {
     return this.commentsQueryRepository.getByIdOrNotFoundFail(id);
   }
 
- @ApiParam({ name: 'id' }) //для сваггера
+  @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async deleteBlog(@Param('id') id: string): Promise<void> {
+  async deleteBlog(@Param('id') id: string)
+    : Promise<void> {
     return this.commandBus.execute(new DeleteCommentCommand(id));
   }
 
   @Put(':id')
-    @HttpCode(204)
-    @UseGuards(JwtAuthGuard)
-    async updateComment(
-      @Param('id') id: string,
-      @Body() body: UpdateCommentDto,
-    ): Promise<void> {
-      await this.commandBus.execute(new UpdateCommentCommand(id, body));
-      }
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async updateComment(
+    @Param('id') id: string,
+    @Body() body: UpdateCommentDto,
+  ): Promise<void> {
+    await this.commandBus.execute(new UpdateCommentCommand(id, body));
+  }
 
- @Put(':id/like-status')
-    @HttpCode(204)
-    @UseGuards(JwtAuthGuard)
-    async changeLikeStatus(
-      @Param('id') id: string,
-      @Body() body: LikeInputModel,
-    ): Promise<void> {
-      await this.commandBus.execute(new ChangeLikeStatusCommand(id, body.likeStatus));
-      }
+  @Put(':id/like-status')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async changeLikeStatus(
+    @Param('id') id: string,
+    @Body() body: LikeInputModel,
+  ): Promise<void> {
+    await this.commandBus.execute(new PutLikeStatusForCommentCommand(id, body.likeStatus));
+  }
 
 
 }

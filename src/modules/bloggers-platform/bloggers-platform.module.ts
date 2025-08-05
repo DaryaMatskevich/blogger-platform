@@ -19,7 +19,7 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post-usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post-usecase';
 import { CreatePostForBlogUseCase } from './posts/application/usecases/create-post-for-blog-usecase';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ChangeLikeStatusUseCase } from './comments/application/usecases/change-likeStatus.usecase';
+
 import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment-usecase';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
 import { CommentsController } from './comments/api/comments.controller';
@@ -32,16 +32,17 @@ import {  GetPostByIdQueryHandler } from './posts/application/queries/get-post-b
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
 import { UserAccountsModule } from '../user-accounts/userAccounts.module';
-
 import { LikePost, LikePostSchema } from './posts/domain/likes/like.entity';
 import { LikesPostQueryRepository } from './posts/infactructure/likes/likesPostQueryRepository';
 import { LikesPostRepository } from './posts/infactructure/likes/likesPostRepository';
 import { putLikeStatusForPostUseCase } from './posts/application/usecases/put-likeStatus.usecase';
+import { PutLikeStatusForCommentUseCase } from './comments/application/usecases/put-likeStatus.usecase';
+
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
   CreatePostUseCase, UpdatePostUseCase, putLikeStatusForPostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
-ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
+PutLikeStatusForCommentUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [

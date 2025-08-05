@@ -64,7 +64,7 @@ export class Comment {
     }
   }
   
-  changeLikeStatus(newStatus: 'Like' | 'Dislike' | 'None') {
+  putLikeStatus(newStatus: string) {
     const currentStatus = this.likesInfo.myStatus;
 
     if (currentStatus === newStatus) return;

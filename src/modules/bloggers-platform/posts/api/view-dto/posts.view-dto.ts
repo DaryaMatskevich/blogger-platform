@@ -51,5 +51,31 @@ export class PostViewDto {
     return dto;
   }
 
+  static mapToViewWithStatus(post: PostDocument, myStatus: string): PostViewDto {
+    const dto = new PostViewDto();
+    
+    dto.id = post._id.toString();
+    dto.title = post.title;
+    dto.shortDescription = post.shortDescription;
+    dto.content = post.content;
+    dto.blogId = post.blogId;
+    dto.blogName = post.blogName;
+    dto.createdAt = post.createdAt;
+
   
+
+    dto.extendedLikesInfo = {
+      likesCount: post.extendedLikesInfo?.likesCount || 0,
+      dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
+      myStatus: myStatus,
+      newestLikes: post.extendedLikesInfo?.newestLikes?.map(like => ({
+        addedAt: like.addedAt,
+        userId: like.userId,
+        login: like.login
+      })) || []
+    };
+
+    return dto;
+  }
+
 }

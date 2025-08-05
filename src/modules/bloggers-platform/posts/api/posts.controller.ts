@@ -33,9 +33,10 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view.dto';
 import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
 import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
-import {PutLikeStatusForPostCommand } from '../application/usecases/change-likeStatus.usecase';
 import { LikeInputModel } from '../dto/like-status.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
+import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -51,12 +52,14 @@ export class PostsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
+  @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('id') id: string)
+    @Param('id') postId: string)
     : Promise<PostViewDto> {
     const userId = user?.id || null;
-    return this.queryBus.execute(new GetPostByIdQuery(id, { userId }));
+    console.log(userId)
+    return this.queryBus.execute(new GetPostByIdQuery(postId, userId));
   }
 
   @Get()

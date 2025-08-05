@@ -7,13 +7,13 @@ export class LikesPostRepository {
   constructor(@InjectModel(LikePost.name) private LikePostModel: LikePostModelType) { }
 
 
-  async getLikeStatusByUserId(userId: string, postId: string): Promise<LikePostDocument | null> {
+  async getLikePostByUserId(userId: string, postId: string): Promise<LikePostDocument | null> {
 
 
     const likePost = await this.LikePostModel.findOne({
       userId: userId,
       postId: postId
-    }).lean()
+    }).exec()
     return likePost || null;
   }
 

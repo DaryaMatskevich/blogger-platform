@@ -32,6 +32,24 @@ export class PostsQueryRepository {
     return PostViewDto.mapToView(post);
   }
 
+async getByIdWithStatusOrNotFoundFail(postId: string, myStatus: string): Promise<PostViewDto> {
+    const post = await this.PostModel.findOne({
+      _id: postId,
+      deletedAt: null,
+    });
+
+    if (!post) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Post not found"
+      })
+    }
+
+    return PostViewDto.mapToViewWithStatus(post, myStatus);
+  }
+
+
+
   async getAll(
     query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {

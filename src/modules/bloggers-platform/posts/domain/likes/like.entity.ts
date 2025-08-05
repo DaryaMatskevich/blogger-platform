@@ -23,10 +23,10 @@ export class LikePost {
 
     static createLikePost(
         this: LikePostModelType,
-        userId: string, 
-        login: string, 
+        userId: string,
+        login: string,
         likeStatus: string,
-    postId: string): LikePostDocument {
+        postId: string): LikePostDocument {
         const like = new this();
         like.addedAt = (new Date()).toISOString()
         like.userId = userId;
@@ -38,9 +38,8 @@ export class LikePost {
     }
 
     updateStatus(newStatus: string) {
-        if (this.status !== newStatus) {
-            this.status = newStatus;
-        }
+        this.status = newStatus;
+        this.addedAt = new Date().toISOString()
     }
 }
 

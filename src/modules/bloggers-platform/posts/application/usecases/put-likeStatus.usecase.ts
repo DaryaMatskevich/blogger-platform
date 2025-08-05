@@ -9,8 +9,8 @@ import { UsersExternalQueryRepository } from "../../../../../modules/user-accoun
 export class PutLikeStatusForPostCommand {
     constructor(public postId: string,
         public userId: string,
-        public likeStatus: "Like" | "Dislike" | "None",
-        
+        public likeStatus: string
+
     ) { }
 }
 
@@ -20,7 +20,7 @@ export class putLikeStatusForPostUseCase
     constructor(
         @InjectModel(LikePost.name)
         private LikePostModel: LikePostModelType,
-        
+
         private postsRepository: PostsRepository,
         private likesPostRepository: LikesPostRepository,
         private usersExternalQueryRepository: UsersExternalQueryRepository
@@ -28,24 +28,38 @@ export class putLikeStatusForPostUseCase
 
     async execute(command: PutLikeStatusForPostCommand) {
         const post = await this.postsRepository.findOrNotFoundFail(command.postId);
-const currentLikePost = await this.likesPostRepository.getLikeStatusByUserId(command.userId, command.postId)
-        if(!currentLikePost) {
+
+        const currentLikePost = await this.likesPostRepository.getLikePostByUserId(command.userId, command.postId)
+        const oldStatus = currentLikePost?.status || "None";
+        if (oldStatus === command.likeStatus) {
+            return;
+        }
+
+        if (!currentLikePost) {
             const user = await this.usersExternalQueryRepository.getByIdOrNotFoundFail(command.userId)
             const likePost = this.LikePostModel.createLikePost(
                 command.userId,
                 user.login,
                 command.likeStatus,
                 command.postId
-          )
-           await this.likesPostRepository.save(likePost)
+            )
+            await this.likesPostRepository.save(likePost)
         }
-       else {
-currentLikePost.updateStatus(command.likeStatus)
-await this.likesPostRepository.save(currentLikePost)
-       }
-
-}
-
-        
+        else {
+            currentLikePost.updateStatus(command.likeStatus)
+            await this.likesPostRepository.save(currentLikePost)
+            console.log(currentLikePost)
+        }
+       const user = await this.usersExternalQueryRepository.getByIdOrNotFoundFail(command.userId)
+ post.changeLikesCounter(
+            oldStatus,
+            command.likeStatus,
+            command.userId,
+            user.login,
+            
+        );
+        // Сохраняем изменения поста
+        await this.postsRepository.save(post);
     }
+}
 

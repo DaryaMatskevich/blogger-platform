@@ -28,14 +28,15 @@ import { CommentsQueryRepository } from './comments/infrastructute/query/comment
 import { Comment, CommentSchema } from './comments/domain/comment.entity';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blogs-by-id.query-handler';
 import {GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
-import { GetPostByIdQuery, GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query-handler';
+import {  GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query-handler';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
 import { UserAccountsModule } from '../user-accounts/userAccounts.module';
-import { putLikeStatusForPostUseCase} from './posts/application/usecases/change-likeStatus.usecase';
+
 import { LikePost, LikePostSchema } from './posts/domain/likes/like.entity';
 import { LikesPostQueryRepository } from './posts/infactructure/likes/likesPostQueryRepository';
 import { LikesPostRepository } from './posts/infactructure/likes/likesPostRepository';
+import { putLikeStatusForPostUseCase } from './posts/application/usecases/put-likeStatus.usecase';
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 

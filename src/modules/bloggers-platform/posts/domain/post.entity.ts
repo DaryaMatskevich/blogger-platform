@@ -95,7 +95,56 @@ export class Post {
      }
 }
 
+ changeLikesCounter(
+    oldStatus: string,
+    newStatus: string,
+    userId: string,
+    userLogin: string,
+    
+  ) {
+   
+    // 1. Обновляем счетчики
+    if (oldStatus === "Like") {
+      this.extendedLikesInfo.likesCount--;
+    } else if (oldStatus === "Dislike") {
+      this.extendedLikesInfo.dislikesCount--;
+    }
+
+    if (newStatus === "Like") {
+      this.extendedLikesInfo.likesCount++;
+    } else if (newStatus === "Dislike") {
+      this.extendedLikesInfo.dislikesCount++;
+    }
+
+    // Гарантируем неотрицательные значения
+    this.extendedLikesInfo.likesCount = Math.max(this.extendedLikesInfo.likesCount, 0);
+    this.extendedLikesInfo.dislikesCount = Math.max(this.extendedLikesInfo.dislikesCount, 0);
+
+    // 2. Обновляем список новейших лайков
+    // Удаляем старую запись пользователя
+    this.extendedLikesInfo.newestLikes = this.extendedLikesInfo.newestLikes.filter(
+      like => like.userId !== userId
+    );
+
+    // Добавляем новую запись если это лайк
+    if (newStatus === "Like") {
+      this.extendedLikesInfo.newestLikes.push({
+        addedAt: new Date(),
+        userId,
+        login: userLogin
+      });
+
+      // Сортируем по дате (новые впереди) и оставляем 3 последних
+      this.extendedLikesInfo.newestLikes.sort(
+        (a, b) => b.addedAt.getTime() - a.addedAt.getTime()
+      );
+      
+      // Оставляем только 3 последних лайка
+      this.extendedLikesInfo.newestLikes = this.extendedLikesInfo.newestLikes.slice(0, 3);
+    }
+  }
 }
+
 export const PostSchema = SchemaFactory.createForClass(Post);
 
 //регистрирует методы сущности в схеме

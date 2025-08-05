@@ -1,4 +1,4 @@
-import { Trim } from "@src/core/decorators/transform/trim";
+import { Trim } from "../../../../core/decorators/transform/trim";
 import { IsString } from "class-validator";
 
 /**

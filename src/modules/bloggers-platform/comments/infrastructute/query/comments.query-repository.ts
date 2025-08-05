@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Comment, CommentModelType } from '../../domain/comment.entity';
-import { CommentViewDto } from '../../api/view-dto.ts/comments.view.dto';
+import { CommentViewDto } from '../../api/view-dto/comments.view.dto';
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 

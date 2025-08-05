@@ -1,7 +1,12 @@
+import { Trim } from "@src/core/decorators/transform/trim";
+import { IsString } from "class-validator";
+
 /**
  * user object for the jwt token and for transfer from the request object
  */
 export class UserContextDto {
+  @IsString()
+  @Trim()
   id: string;
 }
 

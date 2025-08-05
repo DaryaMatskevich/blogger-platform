@@ -33,7 +33,7 @@ export class ValidateUserUseCase
         if (!isPasswordValid) {
             return null
         }
-
+console.log(user._id.toString())
         return { id: user._id.toString() };
     }
 }

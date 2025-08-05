@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { InjectModel } from "@nestjs/mongoose";
-import { CreateCommentInputDto } from "../../api/input-dto.ts/comment.input-dto";
+import { CreateCommentInputDto } from "../../api/input-dto/comment.input-dto";
 import { Comment, CommentModelType } from "../../domain/comment.entity";
 import { CommentsRepository } from "../../infrastructute/comments.repository";
 import { PostsRepository } from "../../../../../modules/bloggers-platform/posts/infactructure/posts.repository";
@@ -27,7 +27,9 @@ export class CreateCommentForPostUseCase
 
     async execute(command: CreateCommentForPostCommand): Promise<string> {
         const post = await this.postsRepository.findOrNotFoundFail(command.postId)
+       
 const user = await this.usersExternalQueryRepository.getByIdOrNotFoundFail(command.userId)
+
 const commentDto = {
      content: command.dto.content,
         commentatorInfo: {
@@ -38,7 +40,6 @@ const commentDto = {
         const comment = this.commentModel.createInstance(commentDto);
 
         await this.commentsRepository.save(comment);
-
         return comment._id.toString();
     }
 }

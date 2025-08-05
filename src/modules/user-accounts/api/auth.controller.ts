@@ -61,8 +61,9 @@ export class AuthController {
     @ExtractUserFromRequest() user: UserContextDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ accessToken: string }> {
+    console.log(user.id)
     const tokens = await this.commandBus.execute(
-      new LoginCommand(user.id)
+      new LoginCommand({userId: user.id})
     )
 
     response.cookie('refreshToken', tokens.refreshToken, {

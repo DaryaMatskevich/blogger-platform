@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 
 import { ApiParam } from '@nestjs/swagger';
-import { CommentViewDto } from './view-dto.ts/comments.view.dto';
+import { CommentViewDto } from './view-dto/comments.view.dto';
 import { CommentsQueryRepository } from '../infrastructute/query/comments.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
@@ -23,7 +23,7 @@ import { ChangeLikeStatusCommand } from '../application/usecases/change-likeStat
 import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment-usecase';
-import { CreateCommentInputDto } from './input-dto.ts/comment.input-dto';
+import { CreateCommentInputDto } from './input-dto/comment.input-dto';
 import { CreateCommentForPostCommand } from '../application/usecases/create-comment-for-post.usecase';
 import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';

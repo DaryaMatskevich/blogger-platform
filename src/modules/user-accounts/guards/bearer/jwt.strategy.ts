@@ -5,7 +5,7 @@ import { UserContextDto } from '../dto/user-contex.dto';
 
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,7 +18,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * функция принимает payload из jwt токена и возвращает то, что впоследствии будет записано в req.user
    * @param payload
    */
-  async validate(payload: UserContextDto): Promise<UserContextDto> {
-    return payload;
+  async validate(payload: {id: string}): Promise<UserContextDto> {
+    
+    return {
+      id: payload.id}
   }
 }

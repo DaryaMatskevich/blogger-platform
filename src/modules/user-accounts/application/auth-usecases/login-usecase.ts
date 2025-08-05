@@ -6,7 +6,7 @@ import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN
 
 
 export class LoginCommand {
-    constructor(public dto: {userId: string}) { }
+    constructor(public dto: {userId: string}) {}
 }
 
 @CommandHandler(LoginCommand)

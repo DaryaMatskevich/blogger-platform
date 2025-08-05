@@ -94,25 +94,6 @@ export class Post {
       this.content = dto.content;
      }
 }
-changeLikeStatus(newStatus: 'Like' | 'Dislike' | 'None') {
-    const currentStatus = this.extendedLikesInfo.myStatus;
-
-    if (currentStatus === newStatus) return;
-
-    if (currentStatus === 'Like') {
-      this.extendedLikesInfo.likesCount = Math.max(this.extendedLikesInfo.likesCount - 1, 0);
-    } else if (currentStatus === 'Dislike') {
-      this.extendedLikesInfo.dislikesCount = Math.max(this.extendedLikesInfo.dislikesCount - 1, 0);
-    }
-
-    if (newStatus === 'Like') {
-      this.extendedLikesInfo.likesCount += 1;
-    } else if (newStatus === 'Dislike') {
-      this.extendedLikesInfo.dislikesCount += 1;
-    }
-
-    this.extendedLikesInfo.myStatus = newStatus;
-  }
 
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

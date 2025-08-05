@@ -32,11 +32,14 @@ import { GetPostByIdQuery, GetPostByIdQueryHandler } from './posts/application/q
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
 import { UserAccountsModule } from '../user-accounts/userAccounts.module';
-import { ChangeLikeStatusForPostUseCase } from './posts/application/usecases/change-likeStatus.usecase';
+import { putLikeStatusForPostUseCase} from './posts/application/usecases/change-likeStatus.usecase';
+import { LikePost, LikePostSchema } from './posts/domain/likes/like.entity';
+import { LikesPostQueryRepository } from './posts/infactructure/likes/likesPostQueryRepository';
+import { LikesPostRepository } from './posts/infactructure/likes/likesPostRepository';
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
-  CreatePostUseCase, UpdatePostUseCase, ChangeLikeStatusForPostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
+  CreatePostUseCase, UpdatePostUseCase, putLikeStatusForPostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
 ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
@@ -47,6 +50,7 @@ ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateComme
       { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
+      {name: LikePost.name, schema: LikePostSchema}
       
     ]),
   ],
@@ -61,6 +65,8 @@ ChangeLikeStatusUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateComme
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
+    LikesPostQueryRepository,
+    LikesPostRepository,
     ...useCases
   ],
   exports: [BlogsExternalQueryRepository],

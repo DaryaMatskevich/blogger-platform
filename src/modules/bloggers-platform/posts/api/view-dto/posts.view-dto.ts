@@ -1,3 +1,4 @@
+
 import { PostDocument } from "../../domain/post.entity";
 
 type LikeInfo = {
@@ -33,10 +34,13 @@ export class PostViewDto {
     dto.blogId = post.blogId;
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt;
+
+  
+
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo?.likesCount || 0,
       dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
-      myStatus: post.extendedLikesInfo?.myStatus || "None",
+      myStatus: "None",
       newestLikes: post.extendedLikesInfo?.newestLikes?.map(like => ({
         addedAt: like.addedAt,
         userId: like.userId,
@@ -44,8 +48,8 @@ export class PostViewDto {
       })) || []
     };
 
-
-
     return dto;
   }
+
+  
 }

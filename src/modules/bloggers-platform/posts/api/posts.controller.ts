@@ -14,7 +14,6 @@ import {
 
 import { ApiParam } from '@nestjs/swagger';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
-import { PostsService } from '../application/posts.service';
 import { PostsQueryRepository } from '../infactructure/query/posts.query-repository';
 import { PostViewDto } from './view-dto/posts.view-dto';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
@@ -24,7 +23,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post-usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post-usecase';
-import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
 import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
@@ -35,7 +33,7 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view.dto';
 import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
 import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
-import { ChangeLikeStatusForPostCommand } from '../application/usecases/change-likeStatus.usecase';
+import {PutLikeStatusForPostCommand } from '../application/usecases/change-likeStatus.usecase';
 import { LikeInputModel } from '../dto/like-status.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 
@@ -54,11 +52,11 @@ export class PostsController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
   async getById(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Param('id') id: string)
     : Promise<PostViewDto> {
-
-    return this.queryBus.execute(new GetPostByIdQuery(id, user.id));
+    const userId = user?.id || null;
+    return this.queryBus.execute(new GetPostByIdQuery(id, { userId }));
   }
 
   @Get()
@@ -104,20 +102,21 @@ export class PostsController {
     @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: CreateCommentInputDto,
   ): Promise<CommentViewDto> {
-console.log(user)
+    console.log(user)
     const commentId = await this.commandBus.execute(new CreateCommentForPostCommand(postId, user.id, body));
-    
+
     return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
   }
 
   @Put(':id/like-status')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
-  async changeLikeStatusForPost(
-    @Param('id') id: string,
+  async putLikeStatusForPost(
+    @Param('id') postId: string,
+    @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: LikeInputModel,
   ): Promise<void> {
-    await this.commandBus.execute(new ChangeLikeStatusForPostCommand(id, body.likeStatus));
+    await this.commandBus.execute(new PutLikeStatusForPostCommand(postId, user.id, body.likeStatus));
   }
 
 

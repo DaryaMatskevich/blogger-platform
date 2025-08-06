@@ -1,7 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { Comment, CommentDocument, CommentModelType } from '../domain/comment.entity';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 
 @Injectable()
@@ -19,8 +21,10 @@ export class CommentsRepository {
       const comment = await this.CommentModel.findById(id);
   
       if (!comment) {
-        //TODO: replace with domain exception
-        throw new NotFoundException('user not found');
+          throw new DomainException({
+                code: DomainExceptionCode.NotFound,
+                message: "Blog not found",
+              })
       }
   
       return comment;

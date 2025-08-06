@@ -77,9 +77,10 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   async changeLikeStatus(
     @Param('id') id: string,
+     @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: LikeInputModel,
   ): Promise<void> {
-    await this.commandBus.execute(new PutLikeStatusForCommentCommand(id, body.likeStatus));
+    await this.commandBus.execute(new PutLikeStatusForCommentCommand(id, user.id, body.likeStatus));
   }
 
 

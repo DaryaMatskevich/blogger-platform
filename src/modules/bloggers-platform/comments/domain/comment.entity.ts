@@ -63,26 +63,31 @@ export class Comment {
       this.content = dto.content;
     }
   }
-  
-  putLikeStatus(newStatus: string) {
-    const currentStatus = this.likesInfo.myStatus;
 
-    if (currentStatus === newStatus) return;
+  changeLikesCounter(
+    oldStatus: string,
+    newStatus: string,
+  ) {
 
-    if (currentStatus === 'Like') {
-      this.likesInfo.likesCount = Math.max(this.likesInfo.likesCount - 1, 0);
-    } else if (currentStatus === 'Dislike') {
-      this.likesInfo.dislikesCount = Math.max(this.likesInfo.dislikesCount - 1, 0);
+    // 1. Обновляем счетчики
+    if (oldStatus === "Like") {
+      this.likesInfo.likesCount--;
+    } else if (oldStatus === "Dislike") {
+      this.likesInfo.dislikesCount--;
     }
 
-    if (newStatus === 'Like') {
-      this.likesInfo.likesCount += 1;
-    } else if (newStatus === 'Dislike') {
-      this.likesInfo.dislikesCount += 1;
+    if (newStatus === "Like") {
+      this.likesInfo.likesCount++;
+    } else if (newStatus === "Dislike") {
+      this.likesInfo.dislikesCount++;
     }
 
-    this.likesInfo.myStatus = newStatus;
+    // Гарантируем неотрицательные значения
+    this.likesInfo.likesCount = Math.max(this.likesInfo.likesCount, 0);
+    this.likesInfo.dislikesCount = Math.max(this.likesInfo.dislikesCount, 0);
+
   }
+
 }
 
 

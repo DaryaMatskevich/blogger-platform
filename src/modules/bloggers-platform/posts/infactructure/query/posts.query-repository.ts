@@ -7,6 +7,7 @@ import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
+import { LikePost, LikePostModelType } from '../../domain/likes/like.entity';
 
 
 @Injectable()
@@ -14,6 +15,8 @@ export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)
     private PostModel: PostModelType,
+      @InjectModel(LikePost.name)
+    private LikePostModel: LikePostModelType,
   ) { }
 
   async getByIdOrNotFoundFail(postId: string): Promise<PostViewDto> {
@@ -75,7 +78,7 @@ async getByIdWithStatusOrNotFoundFail(postId: string, myStatus: string): Promise
   }
 
   async getPostsForBlog(
-    query: GetPostsQueryParams, blogId: string
+    query: GetPostsQueryParams, blogId: string, userId: string | null
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const filter: FilterQuery<Post> = {
       deletedAt: null,
@@ -87,9 +90,108 @@ async getByIdWithStatusOrNotFoundFail(postId: string, myStatus: string): Promise
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
+      const postIds = posts.map(p => p._id.toString())
+      
+      const userStatuses = userId ?
+      await this.LikePostModel.find({
+        userId: userId,
+        postId: { $in: postIds }
+      }).lean()
+      : []
+
+       const userStatusMap = new Map(
+            userStatuses.map(status => [
+                status.postId.toString(), 
+                status.status
+            ])
+        );
+
+
+        const [likesAggregation, dislikesAggregation, newestLikesAggregation] = await Promise.all([
+        this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Like"
+        }
+      },
+      {
+        $group: {
+          _id: "$postId",
+          count: { $sum: 1 }
+        }
+      }
+    ]),
+    // Дизлайки
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Dislike"
+        }
+      },
+      {
+        $group: {
+          _id: "$postId",
+          count: { $sum: 1 }
+        }
+      }
+    ]),
+    // Последние лайки
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Like"
+        }
+      },
+      {
+        $sort: { addedAt: -1 }
+      },
+      {
+        $group: {
+          _id: "$postId",
+          newestLikes: {
+            $push: {
+              addedAt: "$addedAt",
+              userId: "$userId",
+              login: "$login"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          newestLikes: { $slice: ["$newestLikes", 3] }
+        }
+      }
+    ])
+  ]);
+
+  // Создаем мапы для быстрого доступа
+  const likesMap = new Map(likesAggregation.map(item => [item._id.toString(), item.count]));
+  const dislikesMap = new Map(dislikesAggregation.map(item => [item._id.toString(), item.count]));
+  const newestLikesMap = new Map(newestLikesAggregation.map(item => [item._id.toString(), item.newestLikes]));
+
+  // Формируем результат
+  const items = posts.map(post => {
+    const postId = post._id.toString();
+    
+    return {
+      ...PostViewDto.mapToView(post),
+      extendedLikesInfo: {
+        likesCount: likesMap.get(postId) || 0,
+        dislikesCount: dislikesMap.get(postId) || 0,
+        myStatus: userStatusMap.get(postId) || "None",
+        newestLikes: newestLikesMap.get(postId) || []
+      }
+    };
+  });
+        
+
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map(PostViewDto.mapToView);
+    // const items = posts.map(PostViewDto.mapToView);
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,

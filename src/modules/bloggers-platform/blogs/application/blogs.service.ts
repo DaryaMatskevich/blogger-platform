@@ -15,9 +15,9 @@ export class BlogsService {
 
   ) { }
 
-  async getAllPostsForBlog(id: string, query: GetPostsQueryParams) {
+  async getAllPostsForBlog(blogId: string, userId: string | null, query: GetPostsQueryParams) {
 
-    const posts = await this.postsQueryRepository.getPostsForBlog(query, id)
+    const posts = await this.postsQueryRepository.getPostsForBlog(query, blogId, userId)
     return posts
 
   }

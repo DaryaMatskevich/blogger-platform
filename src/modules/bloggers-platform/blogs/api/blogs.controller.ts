@@ -37,6 +37,9 @@ import { GetBlogByIdQuery } from '../application/queries/get-blogs-by-id.query-h
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { JwtOptionalAuthGuard } from '@src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { UserContextDto } from '@src/modules/user-accounts/guards/dto/user-contex.dto';
+import { ExtractUserIfExistsFromRequest } from '@src/modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 
 @Controller('blogs')
 export class BlogsController {
@@ -98,18 +101,21 @@ export class BlogsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id/posts')
+  @UseGuards(JwtOptionalAuthGuard)
   async getAllPostsForBlog(
-    @Param('id') id: string,
+    @Param('id') blogId: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const blogExists = await this.blogsService.blogExists(id)
+   const userId = user?.id || null
+    const blogExists = await this.blogsService.blogExists(blogId)
     if (!blogExists) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: "Blog not found",
       })
     }
-    return this.blogsService.getAllPostsForBlog(id, query)
+    return this.blogsService.getAllPostsForBlog(blogId, userId, query)
   }
 
   @Post(':id/posts')

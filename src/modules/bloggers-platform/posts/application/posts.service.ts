@@ -14,5 +14,7 @@ export class PostsService {
    const exists = await this.PostModel.findOne({ _id: id, deletedAt: null }).lean();
 return !!exists;
 }
-  }
+
+}
+  
   

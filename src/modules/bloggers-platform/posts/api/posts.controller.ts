@@ -38,6 +38,10 @@ import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-account
 import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
+import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
+import { PostsService } from '../application/posts.service';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 @Controller('posts')
 export class PostsController {
@@ -45,6 +49,7 @@ export class PostsController {
 
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
+    private postsService: PostsService,
     private queryBus: QueryBus,
     private commentsQueryRepository: CommentsQueryRepository
   ) {
@@ -110,6 +115,26 @@ export class PostsController {
     const commentId = await this.commandBus.execute(new CreateCommentForPostCommand(postId, user.id, body));
 
     return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
+  }
+
+  @Get(':id/comments')
+  @UseGuards(JwtOptionalAuthGuard)
+  async getCommentsForPost(
+    @Query() query: GetCommentsQueryParams,
+    @Param('id', ObjectIdValidationPipe) postId: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    console.log(user)
+    const userId = user?.id
+    const postExists = await this.postsService.postExists(postId)
+    if (!postExists) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Post not found",
+      })
+    }
+
+    return this.commentsQueryRepository.getCommentsForPost(query, postId, userId);
   }
 
   @Put(':id/like-status')

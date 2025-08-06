@@ -29,5 +29,19 @@ export class CommentsQueryRepository {
 
         return CommentViewDto.mapToView(comment);
     }
+async getByIdWithStatusOrNotFoundFail(commentId: string, myStatus: string): Promise<CommentViewDto> {
+    const comment = await this.CommentModel.findOne({
+      _id: commentId,
+      deletedAt: null,
+    });
 
+    if (!comment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Post not found"
+      })
+    }
+
+    return CommentViewDto.mapToViewWithStatus(comment, myStatus);
+  }
 }

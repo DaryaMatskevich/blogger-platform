@@ -37,12 +37,16 @@ import { LikesPostQueryRepository } from './posts/infactructure/likes/likesPostQ
 import { LikesPostRepository } from './posts/infactructure/likes/likesPostRepository';
 import { putLikeStatusForPostUseCase } from './posts/application/usecases/put-likeStatus.usecase';
 import { PutLikeStatusForCommentUseCase } from './comments/application/usecases/put-likeStatus.usecase';
+import { LikeComment, LikeCommentSchema } from './comments/domain/likes/like.entity';
+import { LikesCommentRepository } from './comments/infrastructute/likes/likesCommentRepository';
+import { LikesCommentQueryRepository } from './comments/infrastructute/likes/likesCommentQueryRepository';
+import { GetCommenttByIdQueryHandler } from './comments/application/queries/get-comment-by-id.query-handler';
 
 
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, 
   CreatePostUseCase, UpdatePostUseCase, putLikeStatusForPostUseCase, DeletePostUseCase, CreatePostForBlogUseCase,
-PutLikeStatusForCommentUseCase, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
+PutLikeStatusForCommentUseCase, GetCommenttByIdQueryHandler, DeleteCommentUseCase, UpdateCommentUseCase, CreateCommentForPostUseCase, GetBlogByIdQueryHandler, GetBlogsQueryHandler, GetPostByIdQueryHandler, GetPostsQueryHandler ]
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [
@@ -52,7 +56,8 @@ PutLikeStatusForCommentUseCase, DeleteCommentUseCase, UpdateCommentUseCase, Crea
       { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
-      {name: LikePost.name, schema: LikePostSchema}
+      {name: LikePost.name, schema: LikePostSchema},
+       {name: LikeComment.name, schema: LikeCommentSchema},
       
     ]),
   ],
@@ -69,6 +74,8 @@ PutLikeStatusForCommentUseCase, DeleteCommentUseCase, UpdateCommentUseCase, Crea
     CommentsQueryRepository,
     LikesPostQueryRepository,
     LikesPostRepository,
+    LikesCommentRepository,
+    LikesCommentQueryRepository,
     ...useCases
   ],
   exports: [BlogsExternalQueryRepository],

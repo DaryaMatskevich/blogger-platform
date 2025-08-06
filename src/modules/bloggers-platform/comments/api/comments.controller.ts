@@ -15,7 +15,7 @@ import {
 import { ApiParam } from '@nestjs/swagger';
 import { CommentViewDto } from './view-dto/comments.view.dto';
 import { CommentsQueryRepository } from '../infrastructute/query/comments.query-repository';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { LikeInputModel } from '../domain/dto/like-status.dto';
@@ -25,6 +25,9 @@ import { DeleteCommentCommand } from '../application/usecases/delete-comment-use
 import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
 import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
+import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
 
 
 
@@ -33,16 +36,19 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 export class CommentsController {
   constructor(
     private commandBus: CommandBus,
-    private commentsQueryRepository: CommentsQueryRepository
+    private commentsQueryRepository: CommentsQueryRepository,
+    private queryBus: QueryBus
   ) { }
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id')
-  @Public()
-  async getById(@Param('id') id: string): Promise<CommentViewDto> {
+  @UseGuards(JwtOptionalAuthGuard)
+  async getById(@Param('id') id: string,
+@ExtractUserIfExistsFromRequest() user: UserContextDto | null): Promise<CommentViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
-    return this.commentsQueryRepository.getByIdOrNotFoundFail(id);
+    const userId = user?.id || null
+    return this.queryBus.execute(new GetCommentByIdQuery(id, userId))
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

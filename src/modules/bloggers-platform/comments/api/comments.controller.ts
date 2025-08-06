@@ -23,6 +23,9 @@ import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jw
 import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment-usecase';
 import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
+import { ExtractUserFromRequest } from '@src/modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
+import { UserContextDto } from '@src/modules/user-accounts/guards/dto/user-contex.dto';
+import { UsersRepository } from '@src/modules/user-accounts/infastructure/users.repository';
 
 
 
@@ -48,19 +51,21 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async deleteBlog(@Param('id') id: string)
-    : Promise<void> {
-    return this.commandBus.execute(new DeleteCommentCommand(id));
+  async deleteBlog(@Param('id') commentId: string,
+  @ExtractUserFromRequest() user: UserContextDto,
+): Promise<void> {
+    return this.commandBus.execute(new DeleteCommentCommand(commentId, user.id));
   }
 
   @Put(':id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async updateComment(
-    @Param('id') id: string,
+    @Param('id') commentId: string,
+      @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: UpdateCommentDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdateCommentCommand(id, body));
+    await this.commandBus.execute(new UpdateCommentCommand(commentId, user.id, body));
   }
 
   @Put(':id/like-status')

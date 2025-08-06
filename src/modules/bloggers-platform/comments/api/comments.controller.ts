@@ -23,10 +23,8 @@ import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jw
 import { Public } from '../../../../modules/user-accounts/guards/decorators/public.decorator';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment-usecase';
 import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
-import { ExtractUserFromRequest } from '@src/modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
-import { UserContextDto } from '@src/modules/user-accounts/guards/dto/user-contex.dto';
-import { UsersRepository } from '@src/modules/user-accounts/infastructure/users.repository';
-
+import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
+import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 
 
 

@@ -28,6 +28,7 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
+import { ObjectIdValidationPipe } from '@src/core/pipes/object-id-validation-pipe.service';
 
 
 
@@ -43,7 +44,7 @@ export class CommentsController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
-  async getById(@Param('id') id: string,
+  async getById(@Param('id', ObjectIdValidationPipe) id: string,
 @ExtractUserIfExistsFromRequest() user: UserContextDto | null): Promise<CommentViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
@@ -55,7 +56,7 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async deleteBlog(@Param('id') commentId: string,
+  async deleteBlog(@Param('id', ObjectIdValidationPipe) commentId: string,
   @ExtractUserFromRequest() user: UserContextDto,
 ): Promise<void> {
     return this.commandBus.execute(new DeleteCommentCommand(commentId, user.id));
@@ -65,7 +66,7 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async updateComment(
-    @Param('id') commentId: string,
+    @Param('id', ObjectIdValidationPipe) commentId: string,
       @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: UpdateCommentDto,
   ): Promise<void> {
@@ -76,7 +77,7 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async changeLikeStatus(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
      @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: LikeInputModel,
   ): Promise<void> {

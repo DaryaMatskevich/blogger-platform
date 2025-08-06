@@ -37,6 +37,7 @@ import { LikeInputModel } from '../dto/like-status.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 
 @Controller('posts')
 export class PostsController {
@@ -55,7 +56,7 @@ export class PostsController {
   @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('id') postId: string)
+    @Param('id', ObjectIdValidationPipe) postId: string)
     : Promise<PostViewDto> {
     const userId = user?.id || null;
     console.log(userId)
@@ -81,7 +82,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updatePost(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdatePostDto,
   ): Promise<void> {
     await this.commandBus.execute(new UpdatePostCommand(id, body));
@@ -93,7 +94,7 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
-  async deletePost(@Param('id') id: string): Promise<void> {
+  async deletePost(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
     return this.commandBus.execute(new DeletePostCommand(id));
   }
 
@@ -101,7 +102,7 @@ export class PostsController {
   @Post(':id/comments')
   @UseGuards(JwtAuthGuard)
   async createCommentForPost(
-    @Param('id') postId: string,
+    @Param('id', ObjectIdValidationPipe) postId: string,
     @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: CreateCommentInputDto,
   ): Promise<CommentViewDto> {
@@ -115,7 +116,7 @@ export class PostsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async putLikeStatusForPost(
-    @Param('id') postId: string,
+    @Param('id', ObjectIdValidationPipe) postId: string,
     @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: LikeInputModel,
   ): Promise<void> {

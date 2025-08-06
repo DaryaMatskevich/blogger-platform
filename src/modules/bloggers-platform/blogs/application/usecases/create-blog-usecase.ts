@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBlogDto } from "../../dto/create-blog.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Blog, BlogModelType } from "../../domain/dto/blog.entity";
 import { BlogsRepository } from "../../infastructure/blogs.repository";
+import { CreateBlogInputDto } from "../../api/input-dto/blogs.input-dto";
 
 export class CreateBlogCommand {
-    constructor(public dto: CreateBlogDto
+    constructor(public dto: CreateBlogInputDto
     ) { }
 }
 

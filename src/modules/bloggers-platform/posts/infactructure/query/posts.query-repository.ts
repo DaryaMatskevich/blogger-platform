@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view.dto';
 import { Post, PostModelType } from '../../domain/post.entity';
 import { PostViewDto } from '../../api/view-dto/posts.view-dto';
@@ -10,7 +10,8 @@ import { DomainException } from '../../../../../core/exeptions/domain-exeptions'
 import { LikePost, LikePostModelType } from '../../domain/likes/like.entity';
 
 
-@Injectable()
+
+@Injectable() 
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)
@@ -90,126 +91,133 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const postIds = posts.map(p => p._id.toString())
+const totalCount = await this.PostModel.countDocuments(filter);
 
-    const userStatuses = userId ?
-      await this.LikePostModel.find({
+
+    if (posts.length === 0) {
+    return PaginatedViewDto.mapToView({
+    page: query.pageNumber,
+    size: query.pageSize,
+    totalCount: 0,
+    items: []
+  });
+    }
+
+   const postIds = posts.map(p => p._id.toString());
+
+  // Получаем статусы текущего пользователя
+  const userStatuses = userId
+    ? await this.LikePostModel.find({
         userId: userId,
         postId: { $in: postIds }
       }).lean()
-      : []
+    : [];
 
-    const userStatusMap = new Map(
-      userStatuses.map(status => [
-        status.postId.toString(),
-        status.status
-      ])
-    );
+  const userStatusMap = new Map(
+    userStatuses.map(status => [
+      status.postId.toString(),
+      status.status
+    ])
+  );
 
-
-    const [likesAggregation, dislikesAggregation, newestLikesAggregation] = await Promise.all([
-      this.LikePostModel.aggregate([
-        {
-          $match: {
-            postId: { $in: postIds },
-            status: "Like"
-          }
-        },
-        {
-          $group: {
-            _id: "$postId",
-            likesCount: { $sum: 1 }
-          }
+  // Выполняем агрегации параллельно
+  const [likesAggregation, dislikesAggregation] = await Promise.all([
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Like"
         }
-      ]),
-      // Дизлайки
-      this.LikePostModel.aggregate([
-        {
-          $match: {
-            postId: { $in: postIds },
-            status: "Dislike"
-          }
-        },
-        {
-          $group: {
-            _id: "$postId",
-            dislikesCount: { $sum: 1 }
-          }
-        }
-      ]),
-      // Последние лайки
-      this.LikePostModel.aggregate([
-        {
-          $match: {
-            postId: { $in: postIds },
-            status: "Like"
-          }
-        },
-        {
-          $sort: { addedAt: -1 }
-        },
-        {
-          $group: {
-            _id: "$postId",
-            newestLikes: {
-              $push: {
-                addedAt: "$addedAt",
-                userId: "$userId",
-                login: "$login"
-              }
+      },
+      { $sort: { addedAt: -1 } },
+      {
+        $group: {
+          _id: "$postId",
+          likesCount: { $sum: 1 },
+          newestLikes: {
+            $push: {
+              addedAt: "$addedAt",
+              userId: "$userId",
+              userLogin: "$userLogin"
             }
           }
-        },
-        {
-          $project: {
-            newestLikes: { $slice: ["$newestLikes", 3] }
-          }
         }
-      ])
-    ]);
-
-    // Создаем мапы для быстрого доступа
-    const likesMap = new Map(likesAggregation.map(item => [item._id.toString(), item.likesCount]));
-    const dislikesMap = new Map(dislikesAggregation.map(item => [item._id.toString(), item.dislikesCount]));
-    const newestLikesMap = new Map(newestLikesAggregation.map(item => [item._id.toString(), item.newestLikes]));
-
-    // Формируем результат
-    const items = posts.map(post => {
-      const postId = post._id.toString();
-
-      const likesData = likesMap.get(postId) || {
-        likesCount: 0,
-        newestLikes: []
-      };
-
-      const dislikesCount = dislikesMap.get(postId) || 0;
-
-      // Определяем myStatus для текущего пользователя
-      const myStatus = userId
-        ? (userStatusMap.get(postId) || "None")
-        : "None";
-      return {
-        ...PostViewDto.mapToView(post),
-        extendedLikesInfo: {
-          likesCount: likesData.likesCount,
-          dislikesCount: dislikesCount,
-          myStatus: myStatus,
-          newestLikes: newestLikesMap.get(postId) || []
+      },
+      {
+        $project: {
+          likesCount: 1,
+          newestLikes: { $slice: ["$newestLikes", 3] }
         }
-      };
-    });
+      }
+    ]),
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Dislike"
+        }
+      },
+      {
+        $group: {
+          _id: "$postId",
+          dislikesCount: { $sum: 1 }
+        }
+      }
+    ])
+  ]);
 
+  // Создаем мапы для быстрого доступа
+  const likesMap = new Map(
+    likesAggregation.map(item => [
+      item._id.toString(),
+      {
+        likesCount: item.likesCount,
+        newestLikes: item.newestLikes.map(like => ({
+          addedAt: like.addedAt,
+          userId: like.userId.toString(),
+          login: like.userLogin
+        }))
+      }
+    ])
+  );
 
-    const totalCount = await this.PostModel.countDocuments(filter);
+  const dislikesMap = new Map(
+    dislikesAggregation.map(item => [
+      item._id.toString(),
+      item.dislikesCount
+    ])
+  );
 
-    // const items = posts.map(PostViewDto.mapToView);
+  // Формируем элементы для ответа
+  const items = posts.map(post => {
+    const postId = post._id.toString();
+    const likesData = likesMap.get(postId) || { 
+      likesCount: 0, 
+      newestLikes: [] 
+    };
+    const dislikesCount = dislikesMap.get(postId) || 0;
+    
+    // Определяем статус текущего пользователя
+    const myStatus = userId 
+      ? (userStatusMap.get(postId) || "None")
+      : "None";
 
-    return PaginatedViewDto.mapToView({
-      page: query.pageNumber,
-      size: query.pageSize,
-      totalCount,
-      items
-    });
-  }
+    return {
+      ...PostViewDto.mapToView(post),
+      extendedLikesInfo: {
+        likesCount: likesData.likesCount,
+        dislikesCount: dislikesCount,
+        myStatus: myStatus,
+        newestLikes: likesData.newestLikes
+      }
+    };
+  });
 
+  return PaginatedViewDto.mapToView({
+    page: query.pageNumber,
+    size: query.pageSize,
+    totalCount,
+    items
+  })
+}
 }

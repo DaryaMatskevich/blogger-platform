@@ -47,7 +47,7 @@ export class CreateCommentForPostUseCase
             }
         }
 
-        const comment = this.commentModel.createInstance(commentDto);
+        const comment = this.commentModel.createInstance(commentDto, command.postId);
 
         await this.commentsRepository.save(comment);
         return comment._id.toString();

@@ -15,6 +15,8 @@ export const contentConstraints = {
 export class Comment {
 
 
+  @Prop({ type: String, required: true })
+  postId: string;
 
   @Prop({ type: String, required: true, ...contentConstraints })
   content: string;
@@ -41,8 +43,9 @@ export class Comment {
   likesInfo: LikesInfo;
 
 
-  static createInstance(dto: CreateCommentDto): CommentDocument {
+  static createInstance(dto: CreateCommentDto, postId: string): CommentDocument {
     const comment = new this();
+    comment.postId = postId,
     comment.content = dto.content;
     comment.commentatorInfo = {
       userId: dto.commentatorInfo.userId,
@@ -81,7 +84,8 @@ export class Comment {
     } else if (newStatus === "Dislike") {
       this.likesInfo.dislikesCount++;
     }
-
+console.log(this.likesInfo.likesCount)
+console.log(this.likesInfo.dislikesCount)
     // Гарантируем неотрицательные значения
     this.likesInfo.likesCount = Math.max(this.likesInfo.likesCount, 0);
     this.likesInfo.dislikesCount = Math.max(this.likesInfo.dislikesCount, 0);

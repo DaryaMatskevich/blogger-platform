@@ -15,6 +15,7 @@ type LikesInfo = {
 
 export class CommentViewDto {
     id: string;
+    postId: string;
     content: string;
     commentatorInfo: CommentatorInfo;
     createdAt: Date;
@@ -33,7 +34,7 @@ dto.commentatorInfo = {
         dto.likesInfo = {
             likesCount: comment.likesInfo?.likesCount || 0,
             dislikesCount: comment.likesInfo?.dislikesCount || 0,
-            myStatus: comment.likesInfo?.myStatus || "None",
+            myStatus: "None",
         };
 
 

@@ -11,6 +11,7 @@ import { GetCommentsQueryParams } from '../../api/input-dto/get-comments-query-p
 
 
 
+
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
@@ -65,6 +66,7 @@ async getCommentsForPost(
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
+ console.log(comments)
       const commentsIds = comments.map(p => p._id.toString())
       
       const userStatuses = userId ?
@@ -82,7 +84,7 @@ async getCommentsForPost(
         );
 
 
-        const [likesAggregation, dislikesAggregation, newestLikesAggregation] = await Promise.all([
+        const [likesAggregation, dislikesAggregation] = await Promise.all([
         this.LikeCommentModel.aggregate([
       {
         $match: {
@@ -112,42 +114,12 @@ async getCommentsForPost(
         }
       }
     ]),
-    // Последние лайки
-    this.LikeCommentModel.aggregate([
-      {
-        $match: {
-          commentId: { $in: commentsIds },
-          status: "Like"
-        }
-      },
-      {
-        $sort: { addedAt: -1 }
-      },
-      {
-        $group: {
-          _id: "$commentId",
-          newestLikes: {
-            $push: {
-              addedAt: "$addedAt",
-              userId: "$userId",
-              
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          newestLikes: { $slice: ["$newestLikes", 3] }
-        }
-      }
-    ])
   ]);
 
   // Создаем мапы для быстрого доступа
   const likesMap = new Map(likesAggregation.map(item => [item._id.toString(), item.count]));
   const dislikesMap = new Map(dislikesAggregation.map(item => [item._id.toString(), item.count]));
-  const newestLikesMap = new Map(newestLikesAggregation.map(item => [item._id.toString(), item.newestLikes]));
-
+  
   // Формируем результат
   const items = comments.map(comment => {
     const commentId = comment._id.toString();
@@ -158,7 +130,7 @@ async getCommentsForPost(
         likesCount: likesMap.get(commentId) || 0,
         dislikesCount: dislikesMap.get(commentId) || 0,
         myStatus: userStatusMap.get(commentId) || "None",
-        newestLikes: newestLikesMap.get(commentId) || []
+        
       }
     };
   });

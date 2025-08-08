@@ -115,7 +115,7 @@ const totalCount = await this.PostModel.countDocuments(filter);
 
   const userStatusMap = new Map(
     userStatuses.map(status => [
-      status.postId.toString(),
+      status.postId,
       status.status
     ])
   );
@@ -138,7 +138,7 @@ const totalCount = await this.PostModel.countDocuments(filter);
             $push: {
               addedAt: "$addedAt",
               userId: "$userId",
-              userLogin: "$userLogin"
+              login: "$login"
             }
           }
         }
@@ -169,13 +169,13 @@ const totalCount = await this.PostModel.countDocuments(filter);
   // Создаем мапы для быстрого доступа
   const likesMap = new Map(
     likesAggregation.map(item => [
-      item._id.toString(),
+      item._id,
       {
         likesCount: item.likesCount,
         newestLikes: item.newestLikes.map(like => ({
           addedAt: like.addedAt,
-          userId: like.userId.toString(),
-          login: like.userLogin
+          userId: like.userId,
+          login: like.login
         }))
       }
     ])
@@ -183,7 +183,7 @@ const totalCount = await this.PostModel.countDocuments(filter);
 
   const dislikesMap = new Map(
     dislikesAggregation.map(item => [
-      item._id.toString(),
+      item._id,
       item.dislikesCount
     ])
   );
@@ -191,28 +191,17 @@ const totalCount = await this.PostModel.countDocuments(filter);
   // Формируем элементы для ответа
   const items = posts.map(post => {
     const postId = post._id.toString();
-    const likesData = likesMap.get(postId) || { 
-      likesCount: 0, 
-      newestLikes: [] 
-    };
-    const dislikesCount = dislikesMap.get(postId) || 0;
-    
-    // Определяем статус текущего пользователя
-    const myStatus = userId 
-      ? (userStatusMap.get(postId) || "None")
-      : "None";
 
-    return {
+     return {
       ...PostViewDto.mapToView(post),
       extendedLikesInfo: {
-        likesCount: likesData.likesCount,
-        dislikesCount: dislikesCount,
-        myStatus: myStatus,
-        newestLikes: likesData.newestLikes
+        likesCount: likesMap.get(postId)?.likesCount || 0,
+        dislikesCount: dislikesMap.get(postId) || 0,
+        myStatus: userStatusMap.get(postId) || "None",
+        newestLikes: likesMap.get(postId)?.newestLikes || []
       }
     };
   });
-
   return PaginatedViewDto.mapToView({
     page: query.pageNumber,
     size: query.pageSize,

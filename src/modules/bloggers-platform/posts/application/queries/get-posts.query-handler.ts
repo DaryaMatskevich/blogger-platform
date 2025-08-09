@@ -7,7 +7,9 @@ import { PostsQueryRepository } from '../../infactructure/query/posts.query-repo
 
 
 export class GetPostsQuery {
-  constructor(public queryParams: GetPostsQueryParams) {}
+  constructor(public queryParams: GetPostsQueryParams,
+    public userId: string | null
+  ) {}
 }
 
 @QueryHandler(GetPostsQuery)
@@ -22,6 +24,6 @@ export class GetPostsQueryHandler
   async execute(
     query: GetPostsQuery,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.postsQueryRepository.getAll(query.queryParams);
+    return this.postsQueryRepository.getAll(query.queryParams, query.userId);
   }
 }

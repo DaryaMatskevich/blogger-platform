@@ -56,6 +56,7 @@ export class PostsQueryRepository {
 
   async getAll(
     query: GetPostsQueryParams,
+    userId: string | null
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const filter: FilterQuery<Post> = {
       deletedAt: null,
@@ -68,15 +69,120 @@ export class PostsQueryRepository {
 
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    const items = posts.map(PostViewDto.mapToView);
-
+     if (posts.length === 0) {
     return PaginatedViewDto.mapToView({
-      page: query.pageNumber,
-      size: query.pageSize,
-      totalCount,
-      items
-    });
-  }
+    page: query.pageNumber,
+    size: query.pageSize,
+    totalCount: 0,
+    items: []
+  });
+    }
+const postIds = posts.map(p => p._id.toString());
+
+  // Получаем статусы текущего пользователя
+  const userStatuses = userId
+    ? await this.LikePostModel.find({
+        userId: userId,
+        postId: { $in: postIds }
+      }).lean()
+    : [];
+
+  const userStatusMap = new Map(
+    userStatuses.map(status => [
+      status.postId,
+      status.status
+    ])
+  );
+
+
+   const [likesAggregation, dislikesAggregation] = await Promise.all([
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Like"
+        }
+      },
+      { $sort: { addedAt: -1 } },
+      {
+        $group: {
+          _id: "$postId",
+          likesCount: { $sum: 1 },
+          newestLikes: {
+            $push: {
+              addedAt: "$addedAt",
+              userId: "$userId",
+              login: "$login"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          likesCount: 1,
+          newestLikes: { $slice: ["$newestLikes", 3] }
+        }
+      }
+    ]),
+    this.LikePostModel.aggregate([
+      {
+        $match: {
+          postId: { $in: postIds },
+          status: "Dislike"
+        }
+      },
+      {
+        $group: {
+          _id: "$postId",
+          dislikesCount: { $sum: 1 }
+        }
+      }
+    ])
+  ]);
+
+  // Создаем мапы для быстрого доступа
+  const likesMap = new Map(
+    likesAggregation.map(item => [
+      item._id,
+      {
+        likesCount: item.likesCount,
+        newestLikes: item.newestLikes.map(like => ({
+          addedAt: like.addedAt,
+          userId: like.userId,
+          login: like.login
+        }))
+      }
+    ])
+  );
+
+  const dislikesMap = new Map(
+    dislikesAggregation.map(item => [
+      item._id,
+      item.dislikesCount
+    ])
+  );
+
+  // Формируем элементы для ответа
+  const items = posts.map(post => {
+    const postId = post._id.toString();
+
+     return {
+      ...PostViewDto.mapToView(post),
+      extendedLikesInfo: {
+        likesCount: likesMap.get(postId)?.likesCount || 0,
+        dislikesCount: dislikesMap.get(postId) || 0,
+        myStatus: userStatusMap.get(postId) || "None",
+        newestLikes: likesMap.get(postId)?.newestLikes || []
+      }
+    };
+  });
+  return PaginatedViewDto.mapToView({
+    page: query.pageNumber,
+    size: query.pageSize,
+    totalCount,
+    items
+  })
+}
 
   async getPostsForBlog(
     query: GetPostsQueryParams, blogId: string, userId: string | null

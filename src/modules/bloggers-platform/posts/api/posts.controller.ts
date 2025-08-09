@@ -69,10 +69,13 @@ export class PostsController {
   }
 
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   async getAll(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.queryBus.execute(new GetPostsQuery(query));
+    const userId = user?.id || null
+    return this.queryBus.execute(new GetPostsQuery(query, userId));
   }
 
   @Post()

@@ -3,6 +3,7 @@ import { LikeInputModel } from "../../dto/like-status.dto";
 import { HydratedDocument, Model } from "mongoose";
 
 @Schema({ timestamps: true })
+
 export class LikePost {
 
     @Prop({ type: String, required: true })

@@ -17,23 +17,31 @@ import { UsersExternalService } from './application/external/users.external-serv
 import { UsersRepository } from './infastructure/users.repository';
 import { UsersExternalQueryRepository } from './infastructure/external-query/external-dto/users.external-query-repository';
 import { ValidateUserUseCase } from './application/auth-usecases/validate-user-usecase';
-import {  ConfirmEmailUseCase } from './application/auth-usecases/confirm-email-usecase';
+import { ConfirmEmailUseCase } from './application/auth-usecases/confirm-email-usecase';
 import { LoginUseCase } from './application/auth-usecases/login-usecase';
-import {  ResendConfirmationEmailUseCase } from './application/auth-usecases/resend-confirmation-email-usecase';
-import {  SendPasswordRecoveryEmailUseCase } from './application/auth-usecases/send-password-recovery-email-usecase';
-import {  SetNewPasswordUseCase } from './application/auth-usecases/set-new-password-usecase';
+import { ResendConfirmationEmailUseCase } from './application/auth-usecases/resend-confirmation-email-usecase';
+import { SendPasswordRecoveryEmailUseCase } from './application/auth-usecases/send-password-recovery-email-usecase';
+import { SetNewPasswordUseCase } from './application/auth-usecases/set-new-password-usecase';
 import { RegisterUserUseCase } from './application/users-usecases/register-user-usecase';
 import { UpdateUserUseCase } from './application/users-usecases/update-user-usecase';
 import { DeleteUserUseCase } from './application/users-usecases/delete-user-usecase';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from './constants/auth-tokens.inject-constants';
+import { CreateSessionUseCase } from './security-devices/application/usecases/create-session.usecase';
+import { SessionsQueryRepository } from './security-devices/infrastructure/query/sessions.query-repository';
+import { SessionsController } from './security-devices/api/sessions-controller';
+import { Session, SessionSchema } from './security-devices/domain/session.entity';
+import { SessionRepository } from './security-devices/infrastructure/sessions.repository';
+import { DeleteSessionUseCase } from './security-devices/application/usecases/delete-session.use-case';
+import {  DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
+import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 
 
-const useCases = [RegisterUserUseCase, ValidateUserUseCase, 
-  ConfirmEmailUseCase, LoginUseCase, 
-  ResendConfirmationEmailUseCase, SendPasswordRecoveryEmailUseCase, 
-  SetNewPasswordUseCase, UpdateUserUseCase, 
-  DeleteUserUseCase]
+const useCases = [RegisterUserUseCase, ValidateUserUseCase,
+  ConfirmEmailUseCase, LoginUseCase,
+  ResendConfirmationEmailUseCase, SendPasswordRecoveryEmailUseCase,
+  SetNewPasswordUseCase, UpdateUserUseCase,
+  DeleteUserUseCase, CreateSessionUseCase, DeleteSessionUseCase, DeleteAllSessionsExcludeCurrentUseCase]
 
 
 @Module({
@@ -43,10 +51,13 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
       secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
       signOptions: { expiresIn: '5m' }, // Время жизни токена
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Session.name, schema: SessionSchema }
+    ]),
     NotificationsModule
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SessionsController],
   providers: [
     UsersService,
     UsersRepository,
@@ -58,8 +69,11 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
     LocalStrategy,
     CryptoService,
     JwtStrategy,
+    RefreshTokenStrategy,
     UsersExternalQueryRepository,
     UsersExternalService,
+    SessionsQueryRepository,
+    SessionRepository,
     ...useCases, {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (): JwtService => {
@@ -86,6 +100,6 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
     },
 
   ],
-  exports: [JwtStrategy,UsersExternalQueryRepository, UsersExternalService],
+  exports: [JwtStrategy, UsersExternalQueryRepository, UsersExternalService],
 })
 export class UserAccountsModule { }

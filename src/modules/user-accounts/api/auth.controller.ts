@@ -7,6 +7,8 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  Ip,
+  Headers,
 
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
@@ -29,6 +31,9 @@ import { SetNewPasswordCommand } from '../application/auth-usecases/set-new-pass
 import { RegisterUserCommand } from '../application/users-usecases/register-user-usecase';
 import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-usecase';
 import { Response } from 'express';
+import { CreateSessionCommand } from '../security-devices/application/usecases/create-session.usecase';
+import { v4 as uuidv4 } from 'uuid'
+
 
 @Controller('auth')
 export class AuthController {
@@ -59,20 +64,36 @@ export class AuthController {
   async login(
     /*@Request() req: any*/
     @ExtractUserFromRequest() user: UserContextDto,
+    @Headers('user-agent') userAgent: string,
+    @Ip() ip: string,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ accessToken: string }> {
     console.log(user.id)
-    const tokens = await this.commandBus.execute(
-      new LoginCommand({userId: user.id})
+    const title = this.getDeviceTitle(userAgent)
+    const deviceId = uuidv4()
+
+    const dto = {
+      userId: user.id,
+      ip,
+      title,
+      deviceId: deviceId
+    }
+
+    const creatSession = await this.commandBus.execute(new CreateSessionCommand(dto))
+
+
+    const result = await this.commandBus.execute(
+      new LoginCommand(user.id, deviceId )
     )
 
-    response.cookie('refreshToken', tokens.refreshToken, {
+
+    response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: true
-       
+
     });
 
-    return { accessToken: tokens.accessToken }; // Возвращаем accessToken в теле
+    return { accessToken: result.accessToken }; // Возвращаем accessToken в теле
   }
 
   @Post('password-recovery')
@@ -122,5 +143,15 @@ export class AuthController {
 
       };
     }
+  }
+
+  private getDeviceTitle(userAgent: string): string {
+    return userAgent?.includes('Mobile')
+      ? 'Mobile Device'
+      : userAgent?.includes('Tablet')
+        ? 'Tablet Device'
+        : userAgent?.includes('Desktop')
+          ? 'Desktop Device'
+          : 'Unknown device';
   }
 }

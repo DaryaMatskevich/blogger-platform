@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
-import { UserContextDto } from "../../guards/dto/user-contex.dto";
 import { Inject } from "@nestjs/common";
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from "../../constants/auth-tokens.inject-constants";
 
 
 export class LoginCommand {
-    constructor(public dto: {userId: string}) {}
+    constructor(public userId: string,
+        public deviceId: string) {}
 }
 
 @CommandHandler(LoginCommand)
@@ -24,18 +24,20 @@ export class LoginUseCase
     ) { }
 
 
-    async execute({dto}: LoginCommand): Promise<{ accessToken: string, refreshToken: string }> {
-        console.log("что за херня " + dto.userId)
+    async execute(command: LoginCommand): Promise<{ accessToken: string, refreshToken: string}> {
+        console.log("что за херня " + command.userId)
         const accessToken = this.accessTokenContext.sign({
-            id: dto.userId
+            id: command.userId
         });
 
+        
         const refreshToken = this.refreshTokenContext.sign({
-            id: dto.userId
+            id: command.userId,
+            deviceId: command.deviceId
         })
         return {
             accessToken,
-            refreshToken
+            refreshToken,
         };
     }
 }

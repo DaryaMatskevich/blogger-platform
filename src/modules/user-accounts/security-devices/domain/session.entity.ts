@@ -1,0 +1,62 @@
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Model } from 'mongoose';
+import { CreateSessionDomainDto } from './dto/create-session.domain.dto';
+
+@Schema({ timestamps: true })
+
+export class Session {
+
+  @Prop({ type: String, required: true })
+  userId: string;
+
+  @Prop({ type: String, required: true })
+  ip: string;
+
+  @Prop({ type: String, required: true })
+  title: string;
+
+  @Prop({ type: String, min: 5, required: true })
+  lastActiveDate: string;
+
+  @Prop({ type: String, required: true})
+  deviceId: string;
+
+  @Prop({ type: Date, nullable: true, default: null })
+  deletedAt: Date | null;
+
+  @Prop({ required: true, type: Date })
+  expirationDate: Date;
+
+
+  static createInstance(dto: CreateSessionDomainDto): SessionDocument {
+    const session = new this();
+    session.userId = dto.userId,
+    session.ip = dto.ip;
+    session.title = dto.title;
+    session.lastActiveDate = dto.lastActiveDate;
+    session.deviceId = dto.deviceId;
+    session.expirationDate = dto.expirationDate
+
+  
+    return session as SessionDocument;
+  }
+
+
+  makeDeleted() {
+    if (this.deletedAt !== null) {
+      throw new Error('Entity already deleted');
+    }
+    this.deletedAt = new Date();
+  }
+}
+
+export const SessionSchema = SchemaFactory.createForClass(Session);
+
+//регистрирует методы сущности в схеме
+SessionSchema.loadClass(Session);
+
+//Типизация документа
+export type SessionDocument = HydratedDocument<Session>;
+
+//Типизация модели + статические методы
+export type SessionModelType = Model<SessionDocument> & typeof Session;

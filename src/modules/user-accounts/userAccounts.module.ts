@@ -50,7 +50,7 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
     CqrsModule,
     JwtModule.register({
       secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-      signOptions: { expiresIn: '5m' }, // Время жизни токена
+      signOptions: { expiresIn: '10s' }, // Время жизни токена
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
@@ -81,7 +81,7 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '5m' },
+          signOptions: { expiresIn: '10m' },
         });
       },
       inject: [
@@ -93,7 +93,7 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '10m' },
+          signOptions: { expiresIn: '20s' },
         });
       },
       inject: [

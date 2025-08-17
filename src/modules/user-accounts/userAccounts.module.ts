@@ -35,6 +35,7 @@ import { SessionRepository } from './security-devices/infrastructure/sessions.re
 import { DeleteSessionUseCase } from './security-devices/application/usecases/delete-session.use-case';
 import {  DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
+import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 
 
 const useCases = [RegisterUserUseCase, ValidateUserUseCase,
@@ -53,7 +54,8 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Session.name, schema: SessionSchema }
+      { name: Session.name, schema: SessionSchema },
+      {name: ApiRequestCount.name, schema: ApiRequestCountSchema}
     ]),
     NotificationsModule
   ],

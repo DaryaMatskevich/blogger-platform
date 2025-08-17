@@ -44,8 +44,7 @@ export class SessionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
 
   async deleteAllSessionsExcludeCurrent(
-    @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto
-  ): Promise<void> {
+  @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
      const userId = user.userId
      const deviceId = user.deviceId
     return this.commandBus.execute(new DeleteSessionCommand(userId, deviceId));

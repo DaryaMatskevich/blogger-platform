@@ -33,6 +33,11 @@ import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-
 import { Response } from 'express';
 import { CreateSessionCommand } from '../security-devices/application/usecases/create-session.usecase';
 import { v4 as uuidv4 } from 'uuid'
+import { RefreshTokenGuard } from '../guards/bearer/refresh-token.guard';
+import { ExtractUserWithDeviceId } from '../guards/decorators/extract-deviceId-from-refreshToken.decorator';
+import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
+import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
+import { RateLimitGuard } from '../guards/rate-limit/rate-limit.guard';
 
 
 @Controller('auth')
@@ -43,12 +48,14 @@ export class AuthController {
     private commandBus: CommandBus
   ) { }
   @Post('registration')
+    @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('login')
+    @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   //swagger doc
@@ -97,23 +104,27 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @UseGuards(RateLimitGuard)
   passwordRecovery(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute
       (new SendPasswordRecoveryEmailCommand(body.email))
   }
 
   @Post('new-password')
+    @UseGuards(RateLimitGuard)
   newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
   @Post('registration-confirmation')
+    @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
+    @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
@@ -143,6 +154,15 @@ export class AuthController {
 
       };
     }
+  }
+
+   @Post('refresh-token')
+   @UseGuards(RefreshTokenGuard)
+    refreshTokens(
+ @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
+    const userId = user.userId
+     const deviceId = user.deviceId
+    return this.commandBus.execute(new RefreshTokensCommand(userId, deviceId));
   }
 
   private getDeviceTitle(userAgent: string): string {

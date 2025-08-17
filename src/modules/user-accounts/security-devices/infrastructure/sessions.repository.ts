@@ -9,20 +9,13 @@ export class SessionRepository {
   //инжектирование модели через DI
   constructor(@InjectModel(Session.name) private SessionModel: SessionModelType) { }
 
-  async findById(id: string): Promise<SessionDocument | null> {
-    return this.SessionModel.findOne({
-      _id: id,
+  async findById(userId: string, deviceId: string): Promise<SessionDocument | null> {
+    const session =  this.SessionModel.findOne({
+      userId: userId,
+      deviceId: deviceId,
+  
       deletedAt: null,
     });
-  }
-
-  async save(session: SessionDocument) {
-    await session.save();
-  }
-
-  async findOrNotFoundFail(id: string): Promise<SessionDocument> {
-    const session = await this.findById(id);
-
     if (!session) {
 
       throw new DomainException({
@@ -34,6 +27,9 @@ export class SessionRepository {
     return session;
   }
 
+  async save(session: SessionDocument) {
+    await session.save();
+  }
 
   async deleteSessionById(deviceId: string, userId: string): Promise<boolean> {
     const result = await this.SessionModel.deleteOne({

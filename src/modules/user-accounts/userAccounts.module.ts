@@ -33,7 +33,7 @@ import { SessionsController } from './security-devices/api/sessions-controller';
 import { Session, SessionSchema } from './security-devices/domain/session.entity';
 import { SessionRepository } from './security-devices/infrastructure/sessions.repository';
 import { DeleteSessionUseCase } from './security-devices/application/usecases/delete-session.use-case';
-import {  DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
+import { DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 
@@ -48,14 +48,10 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
 @Module({
   imports: [
     CqrsModule,
-    JwtModule.register({
-      secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-      signOptions: { expiresIn: '10s' }, // Время жизни токена
-    }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Session.name, schema: SessionSchema },
-      {name: ApiRequestCount.name, schema: ApiRequestCountSchema}
+      { name: ApiRequestCount.name, schema: ApiRequestCountSchema }
     ]),
     NotificationsModule
   ],
@@ -76,12 +72,13 @@ const useCases = [RegisterUserUseCase, ValidateUserUseCase,
     UsersExternalService,
     SessionsQueryRepository,
     SessionRepository,
-    ...useCases, {
+    ...useCases,
+     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '10m' },
+          signOptions: { expiresIn: '10s' },
         });
       },
       inject: [

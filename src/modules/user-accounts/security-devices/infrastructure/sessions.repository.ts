@@ -16,7 +16,7 @@ export class SessionRepository {
       refreshTokenHash: refreshTokenHash,
   
       deletedAt: null,
-    });
+    }).exec();
     if (!session) {
 
       throw new DomainException({

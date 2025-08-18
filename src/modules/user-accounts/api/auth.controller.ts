@@ -180,6 +180,8 @@ export class AuthController {
     return { accessToken: result.accessToken };
   }
 
+   
+
   private getDeviceTitle(userAgent: string): string {
     return userAgent?.includes('Mobile')
       ? 'Mobile Device'

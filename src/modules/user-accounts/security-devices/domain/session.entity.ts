@@ -46,7 +46,17 @@ export class Session {
     return session as SessionDocument;
   }
 
-
+  updateLastActiveDate(newDate?: Date): void {
+    // Используем переданную дату или текущее время
+    const dateToSet = newDate || new Date();
+    
+    // Обновляем дату в ISO формате
+    this.lastActiveDate = dateToSet.toISOString();
+    
+    
+   this.expirationDate = new Date(dateToSet.getMinutes() + 10);
+  }
+  
   makeDeleted() {
     if (this.deletedAt !== null) {
       throw new Error('Entity already deleted');

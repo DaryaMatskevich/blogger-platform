@@ -9,7 +9,7 @@ import { CryptoService } from "../services/crypto.service";
 export class RefreshTokensCommand {
     constructor(public userId: string,
         public deviceId: string,
-    public refreshToken: string) { }
+        public refreshToken: string) { }
 }
 
 @CommandHandler(RefreshTokensCommand)
@@ -31,18 +31,16 @@ export class RefreshTokensUseCase
 
     async execute(command: RefreshTokensCommand): Promise<{ newAccessToken: string, newRefreshToken: string }> {
         const refreshTokenHash = await this.cryptoService.hashToken(command.refreshToken)
-        const session = this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, command.refreshToken)
+        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
 
-        const accessToken = this.accessTokenContext.sign({
-            id: command.userId
-        });
+
 
         const now = new Date()
-
+        session?.updateLastActiveDate(now)
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }
-           
+
         );
 
         const newRefreshToken = this.refreshTokenContext.sign({

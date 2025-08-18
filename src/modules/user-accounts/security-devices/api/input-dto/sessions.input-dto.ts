@@ -21,5 +21,9 @@ export class CreateSessionInputDto {
     @IsString()
     deviceId: string;
 
+    @Trim()
+    @IsString()
+    refreshToken: string;
+
 }
 

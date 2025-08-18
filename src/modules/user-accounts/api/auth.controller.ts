@@ -48,14 +48,14 @@ export class AuthController {
     private commandBus: CommandBus
   ) { }
   @Post('registration')
-    @UseGuards(RateLimitGuard)
+  @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('login')
-    @UseGuards(RateLimitGuard)
+  @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   //swagger doc
@@ -79,20 +79,24 @@ export class AuthController {
     const title = this.getDeviceTitle(userAgent)
     const deviceId = uuidv4()
 
+
+
+
+
+
+    const result = await this.commandBus.execute(
+      new LoginCommand(user.id, deviceId)
+    )
+
     const dto = {
       userId: user.id,
       ip,
       title,
-      deviceId: deviceId
+      deviceId: deviceId,
+      refreshToken: result.refreshToken
     }
 
     const creatSession = await this.commandBus.execute(new CreateSessionCommand(dto))
-
-
-    const result = await this.commandBus.execute(
-      new LoginCommand(user.id, deviceId )
-    )
-
 
     response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
@@ -111,20 +115,20 @@ export class AuthController {
   }
 
   @Post('new-password')
-    @UseGuards(RateLimitGuard)
+  @UseGuards(RateLimitGuard)
   newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
   @Post('registration-confirmation')
-    @UseGuards(RateLimitGuard)
+  @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
-    @UseGuards(RateLimitGuard)
+  @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
@@ -156,13 +160,24 @@ export class AuthController {
     }
   }
 
-   @Post('refresh-token')
-   @UseGuards(RefreshTokenGuard)
-    refreshTokens(
- @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
+  @Post('refresh-token')
+  @UseGuards(RefreshTokenGuard)
+  async refreshTokens(
+    @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
+    @Res({ passthrough: true }) response: Response)
+    : Promise<{ accessToken: string }> {
+    const refreshToken = user.refreshToken
     const userId = user.userId
-     const deviceId = user.deviceId
-    return this.commandBus.execute(new RefreshTokensCommand(userId, deviceId));
+    const deviceId = user.deviceId
+    const result = await this.commandBus.execute(new RefreshTokensCommand(userId, deviceId, refreshToken));
+
+    response.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: true
+
+    });
+
+    return { accessToken: result.accessToken };
   }
 
   private getDeviceTitle(userAgent: string): string {

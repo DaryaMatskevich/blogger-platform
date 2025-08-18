@@ -27,7 +27,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-jw
    * @param req Объект запроса
    * @param payload Декодированные данные из токена
    */
-  async validate(req: Request, payload: { userId: string; deviceId: string }): Promise<{ userId: string; deviceId: string }> {
+  async validate(req: Request, payload: { userId: string; deviceId: string }): Promise<{ userId: string; deviceId: string, refreshToken: string }> {
     // Проверяем наличие обязательных полей
     if (!payload.userId || !payload.deviceId) {
       throw new DomainException({
@@ -35,10 +35,17 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-jw
         message: 'Invalid token payload',
       });
     }
-    
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Refresh token not found in cookies',
+      });
+    }
     return {
       userId: payload.userId,
-      deviceId: payload.deviceId
+      deviceId: payload.deviceId,
+      refreshToken
     };
   }
 }

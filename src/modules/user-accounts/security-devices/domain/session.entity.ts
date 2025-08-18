@@ -18,7 +18,7 @@ export class Session {
   @Prop({ type: String, min: 5, required: true })
   lastActiveDate: string;
 
-  @Prop({ type: String, required: true})
+  @Prop({ type: String, required: true })
   deviceId: string;
 
   @Prop({ type: Date, nullable: true, default: null })
@@ -27,17 +27,22 @@ export class Session {
   @Prop({ required: true, type: Date })
   expirationDate: Date;
 
+  @Prop({ type: String, required: true })
+  refreshTokenHash: string;
+
 
   static createInstance(dto: CreateSessionDomainDto): SessionDocument {
     const session = new this();
     session.userId = dto.userId,
-    session.ip = dto.ip;
+      session.ip = dto.ip;
     session.title = dto.title;
     session.lastActiveDate = dto.lastActiveDate;
     session.deviceId = dto.deviceId;
-    session.expirationDate = dto.expirationDate
+    session.expirationDate = dto.expirationDate;
+    session.refreshTokenHash = dto.refreshTokenHash
+   
 
-  
+
     return session as SessionDocument;
   }
 

@@ -6,6 +6,7 @@ export const ExtractUserWithDeviceId = createParamDecorator(
     const request = context.switchToHttp().getRequest();
     return {
       userId: request.userId,
-      deviceId: request.deviceId}; // Берем из запроса, добавленного guard'ом
+      deviceId: request.deviceId,
+    refreshToken: request.refreshToken}; // Берем из запроса, добавленного guard'ом
   }
 );

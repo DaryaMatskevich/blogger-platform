@@ -28,5 +28,9 @@ export class CreateSessionDomainDto {
     @Trim()
     @IsDate()
     expirationDate: Date;
+
+    @Trim()
+    @IsDate()
+    refreshTokenHash: string;
 }
 

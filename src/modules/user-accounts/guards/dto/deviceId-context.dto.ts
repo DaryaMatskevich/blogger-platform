@@ -13,6 +13,11 @@ export class UserWithDeviceIdContextDto {
   @IsString()
   @Trim()
   deviceId: string;
+
+  
+  @IsString()
+  @Trim()
+  refreshToken: string;
 }
 
 export type Nullable<T> = { [P in keyof T]: T[P] | null };

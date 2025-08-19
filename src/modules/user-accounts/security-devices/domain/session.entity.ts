@@ -53,8 +53,8 @@ export class Session {
     // Обновляем дату в ISO формате
     this.lastActiveDate = dateToSet.toISOString();
     
-    
-   this.expirationDate = new Date(dateToSet.getSeconds() + 20);
+     const expirationMs = 20 * 1000;
+   this.expirationDate = new Date(dateToSet.getTime() + expirationMs);
   }
   
   makeDeleted() {

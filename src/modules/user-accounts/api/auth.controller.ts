@@ -184,6 +184,7 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response)

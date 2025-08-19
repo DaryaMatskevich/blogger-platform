@@ -37,13 +37,23 @@ import { DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/appli
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
+import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
 
 
-const useCases = [RegisterUserUseCase, ValidateUserUseCase,
-  ConfirmEmailUseCase, LoginUseCase,
-  ResendConfirmationEmailUseCase, SendPasswordRecoveryEmailUseCase,
-  SetNewPasswordUseCase, UpdateUserUseCase,
-  DeleteUserUseCase, CreateSessionUseCase, LogOutUseCase, DeleteSessionUseCase, DeleteAllSessionsExcludeCurrentUseCase]
+const useCases = [RegisterUserUseCase, 
+  ValidateUserUseCase,
+  ConfirmEmailUseCase, 
+  LoginUseCase,
+  ResendConfirmationEmailUseCase, 
+  SendPasswordRecoveryEmailUseCase,
+  SetNewPasswordUseCase,
+   UpdateUserUseCase,
+  DeleteUserUseCase, 
+  CreateSessionUseCase, 
+  RefreshTokensUseCase,
+  LogOutUseCase, 
+  DeleteSessionUseCase, 
+  DeleteAllSessionsExcludeCurrentUseCase]
 
 
 @Module({

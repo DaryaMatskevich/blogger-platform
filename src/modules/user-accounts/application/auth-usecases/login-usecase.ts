@@ -32,7 +32,7 @@ export class LoginUseCase
 
         
         const refreshToken = this.refreshTokenContext.sign({
-            id: command.userId,
+            userId: command.userId,
             deviceId: command.deviceId
         })
         return {

@@ -45,7 +45,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-jw
     return {
       userId: payload.userId,
       deviceId: payload.deviceId,
-      refreshToken
+      refreshToken: refreshToken
     };
   }
 }

@@ -163,6 +163,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response)
@@ -171,17 +172,17 @@ export class AuthController {
     const userId = user.userId
     const deviceId = user.deviceId
     const result = await this.commandBus.execute(new RefreshTokensCommand(userId, deviceId, refreshToken));
-
-    response.cookie('refreshToken', result.refreshToken, {
+    console.log(result.refreshToken, result.newAccessToken)
+    response.cookie('refreshToken', result.newRefreshToken, {
       httpOnly: true,
       secure: true
 
     });
 
-    return { accessToken: result.accessToken };
+    return { accessToken: result.newAccessToken };
   }
 
-   @Post('logout')
+  @Post('logout')
   @UseGuards(RefreshTokenGuard)
   async logout(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
@@ -191,11 +192,15 @@ export class AuthController {
     const userId = user.userId
     const deviceId = user.deviceId
     const result = await this.commandBus.execute(new LogOutCommand(userId, deviceId, refreshToken));
+    console.log(refreshToken + "отобразился")
 
-    response.clearCookie('refreshToken')
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true
+    })
   }
 
-   
+
 
   private getDeviceTitle(userAgent: string): string {
     return userAgent?.includes('Mobile')

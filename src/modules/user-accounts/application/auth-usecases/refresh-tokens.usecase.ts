@@ -37,6 +37,7 @@ export class RefreshTokensUseCase
 
         const now = new Date()
         session?.updateLastActiveDate(now)
+       
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }
@@ -44,7 +45,7 @@ export class RefreshTokensUseCase
         );
 
         const newRefreshToken = this.refreshTokenContext.sign({
-            id: command.userId,
+            userId: command.userId,
             deviceId: command.deviceId
         })
         return {

@@ -18,14 +18,7 @@ export class LogOutUseCase
     constructor(
         private cryptoService: CryptoService,
         private sessionsRepository: SessionRepository,
-
-        @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
-        private accessTokenContext: JwtService,
-
-        @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
-        private refreshTokenContext: JwtService,
-
-        
+       
     ) { }
 
 
@@ -33,8 +26,8 @@ export class LogOutUseCase
        
         const refreshTokenHash = await this.cryptoService.hashToken(command.refreshToken)
         const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
-
+console.log('сессия найдена')
 const deleteSession = await this.sessionsRepository.deleteSessionById(command.deviceId, command.userId)
-      
+      console.log('сессия удалена')
     }
 }

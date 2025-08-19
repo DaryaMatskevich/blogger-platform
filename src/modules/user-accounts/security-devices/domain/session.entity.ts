@@ -1,6 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateSessionDomainDto } from './dto/create-session.domain.dto';
+import { threadId } from 'worker_threads';
 
 @Schema({ timestamps: true })
 
@@ -62,6 +63,10 @@ export class Session {
       throw new Error('Entity already deleted');
     }
     this.deletedAt = new Date();
+  }
+
+  updateRefreshToken(newRefreshTokenHash: string) {
+this.refreshTokenHash = newRefreshTokenHash
   }
 }
 

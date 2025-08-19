@@ -54,7 +54,7 @@ export class Session {
     this.lastActiveDate = dateToSet.toISOString();
     
     
-   this.expirationDate = new Date(dateToSet.getMinutes() + 10);
+   this.expirationDate = new Date(dateToSet.getSeconds() + 20);
   }
   
   makeDeleted() {

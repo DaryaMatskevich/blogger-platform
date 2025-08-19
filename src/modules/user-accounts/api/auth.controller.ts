@@ -38,6 +38,7 @@ import { ExtractUserWithDeviceId } from '../guards/decorators/extract-deviceId-f
 import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
 import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
 import { RateLimitGuard } from '../guards/rate-limit/rate-limit.guard';
+import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
 
 
 @Controller('auth')
@@ -178,6 +179,20 @@ export class AuthController {
     });
 
     return { accessToken: result.accessToken };
+  }
+
+   @Post('logout')
+  @UseGuards(RefreshTokenGuard)
+  async logout(
+    @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
+    @Res({ passthrough: true }) response: Response)
+    : Promise<void> {
+    const refreshToken = user.refreshToken
+    const userId = user.userId
+    const deviceId = user.deviceId
+    const result = await this.commandBus.execute(new LogOutCommand(userId, deviceId, refreshToken));
+
+    response.clearCookie('refreshToken')
   }
 
    

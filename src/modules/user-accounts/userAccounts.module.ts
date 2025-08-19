@@ -36,13 +36,14 @@ import { DeleteSessionUseCase } from './security-devices/application/usecases/de
 import { DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
+import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 
 
 const useCases = [RegisterUserUseCase, ValidateUserUseCase,
   ConfirmEmailUseCase, LoginUseCase,
   ResendConfirmationEmailUseCase, SendPasswordRecoveryEmailUseCase,
   SetNewPasswordUseCase, UpdateUserUseCase,
-  DeleteUserUseCase, CreateSessionUseCase, DeleteSessionUseCase, DeleteAllSessionsExcludeCurrentUseCase]
+  DeleteUserUseCase, CreateSessionUseCase, LogOutUseCase, DeleteSessionUseCase, DeleteAllSessionsExcludeCurrentUseCase]
 
 
 @Module({

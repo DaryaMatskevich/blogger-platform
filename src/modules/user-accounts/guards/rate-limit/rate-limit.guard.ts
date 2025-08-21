@@ -1,15 +1,13 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ApiRequestCount, ApiRequestCountModelType } from '../../apiRequestCount/apiRequestCount.schema';
- // Путь к вашей схеме
+import { ApiRequestCount } from '../../apiRequestCount/apiRequestCount.schema';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(
     @InjectModel(ApiRequestCount.name) 
-    private readonly apiRequestModel: ApiRequestCountModelType,
+    private readonly apiRequestModel: Model<ApiRequestCount>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -19,29 +17,34 @@ export class RateLimitGuard implements CanActivate {
     const IP = request.ip;
     const URL = request.originalUrl;
     const currentTime = new Date();
-    const timeLimit = new Date(Date.now() - 10000);
+    const timeLimit = new Date(Date.now() - 10000); // 10 seconds ago
 
     try {
-      // Удаляем старые записи и добавляем текущий запрос
-      await this.apiRequestModel.bulkWrite([
-        {
-          deleteMany: {
-            filter: {
-              IP,
-              URL,
-              date: { $lt: timeLimit }
-            }
-          }
-        },
-        { insertOne: { document: { IP, URL, date: currentTime } } }
-      ]);
+      // First, remove old entries
+      await this.apiRequestModel.deleteMany({
+        IP,
+        URL,
+        date: { $lt: timeLimit }
+      }).exec();
 
-      // Считаем количество запросов за период
+      // Then add current request
+      await this.apiRequestModel.create({
+        IP,
+        URL,
+        date: currentTime
+      });
+
+      // Count requests in the time window
       const requestCount = await this.apiRequestModel.countDocuments({
         IP,
         URL,
-        date: { $gte: timeLimit },
-      });
+        date: { $gte: timeLimit }
+      }).exec();
+
+      // Add rate limit headers to response
+      response.setHeader('X-RateLimit-Limit', '5');
+      response.setHeader('X-RateLimit-Remaining', Math.max(0, 5 - requestCount));
+      response.setHeader('X-RateLimit-Reset', new Date(Date.now() + 10000).toISOString());
 
       if (requestCount > 5) {
         response.status(429).send('Too Many Requests');
@@ -51,8 +54,8 @@ export class RateLimitGuard implements CanActivate {
       return true;
     } catch (error) {
       console.error('Rate limiting error:', error);
-      response.status(500).send('Internal Server Error');
-      return false;
+      // In case of error, allow the request to proceed
+      return true;
     }
   }
 }

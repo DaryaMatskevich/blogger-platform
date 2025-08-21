@@ -64,6 +64,16 @@ const useCases = [RegisterUserUseCase,
       { name: Session.name, schema: SessionSchema },
       { name: ApiRequestCount.name, schema: ApiRequestCountSchema }
     ]),
+    MongooseModule.forFeatureAsync([
+      {
+        name: ApiRequestCount.name,
+        useFactory: () => {
+          const schema = ApiRequestCountSchema;
+          schema.index({ date: 1 }, { expireAfterSeconds: 10 });
+          return schema;
+        },
+      },
+    ]),
     NotificationsModule
   ],
   controllers: [UsersController, AuthController, SessionsController],

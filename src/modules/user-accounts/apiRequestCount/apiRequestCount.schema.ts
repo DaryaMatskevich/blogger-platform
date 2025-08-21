@@ -1,43 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Model } from 'mongoose';
+import { Document } from 'mongoose';
 
-@Schema({
-  collection: 'api_request_counts',
-  timestamps: false,
-  versionKey: false,
-})
+@Schema()
 export class ApiRequestCount extends Document {
-  @Prop({
-    required: true,
-    index: true,
-    type: String,
-  })
+  @Prop({ required: true })
   IP: string;
 
-  @Prop({
-    required: true,
-    index: true,
-    type: String,
-  })
+  @Prop({ required: true })
   URL: string;
 
-  @Prop({
-    type: Date,
-    required: true,
-    default: Date.now,
-    index: true,
-    expires: 10, // TTL в секундах (10 секунд)
-  })
+  @Prop({ required: true, type: Date })
   date: Date;
 }
 
 export const ApiRequestCountSchema = SchemaFactory.createForClass(ApiRequestCount);
 
-
-ApiRequestCountSchema.loadClass(ApiRequestCount);
-
-//Типизация документа
-export type UserDocument = HydratedDocument<ApiRequestCount>;
-
-//Типизация модели + статические методы
-export type ApiRequestCountModelType = Model<UserDocument> & typeof ApiRequestCount;
+// Добавьте индексы для производительности
+ApiRequestCountSchema.index({ IP: 1, URL: 1 });
+ApiRequestCountSchema.index({ date: 1 }, { expireAfterSeconds: 10 });

@@ -27,10 +27,15 @@ export class LogOutUseCase
     async execute(command: LogOutCommand): Promise<void> {
 
         
-        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId)
+        const session = await this.sessionsRepository.findByDeviceId(command.deviceId)
         console.log('сессия найдена')
 
-        const isValid = await this.cryptoService.comparePasswords(
+        if(session.userId !== command.userId) { throw new DomainException({
+                code: DomainExceptionCode.Forbidden,
+                message: "Forbidden"
+              })}
+
+        const isValid = await this.cryptoService.compareToken(
             
             command.refreshToken,
             session.refreshTokenHash
@@ -42,7 +47,7 @@ export class LogOutUseCase
                 message: "Unauthorized"
             })
         }
-            if (session) {
+            if (isValid) {
                 session.makeDeleted()
                 await this.sessionsRepository.save(session)
             }

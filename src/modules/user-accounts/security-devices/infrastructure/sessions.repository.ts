@@ -17,8 +17,8 @@ export class SessionRepository {
   
       deletedAt: null,
     }).exec();
-    if (!session) {
 
+    if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: "Session not found"

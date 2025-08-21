@@ -163,7 +163,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @UseGuards(RefreshTokenGuard)
-
+  @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response)
@@ -184,7 +184,8 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(RefreshTokenGuard)
-   async logout(
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response)
     : Promise<void> {

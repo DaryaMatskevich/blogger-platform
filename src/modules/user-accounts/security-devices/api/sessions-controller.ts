@@ -10,6 +10,7 @@ import { DeleteSessionCommand } from '../application/usecases/delete-session.use
 import { RefreshTokenGuard } from '../../guards/bearer/refresh-token.guard';
 import { ExtractUserWithDeviceId } from '../../guards/decorators/extract-deviceId-from-refreshToken.decorator';
 import { UserWithDeviceIdContextDto } from '../../guards/dto/deviceId-context.dto';
+import { DeleteAllSessionsExcludeCurrentCommand } from '../application/usecases/delete-all-sessions-exclude-current.use.case';
 
 @Controller('security/devices')
 export class SessionsController {
@@ -35,7 +36,7 @@ export class SessionsController {
 
   async deleteSessionById(@Param('id',) deviceId: string,
     @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
-    return this.commandBus.execute(new DeleteSessionCommand(deviceId, user.userId));
+    return this.commandBus.execute(new DeleteSessionCommand(deviceId, user.userId, user.refreshToken));
   }
 
   
@@ -47,6 +48,6 @@ export class SessionsController {
   @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
      const userId = user.userId
      const deviceId = user.deviceId
-    return this.commandBus.execute(new DeleteSessionCommand(userId, deviceId));
+    return this.commandBus.execute(new DeleteAllSessionsExcludeCurrentCommand(userId, deviceId));
   }
 }

@@ -35,16 +35,17 @@ export class RefreshTokensUseCase
         
         const session = await this.sessionsRepository.findAllByDeviceId(command.deviceId)
 console.log(session)
-        if (!session) {
+        if (!session || session.deletedAt !== null) {
+           
       throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
-        message: "Unauthorized"
+        code: DomainExceptionCode.NotFound,
+        message: "Not found"
       })
     }
-    if (session.userId !== command.userId || session.deletedAt !== null) {
+    if (session.userId !== command.userId) {
             throw new DomainException({
-                code: DomainExceptionCode.Unauthorized,
-                message: "Unauthorized"
+                code: DomainExceptionCode.Forbidden,
+                message: "Forbidden"
             });
         }
 const isValid = await this.cryptoService.comparePasswords(

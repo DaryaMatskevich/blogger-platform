@@ -30,7 +30,7 @@ export class LogOutUseCase
         const session = await this.sessionsRepository.findAllByDeviceId(command.deviceId)
         console.log('сессия найдена')
 
-         if (!session) {
+         if (!session || session.deletedAt !== null) {
             throw new DomainException({
                 code: DomainExceptionCode.Unauthorized,
                 message: "Unauthorized"

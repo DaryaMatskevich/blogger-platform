@@ -56,9 +56,10 @@ export class AuthController {
   }
 
   @Post('login')
+   @UseGuards(LocalAuthGuard)
   @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
+ 
   //swagger doc
   @ApiBody({
     schema: {

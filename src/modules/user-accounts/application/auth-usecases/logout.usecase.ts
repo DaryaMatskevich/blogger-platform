@@ -28,9 +28,9 @@ export class LogOutUseCase
         const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
         console.log('сессия найдена')
         if(session) {
-        session?.makeDeleted()
+        session.makeDeleted()
       await this.sessionsRepository.save(session)}
-      
+
         // const deleteSession = await this.sessionsRepository.deleteSessionById(command.deviceId, command.userId)
         console.log('сессия удалена')
     }

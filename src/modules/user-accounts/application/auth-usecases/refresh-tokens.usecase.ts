@@ -33,12 +33,7 @@ export class RefreshTokensUseCase
         const refreshTokenHash = await this.cryptoService.hashToken(command.refreshToken)
         const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
 
-
-
-        const now = new Date()
-
-        session?.updateLastActiveDate(now)
-      
+       
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }
@@ -50,11 +45,16 @@ export class RefreshTokensUseCase
             deviceId: command.deviceId
         })
         const newRefreshTokenHash = await this.cryptoService.hashToken(newRefreshToken)
-        session?.updateRefreshToken(newRefreshTokenHash)
-        session?.save()
+        if(session) {
+         const now = new Date()
+        session.updateLastActiveDate(now)
+        session.updateRefreshToken(newRefreshTokenHash)
+        await this.sessionsRepository.save(session)
+        }
         return {
             newAccessToken,
             newRefreshToken,
         };
     }
+
 }

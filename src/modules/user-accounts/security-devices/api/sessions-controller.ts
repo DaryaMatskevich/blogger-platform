@@ -19,23 +19,23 @@ export class SessionsController {
   ) { }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
   async getAll(
-    @ExtractUserFromRequest() user: UserContextDto
-  ): Promise<SessionViewDto[]> {
-    return this.sessionsQueryRepository.findAllActiveSessionsByUserId(user.id);
+ @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto)
+  : Promise<SessionViewDto[]> {
+    return this.sessionsQueryRepository.findAllActiveSessionsByUserId(user.userId);
   }
 
 
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
 
   async deleteSessionById(@Param('id',) deviceId: string,
-    @ExtractUserFromRequest() user: UserContextDto): Promise<void> {
-    return this.commandBus.execute(new DeleteSessionCommand(deviceId, user.id));
+    @ExtractUserWithDeviceId() user : UserWithDeviceIdContextDto): Promise<void> {
+    return this.commandBus.execute(new DeleteSessionCommand(deviceId, user.userId));
   }
 
   

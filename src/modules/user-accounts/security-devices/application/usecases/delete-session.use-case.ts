@@ -20,21 +20,14 @@ export class DeleteSessionUseCase
     ) { }
 
     async execute(command: DeleteSessionCommand) {
-        const session = await this.sessionRepository.findByUserIdandDeviceId(command.userId, command.deviceId)
- 
+        const session = await this.sessionRepository.findByDeviceId(command.deviceId)
+ if(command.userId !== session.userId)
 
-        // const isValid = await this.cryptoService.comparePasswords(
-            
-        //     command.refreshToken,
-        //     session.refreshTokenHash
-        // );
-
-        // if (!isValid) {
-        //     throw new DomainException({
-        //         code: DomainExceptionCode.Forbidden,
-        //         message: "Forbidden"
-        //     })
-        // }
+            throw new DomainException({
+                code: DomainExceptionCode.Forbidden,
+                message: "Forbidden"
+            })
+        
 session.makeDeleted()
 await this.sessionRepository.save(session)
 

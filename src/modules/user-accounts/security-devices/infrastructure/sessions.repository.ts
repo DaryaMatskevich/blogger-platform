@@ -10,11 +10,29 @@ export class SessionRepository {
   constructor(@InjectModel(Session.name) private SessionModel: SessionModelType) { }
 
   async findByUserIdandDeviceId(userId: string, deviceId: string): Promise<SessionDocument> {
-    const session =  await this.SessionModel.findOne({
+    const session = await this.SessionModel.findOne({
       userId: userId,
       deviceId: deviceId,
-     
-  
+
+
+      deletedAt: null,
+    }).exec();
+
+    if (!session) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: "Session not found"
+      })
+    }
+
+    return session;
+  }
+
+  async findByDeviceId(deviceId: string): Promise<SessionDocument> {
+    const session = await this.SessionModel.findOne({
+      deviceId: deviceId,
+
+
       deletedAt: null,
     }).exec();
 

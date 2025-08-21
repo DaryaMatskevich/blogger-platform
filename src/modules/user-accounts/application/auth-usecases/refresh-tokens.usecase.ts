@@ -49,7 +49,8 @@ export class RefreshTokensUseCase
             userId: command.userId,
             deviceId: command.deviceId
         })
-        session?.updateRefreshToken(refreshTokenHash)
+        const newRefreshTokenHash = await this.cryptoService.hashToken(newRefreshToken)
+        session?.updateRefreshToken(newRefreshTokenHash)
         session?.save()
         return {
             newAccessToken,

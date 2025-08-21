@@ -50,7 +50,7 @@ export class RefreshTokensUseCase
             userId: command.userId,
             deviceId: command.deviceId
         })
-        session?.updateRefreshToken(newRefreshToken)
+        session?.updateRefreshToken(refreshTokenHash)
         session?.save()
         return {
             newAccessToken,

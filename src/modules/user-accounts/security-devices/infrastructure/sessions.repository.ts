@@ -46,6 +46,19 @@ export class SessionRepository {
     return session;
   }
 
+  async findAllByDeviceId(deviceId: string): Promise<SessionDocument | null> {
+    const session = await this.SessionModel.findOne({
+      deviceId: deviceId,
+
+
+    
+    }).exec();
+
+    
+
+    return session;
+  }
+
   async save(session: SessionDocument) {
     await session.save();
   }

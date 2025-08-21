@@ -4,6 +4,8 @@ import { Inject } from "@nestjs/common";
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from "../../constants/auth-tokens.inject-constants";
 import { SessionRepository } from "../../security-devices/infrastructure/sessions.repository";
 import { CryptoService } from "../services/crypto.service";
+import { DomainException } from "../../../../core/exeptions/domain-exeptions";
+import { DomainExceptionCode } from "../../../../core/exeptions/domain-exeption-codes";
 
 
 export class RefreshTokensCommand {
@@ -30,10 +32,22 @@ export class RefreshTokensUseCase
 
 
     async execute(command: RefreshTokensCommand): Promise<{ newAccessToken: string, newRefreshToken: string }> {
-        const refreshTokenHash = await this.cryptoService.hashToken(command.refreshToken)
-        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
-
+        
+        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId)
+console.log(session)
        
+const isValid = await this.cryptoService.comparePasswords(
+            
+            command.refreshToken,
+            session.refreshTokenHash
+        );
+
+        if (!isValid) {
+            throw new DomainException({
+                code: DomainExceptionCode.Forbidden,
+                message: "Forbidden"
+            })
+        }
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }

@@ -25,10 +25,10 @@ export class ValidateUserUseCase
             return null
         }
 
-        const isPasswordValid = await this.cryptoService.comparePasswords({
+        const isPasswordValid = await this.cryptoService.comparePasswords(
             password,
-            hash: user.passwordHash,
-        });
+            user.passwordHash,
+        );
 
         if (!isPasswordValid) {
             return null

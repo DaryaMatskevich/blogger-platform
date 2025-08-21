@@ -9,11 +9,11 @@ export class SessionRepository {
   //инжектирование модели через DI
   constructor(@InjectModel(Session.name) private SessionModel: SessionModelType) { }
 
-  async findByUserIdandDeviceId(userId: string, deviceId: string, refreshTokenHash: string): Promise<SessionDocument> {
+  async findByUserIdandDeviceId(userId: string, deviceId: string): Promise<SessionDocument> {
     const session =  await this.SessionModel.findOne({
       userId: userId,
       deviceId: deviceId,
-      refreshTokenHash: refreshTokenHash,
+     
   
       deletedAt: null,
     }).exec();

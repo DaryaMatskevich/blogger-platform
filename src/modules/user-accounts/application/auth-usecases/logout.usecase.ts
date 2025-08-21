@@ -4,6 +4,8 @@ import { Inject } from "@nestjs/common";
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from "../../constants/auth-tokens.inject-constants";
 import { CryptoService } from "../services/crypto.service";
 import { SessionRepository } from "../../security-devices/infrastructure/sessions.repository";
+import { DomainException } from "../../../../core/exeptions/domain-exeptions";
+import { DomainExceptionCode } from "../../../../core/exeptions/domain-exeption-codes";
 
 
 export class LogOutCommand {
@@ -24,14 +26,28 @@ export class LogOutUseCase
 
     async execute(command: LogOutCommand): Promise<void> {
 
-        const refreshTokenHash = await this.cryptoService.hashToken(command.refreshToken)
-        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId, refreshTokenHash)
+        
+        const session = await this.sessionsRepository.findByUserIdandDeviceId(command.userId, command.deviceId)
         console.log('сессия найдена')
-        if(session) {
-        session.makeDeleted()
-      await this.sessionsRepository.save(session)}
 
-        // const deleteSession = await this.sessionsRepository.deleteSessionById(command.deviceId, command.userId)
-        console.log('сессия удалена')
+        const isValid = await this.cryptoService.comparePasswords(
+            
+            command.refreshToken,
+            session.refreshTokenHash
+        );
+
+        if (!isValid) {
+            throw new DomainException({
+                code: DomainExceptionCode.Unauthorized,
+                message: "Forbidden"
+            })
+        }
+            if (session) {
+                session.makeDeleted()
+                await this.sessionsRepository.save(session)
+            }
+
+            // const deleteSession = await this.sessionsRepository.deleteSessionById(command.deviceId, command.userId)
+            console.log(session)
+        }
     }
-}

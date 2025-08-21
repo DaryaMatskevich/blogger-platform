@@ -23,18 +23,18 @@ export class DeleteSessionUseCase
         const session = await this.sessionRepository.findByUserIdandDeviceId(command.userId, command.deviceId)
  
 
-        const isValid = await this.cryptoService.comparePasswords(
+        // const isValid = await this.cryptoService.comparePasswords(
             
-            command.refreshToken,
-            session.refreshTokenHash
-        );
+        //     command.refreshToken,
+        //     session.refreshTokenHash
+        // );
 
-        if (!isValid) {
-            throw new DomainException({
-                code: DomainExceptionCode.Forbidden,
-                message: "Forbidden"
-            })
-        }
+        // if (!isValid) {
+        //     throw new DomainException({
+        //         code: DomainExceptionCode.Forbidden,
+        //         message: "Forbidden"
+        //     })
+        // }
 session.makeDeleted()
 await this.sessionRepository.save(session)
 

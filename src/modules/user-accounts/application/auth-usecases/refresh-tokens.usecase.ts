@@ -44,8 +44,8 @@ const isValid = await this.cryptoService.comparePasswords(
 
         if (!isValid) {
             throw new DomainException({
-                code: DomainExceptionCode.Forbidden,
-                message: "Forbidden"
+                code: DomainExceptionCode.Unauthorized,
+                message: "Unauthorized"
             })
         }
 

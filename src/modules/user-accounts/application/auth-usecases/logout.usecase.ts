@@ -39,7 +39,7 @@ export class LogOutUseCase
         if (!isValid) {
             throw new DomainException({
                 code: DomainExceptionCode.Unauthorized,
-                message: "Forbidden"
+                message: "Unauthorized"
             })
         }
             if (session) {

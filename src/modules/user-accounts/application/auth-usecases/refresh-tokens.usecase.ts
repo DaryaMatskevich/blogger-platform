@@ -37,9 +37,8 @@ export class RefreshTokensUseCase
 
         const now = new Date()
 
-        session?.makeDeleted()
         session?.updateLastActiveDate(now)
-       session?.save()
+      
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }

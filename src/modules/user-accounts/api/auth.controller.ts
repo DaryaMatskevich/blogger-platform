@@ -51,8 +51,8 @@ export class AuthController {
   @Post('registration')
   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  registration(@Body() body: CreateUserInputDto): Promise<void> {
-    return this.commandBus.execute(new RegisterUserCommand(body));
+  async registration(@Body() body: CreateUserInputDto): Promise<void> {
+    return await this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('login')
@@ -131,8 +131,8 @@ export class AuthController {
   @Post('registration-email-resending')
   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  registrationEmailResending(@Body() body: EmailDto): Promise<void> {
-    return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
+  async registrationEmailResending(@Body() body: EmailDto): Promise<void> {
+    return await this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))
   }
 
 

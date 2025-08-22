@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { ConsoleLogger, Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -49,6 +49,7 @@ import { CqrsModule } from '@nestjs/cqrs';
       useClass: DomainHttpExceptionsFilter,
     }],
 })
+
 export class AppModule {
   constructor() {
     Logger.log(`MongoDB URL: ${process.env.MONGO_URL}`, 'AppModule');

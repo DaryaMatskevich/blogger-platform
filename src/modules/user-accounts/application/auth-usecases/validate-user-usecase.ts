@@ -24,15 +24,9 @@ export class ValidateUserUseCase
         const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
 
         if (!user) {
-            {
-                  throw new DomainException({
-                    code: DomainExceptionCode.BadRequest,
-                    message: "User not found",
-                   
-                  })
-                }
-            
+            return null
         }
+
 
         const isPasswordValid = await this.cryptoService.comparePasswords(
             password,
@@ -42,7 +36,7 @@ export class ValidateUserUseCase
         if (!isPasswordValid) {
             return null
         }
-console.log(user._id.toString())
+        console.log(user._id.toString())
         return { id: user._id.toString() };
     }
 }

@@ -19,7 +19,7 @@ export class ConfirmEmailUseCase
 
   async execute(command: ConfirmEmailCommand) {
     let user = await this.usersRepository.findUserByConfirmationCode(command.code)
-
+console.log("find")
     if (!user || user.isEmailConfirmed) {
 
       throw new DomainException({
@@ -40,7 +40,7 @@ export class ConfirmEmailUseCase
       })
     };
 
-  
+
 
     if (user.confirmationCode !== command.code)
       throw new DomainException({

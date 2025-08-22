@@ -14,7 +14,7 @@ import { AllHttpExceptionsFilter } from './core/exeptions/filters/all-exeptions.
 import { DomainHttpExceptionsFilter } from './core/exeptions/filters/domain-exeptions.fiter';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ThrottlerModule } from '@nestjs/throttler';
+
 
 
 

@@ -2,6 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infastructure/users.repository';
 import { CryptoService } from '../services/crypto.service';
 import { UserContextDto } from '../../guards/dto/user-contex.dto';
+import { DomainException } from '../../.././../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 export class ValidateUserCommand {
     constructor(public loginOrEmail: string,
@@ -22,7 +24,14 @@ export class ValidateUserUseCase
         const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
 
         if (!user) {
-            return null
+            {
+                  throw new DomainException({
+                    code: DomainExceptionCode.BadRequest,
+                    message: "User not found",
+                   
+                  })
+                }
+            
         }
 
         const isPasswordValid = await this.cryptoService.comparePasswords(

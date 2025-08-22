@@ -59,7 +59,8 @@ const useCases = [RegisterUserUseCase,
 
 
 @Module({
-  imports: [ThrottlerModule.forRoot([{
+  imports: [ThrottlerModule.forRoot([
+    {
       
          name: 'default', // Имя конфигурации
         ttl: 10000, // 10 секунд

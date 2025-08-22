@@ -20,7 +20,7 @@ export class ConfirmEmailUseCase
   async execute(command: ConfirmEmailCommand) {
     let user = await this.usersRepository.findUserByConfirmationCode(command.code)
 
-    if (!user) {
+    if (!user || user.isEmailConfirmed) {
 
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
@@ -40,15 +40,7 @@ export class ConfirmEmailUseCase
       })
     };
 
-    if (user.isEmailConfirmed) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: "Bad requet",
-        extensions: [
-          new Extension("Email is already confirmed", "email")
-        ]
-      })
-    }
+  
 
     if (user.confirmationCode !== command.code)
       throw new DomainException({

@@ -46,7 +46,7 @@ async execute(command: ResendConfirmationEmailCommand): Promise<void> {
     user.setConfirmationCode(confirmCode)
     await this.usersRepository.save(user);
 
-    await this.emailService
+    this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
   }
 }

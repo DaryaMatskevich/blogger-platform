@@ -61,7 +61,7 @@ async execute(command: RegisterUserCommand): Promise<void> {
     await this.usersRepository.save(user);
     console.log('User registered successfully');
 
-    await this.emailService
+    this.emailService
       .sendConfirmationEmail(user.email, confirmCode)
   }
 }

@@ -2,6 +2,7 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
+  HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -30,6 +31,15 @@ if (exception instanceof ThrottlerException) {
       status = HttpStatus.TOO_MANY_REQUESTS; // 429
       message = exception.message || 'Too many requests';
       code = DomainExceptionCode.TooManyRequests; // Используем новый код
+    } else if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      message = exception.message || 'Request failed';
+      code =
+        status === HttpStatus.UNAUTHORIZED
+          ? DomainExceptionCode.Unauthorized
+          : status === HttpStatus.BAD_REQUEST
+          ? DomainExceptionCode.BadRequest
+          : code;
     }
 
     const responseBody = this.buildResponseBody(request.url, message, code);

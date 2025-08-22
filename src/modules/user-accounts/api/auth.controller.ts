@@ -49,7 +49,7 @@ export class AuthController {
     private commandBus: CommandBus
   ) { }
   @Post('registration')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
@@ -57,7 +57,7 @@ export class AuthController {
 
   @Post('login')
    @UseGuards(LocalAuthGuard)
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.OK)
  
   //swagger doc
@@ -110,27 +110,27 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   passwordRecovery(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute
       (new SendPasswordRecoveryEmailCommand(body.email))
   }
 
   @Post('new-password')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
   @Post('registration-confirmation')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))

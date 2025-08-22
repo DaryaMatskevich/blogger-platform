@@ -36,8 +36,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { RefreshTokenGuard } from '../guards/bearer/refresh-token.guard';
 import { ExtractUserWithDeviceId } from '../guards/decorators/extract-deviceId-from-refreshToken.decorator';
 import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
-import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
-import { RateLimitGuard } from '../guards/rate-limit/rate-limit.guard';
+import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase'
 import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
 import { ThrottlerGuard } from '@nestjs/throttler';
 

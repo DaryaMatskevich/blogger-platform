@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 
 import { DomainExceptionCode } from '../domain-exeption-codes';
 import { ErrorResponseBody } from './error-response-body.type';
+import { ThrottlerException } from '@nestjs/throttler';
 
 
 //https://docs.nestjs.com/exception-filters#exception-filters-1
@@ -21,8 +22,14 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     //Если сработал этот фильтр, то пользователю улетит 500я ошибка
-    const message = exception.message || 'Unknown exception occurred.';
-    const status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = exception.message || 'Unknown exception occurred.';
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (exception instanceof ThrottlerException) {
+      status = HttpStatus.TOO_MANY_REQUESTS; // 429
+      message = exception.message || 'Too many requests';
+    
+    }
     const responseBody = this.buildResponseBody(request.url, message);
 
     response.status(status).json(responseBody);

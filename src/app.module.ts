@@ -20,14 +20,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 
 @Module({
-  imports: [ThrottlerModule.forRoot({
-    throttlers: [
-      {
-        ttl: 10000,
-        limit: 5,
-      },
-    ],
-  }),
+  imports: [
     CqrsModule,
   ConfigModule.forRoot(),
   ServeStaticModule.forRoot({

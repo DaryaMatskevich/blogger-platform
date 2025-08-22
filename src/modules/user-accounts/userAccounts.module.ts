@@ -38,6 +38,7 @@ import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 
 const useCases = [RegisterUserUseCase, 
@@ -58,6 +59,14 @@ const useCases = [RegisterUserUseCase,
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              ttl: 10000,
+              limit: 5,
+            },
+          ],
+        }),
     CqrsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },

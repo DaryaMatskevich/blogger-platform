@@ -35,14 +35,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     BloggersPlatformModule,
     CoreModule,
     NotificationsModule,  
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          ttl: 10000,
-          limit: 5,
-        },
-      ],
-    }),
+    
   ],
   controllers: [AppController],
   providers: [AppService,

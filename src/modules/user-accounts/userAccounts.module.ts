@@ -38,7 +38,8 @@ import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core'; 
 
 
 const useCases = [RegisterUserUseCase, 
@@ -93,6 +94,10 @@ const useCases = [RegisterUserUseCase,
     SessionsQueryRepository,
     SessionRepository,
     ...useCases,
+     {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
      {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (): JwtService => {

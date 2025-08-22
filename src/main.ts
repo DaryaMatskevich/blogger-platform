@@ -4,6 +4,7 @@ import { appSetup } from './setup/app.setup';
 import { createWriteStream } from 'fs';
 import { get } from 'http'; 
 import cookieParser from 'cookie-parser';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 
 
@@ -12,6 +13,8 @@ const serverUrl = 'http://localhost:5005'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  
   app.enableCors()
   appSetup(app)
 app.use(cookieParser())

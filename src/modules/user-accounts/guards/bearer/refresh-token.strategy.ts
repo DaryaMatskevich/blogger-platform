@@ -4,11 +4,14 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Request } from 'express';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { SessionRepository } from '../../security-devices/infrastructure/sessions.repository';
+import { CryptoService } from '../../application/services/crypto.service';
 
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-jwt') {
-  constructor() {
+  constructor(private sessionRepository: SessionRepository,
+    private cryptoService: CryptoService,) {
     super({
       // Извлекаем токен из cookies
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -40,6 +43,22 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-jw
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'Refresh token not found in cookies',
+      });
+    }
+
+    const session = await this.sessionRepository.findByDeviceId(payload.deviceId);
+    if (!session || session.deletedAt !== null) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
+    const isValid = await this.cryptoService.compareToken(refreshToken, session.refreshTokenHash);
+    if (!isValid) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Invalid or expired refresh token',
       });
     }
     return {

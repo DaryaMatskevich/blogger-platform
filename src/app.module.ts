@@ -14,6 +14,7 @@ import { AllHttpExceptionsFilter } from './core/exeptions/filters/all-exeptions.
 import { DomainHttpExceptionsFilter } from './core/exeptions/filters/domain-exeptions.fiter';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 
 
@@ -33,7 +34,15 @@ import { CqrsModule } from '@nestjs/cqrs';
     TestingModule,
     BloggersPlatformModule,
     CoreModule,
-    NotificationsModule,
+    NotificationsModule,  
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 10000,
+          limit: 5,
+        },
+      ],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService,

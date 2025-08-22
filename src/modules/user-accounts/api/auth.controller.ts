@@ -39,6 +39,7 @@ import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
 import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
 import { RateLimitGuard } from '../guards/rate-limit/rate-limit.guard';
 import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 
 @Controller('auth')
@@ -49,7 +50,7 @@ export class AuthController {
     private commandBus: CommandBus
   ) { }
   @Post('registration')
-  // @UseGuards(RateLimitGuard)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registration(@Body() body: CreateUserInputDto): Promise<void> {
     return this.commandBus.execute(new RegisterUserCommand(body));
@@ -57,7 +58,7 @@ export class AuthController {
 
   @Post('login')
    @UseGuards(LocalAuthGuard)
-  // @UseGuards(RateLimitGuard)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
  
   //swagger doc
@@ -110,27 +111,27 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  // @UseGuards(RateLimitGuard)
+  @UseGuards(ThrottlerGuard)
   passwordRecovery(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute
       (new SendPasswordRecoveryEmailCommand(body.email))
   }
 
   @Post('new-password')
-  // @UseGuards(RateLimitGuard)
+   @UseGuards(ThrottlerGuard)
   newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(new SetNewPasswordCommand(body.newPassword, body.recoveryCode))
   }
 
   @Post('registration-confirmation')
-  // @UseGuards(RateLimitGuard)
+   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code))
   }
 
   @Post('registration-email-resending')
-  // @UseGuards(RateLimitGuard)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(new ResendConfirmationEmailCommand(body.email))

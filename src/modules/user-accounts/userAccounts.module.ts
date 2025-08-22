@@ -60,14 +60,7 @@ const useCases = [RegisterUserUseCase,
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-          throttlers: [
-            {
-              ttl: 10000,
-              limit: 5,
-            },
-          ],
-        }),
+    
     CqrsModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
@@ -94,11 +87,7 @@ const useCases = [RegisterUserUseCase,
     SessionsQueryRepository,
     SessionRepository,
     ...useCases,
-     {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-     {
+         {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (): JwtService => {
         return new JwtService({

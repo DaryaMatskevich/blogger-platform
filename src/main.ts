@@ -13,7 +13,9 @@ const serverUrl = 'http://localhost:5005'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+       const expressApp = app.getHttpAdapter().getInstance();
+  // Устанавливаем trust proxy для Express
+  expressApp.set('trust proxy', true);
   
   app.enableCors()
   appSetup(app)

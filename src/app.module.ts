@@ -20,22 +20,30 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 
 @Module({
-  imports: [CqrsModule,
-    ConfigModule.forRoot(),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'swagger-static'),
-      serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
-    }),
-    MongooseModule.forRoot(process.env.MONGO_URL, {
-      dbName: 'nest-bloggers-platform'
-    }),//ODO: move to env. will be in the following lessons
+  imports: [ThrottlerModule.forRoot({
+    throttlers: [
+      {
+        ttl: 10000,
+        limit: 5,
+      },
+    ],
+  }),
+    CqrsModule,
+  ConfigModule.forRoot(),
+  ServeStaticModule.forRoot({
+    rootPath: join(__dirname, '..', 'swagger-static'),
+    serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
+  }),
+  MongooseModule.forRoot(process.env.MONGO_URL, {
+    dbName: 'nest-bloggers-platform'
+  }),//ODO: move to env. will be in the following lessons
 
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
     BloggersPlatformModule,
     CoreModule,
-    NotificationsModule,  
-    
+    NotificationsModule,
+
   ],
   controllers: [AppController],
   providers: [AppService,

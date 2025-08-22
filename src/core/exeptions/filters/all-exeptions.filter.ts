@@ -26,20 +26,22 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let code = DomainExceptionCode.InternalServerError;
 
-    if (exception instanceof ThrottlerException) {
-      status = HttpStatus.TOO_MANY_REQUESTS;
+if (exception instanceof ThrottlerException) {
+      status = HttpStatus.TOO_MANY_REQUESTS; // 429
       message = exception.message || 'Too many requests';
-   
+      code = DomainExceptionCode.TooManyRequests; // Используем новый код
     }
-      const responseBody = this.buildResponseBody(request.url, message);
 
-      response.status(status).json(responseBody);
-    }
+    const responseBody = this.buildResponseBody(request.url, message, code);
+
+    response.status(status).json(responseBody);
+  }
 
   private buildResponseBody(
-      requestUrl: string,
-      message: string,
-    ): ErrorResponseBody {
+    requestUrl: string,
+    message: string,
+    code: DomainExceptionCode,
+  ): ErrorResponseBody {
     //TODO: Replace with getter from configService. will be in the following lessons
     const isProduction = process.env.NODE_ENV === 'production';
 
@@ -47,9 +49,9 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
       return {
         timestamp: new Date().toISOString(),
         path: null,
-        message: 'Some error occurred',
+        message: code === DomainExceptionCode.TooManyRequests ? 'Too many requests' : 'Some error occurred',
         extensions: [],
-        code: DomainExceptionCode.InternalServerError,
+        code
       };
     }
 
@@ -58,7 +60,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
       path: requestUrl,
       message,
       extensions: [],
-      code: DomainExceptionCode.InternalServerError,
+      code
     };
   }
 }

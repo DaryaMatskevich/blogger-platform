@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 
 import { DomainExceptionCode } from '../domain-exeption-codes';
 import { ErrorResponseBody } from './error-response-body.type';
+import { ThrottlerException } from '@nestjs/throttler';
 
 
 //https://docs.nestjs.com/exception-filters#exception-filters-1
@@ -21,17 +22,24 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     //Если сработал этот фильтр, то пользователю улетит 500я ошибка
-    const message = exception.message || 'Unknown exception occurred.';
-    const status = HttpStatus.INTERNAL_SERVER_ERROR;
-    const responseBody = this.buildResponseBody(request.url, message);
+    let message = exception.message || 'Unknown exception occurred.';
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let code = DomainExceptionCode.InternalServerError;
 
-    response.status(status).json(responseBody);
-  }
+    if (exception instanceof ThrottlerException) {
+      status = HttpStatus.TOO_MANY_REQUESTS;
+      message = exception.message || 'Too many requests';
+   
+    }
+      const responseBody = this.buildResponseBody(request.url, message);
+
+      response.status(status).json(responseBody);
+    }
 
   private buildResponseBody(
-    requestUrl: string,
-    message: string,
-  ): ErrorResponseBody {
+      requestUrl: string,
+      message: string,
+    ): ErrorResponseBody {
     //TODO: Replace with getter from configService. will be in the following lessons
     const isProduction = process.env.NODE_ENV === 'production';
 

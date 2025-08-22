@@ -10,7 +10,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { AuthService } from './application/services/auth.service';
 import { AuthQueryRepository } from './infastructure/query/auth.query-repository';
 import { SecurityDevicesQueryRepository } from './infastructure/query/security-devices.query-repository';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import {  JwtService } from '@nestjs/jwt';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthController } from './api/auth.controller';
 import { UsersExternalService } from './application/external/users.external-service';
@@ -38,8 +38,7 @@ import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { ApiRequestCount, ApiRequestCountSchema } from './apiRequestCount/apiRequestCount.schema';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core'; 
+
 
 
 const useCases = [RegisterUserUseCase, 

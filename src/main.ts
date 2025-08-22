@@ -4,7 +4,8 @@ import { appSetup } from './setup/app.setup';
 import { createWriteStream } from 'fs';
 import { get } from 'http'; 
 import cookieParser from 'cookie-parser';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 
 
 
@@ -12,10 +13,9 @@ const port = process.env.PORT || 5005;
 const serverUrl = 'http://localhost:5005'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-       const expressApp = app.getHttpAdapter().getInstance();
-  // Устанавливаем trust proxy для Express
-  expressApp.set('trust proxy', true);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+       app.set('trust proxy', 'loopback');
+ 
   
   app.enableCors()
   appSetup(app)

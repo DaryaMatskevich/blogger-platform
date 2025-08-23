@@ -19,7 +19,7 @@ export class RefreshTokensUseCase
     implements ICommandHandler<RefreshTokensCommand> {
     constructor(
         private sessionsRepository: SessionRepository,
-        private cryptoService: CryptoService,
+        
 
         @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
         private accessTokenContext: JwtService,
@@ -34,7 +34,7 @@ export class RefreshTokensUseCase
     async execute(command: RefreshTokensCommand): Promise<{ newAccessToken: string, newRefreshToken: string }> {
 
         const session = await this.sessionsRepository.findByDeviceId(command.deviceId)
-        console.log(session?.refreshTokenHash)
+     
 
         if (session.userId !== command.userId) {
             throw new DomainException({
@@ -42,6 +42,8 @@ export class RefreshTokensUseCase
                 message: "Unauthorized"
             });
         }
+
+     
 
         const newAccessToken = this.accessTokenContext.sign(
             { id: command.userId }
@@ -52,13 +54,14 @@ export class RefreshTokensUseCase
             userId: command.userId,
             deviceId: command.deviceId
         })
-        const newRefreshTokenHash = await this.cryptoService.hashToken(newRefreshToken)
+        
 
         const now = new Date()
         session.updateLastActiveDate(now)
-        session.updateRefreshToken(newRefreshTokenHash)
+        session.updateRefreshToken(newRefreshToken)
         await this.sessionsRepository.save(session)
-        console.log(session.refreshTokenHash)
+      
+   
         return {
             newAccessToken,
             newRefreshToken,

@@ -31,6 +31,6 @@ export class CreateSessionDomainDto {
 
     @Trim()
     @IsDate()
-    refreshTokenHash: string;
+    refreshToken: string;
 }
 

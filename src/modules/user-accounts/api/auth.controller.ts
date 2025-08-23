@@ -172,7 +172,7 @@ export class AuthController {
     const userId = user.userId
     const deviceId = user.deviceId
     const result = await this.commandBus.execute(new RefreshTokensCommand(userId, deviceId, refreshToken));
-    console.log(result.refreshToken, result.newAccessToken)
+   
     response.cookie('refreshToken', result.newRefreshToken, {
       httpOnly: true,
       secure: true

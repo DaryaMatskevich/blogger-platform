@@ -1,7 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateSessionDomainDto } from './dto/create-session.domain.dto';
-import { threadId } from 'worker_threads';
+
 
 @Schema({ timestamps: true })
 
@@ -29,7 +29,7 @@ export class Session {
   expirationDate: Date;
 
   @Prop({ type: String, required: true })
-  refreshTokenHash: string;
+  refreshToken: string;
 
 
   static createInstance(dto: CreateSessionDomainDto): SessionDocument {
@@ -40,7 +40,7 @@ export class Session {
     session.lastActiveDate = dto.lastActiveDate;
     session.deviceId = dto.deviceId;
     session.expirationDate = dto.expirationDate;
-    session.refreshTokenHash = dto.refreshTokenHash
+    session.refreshToken = dto.refreshToken
    
 
 
@@ -65,8 +65,8 @@ export class Session {
     this.deletedAt = new Date();
   }
 
-  updateRefreshToken(newRefreshTokenHash: string) {
-this.refreshTokenHash = newRefreshTokenHash
+  updateRefreshToken(newRefreshToken: string) {
+this.refreshToken = newRefreshToken
   }
 }
 

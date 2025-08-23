@@ -7,14 +7,13 @@ import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-
 @Injectable()
 export class SessionRepository {
   //инжектирование модели через DI
-  constructor(@InjectModel(Session.name) private SessionModel: SessionModelType) { }
+  constructor(@InjectModel(Session.name)
+  private SessionModel: SessionModelType) { }
 
   async findByUserIdandDeviceId(userId: string, deviceId: string): Promise<SessionDocument> {
     const session = await this.SessionModel.findOne({
       userId: userId,
       deviceId: deviceId,
-
-
       deletedAt: null,
     }).exec();
 
@@ -31,7 +30,7 @@ export class SessionRepository {
   async findByDeviceId(deviceId: string): Promise<SessionDocument> {
     const session = await this.SessionModel.findOne({
       deviceId: deviceId,
-    }).exec();
+    }, null, { cache: false }).exec();
 
     if (!session) {
       throw new DomainException({
@@ -43,7 +42,7 @@ export class SessionRepository {
     return session;
   }
 
-   async save(session: SessionDocument) {
+  async save(session: SessionDocument) {
     await session.save();
   }
 

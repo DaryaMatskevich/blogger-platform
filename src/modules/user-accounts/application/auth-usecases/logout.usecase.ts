@@ -18,7 +18,7 @@ export class LogOutCommand {
 export class LogOutUseCase
     implements ICommandHandler<LogOutCommand> {
     constructor(
-        private cryptoService: CryptoService,
+        
         private sessionsRepository: SessionRepository,
 
     ) { }

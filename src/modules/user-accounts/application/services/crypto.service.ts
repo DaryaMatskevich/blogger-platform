@@ -14,11 +14,11 @@ export class CryptoService {
   }
 
   async checkPassword(password: string, hash: string): Promise<boolean> {
-    return await bcrypt.compare(password, hash)
+    return bcrypt.compare(password, hash)
   }
 
   async hashToken(token: string): Promise<string> {
-    return await bcrypt.hash(token, 10);
+    return bcrypt.hash(token, 10);
   }
 
   async compareToken(token: string, hashedToken: string): Promise<boolean> {

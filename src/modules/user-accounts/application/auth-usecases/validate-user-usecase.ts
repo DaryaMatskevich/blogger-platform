@@ -2,8 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infastructure/users.repository';
 import { CryptoService } from '../services/crypto.service';
 import { UserContextDto } from '../../guards/dto/user-contex.dto';
-import { DomainException } from '../../.././../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+
 
 export class ValidateUserCommand {
     constructor(public loginOrEmail: string,
@@ -36,7 +35,7 @@ export class ValidateUserUseCase
         if (!isPasswordValid) {
             return null
         }
-        console.log(user._id.toString())
+
         return { id: user._id.toString() };
     }
 }

@@ -33,32 +33,14 @@ export class RefreshTokensUseCase
 
     async execute(command: RefreshTokensCommand): Promise<{ newAccessToken: string, newRefreshToken: string }> {
 
-        const session = await this.sessionsRepository.findAllByDeviceId(command.deviceId)
-        console.log(session)
-        if (!session || session.deletedAt !== null) {
+        const session = await this.sessionsRepository.findByDeviceId(command.deviceId)
+        console.log(session?.refreshTokenHash)
 
-            throw new DomainException({
-                code: DomainExceptionCode.Unauthorized,
-                message: "Unauthorized"
-            })
-        }
         if (session.userId !== command.userId) {
             throw new DomainException({
                 code: DomainExceptionCode.Unauthorized,
                 message: "Unauthorized"
             });
-        }
-        const isValid = await this.cryptoService.compareToken(
-
-            command.refreshToken,
-            session.refreshTokenHash
-        );
-
-        if (!isValid) {
-            throw new DomainException({
-                code: DomainExceptionCode.Unauthorized,
-                message: "Unauthorized"
-            })
         }
 
         const newAccessToken = this.accessTokenContext.sign(
@@ -76,11 +58,10 @@ export class RefreshTokensUseCase
         session.updateLastActiveDate(now)
         session.updateRefreshToken(newRefreshTokenHash)
         await this.sessionsRepository.save(session)
-
+        console.log(session.refreshTokenHash)
         return {
             newAccessToken,
             newRefreshToken,
         };
     }
-
 }

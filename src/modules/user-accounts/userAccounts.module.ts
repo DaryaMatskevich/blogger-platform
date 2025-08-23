@@ -110,7 +110,7 @@ const useCases = [RegisterUserUseCase,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '20s' },
+          signOptions: { expiresIn: '20m' },
         });
       },
       inject: [

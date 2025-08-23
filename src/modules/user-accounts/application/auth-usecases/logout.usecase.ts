@@ -26,40 +26,22 @@ export class LogOutUseCase
 
     async execute(command: LogOutCommand): Promise<void> {
 
-        
-        const session = await this.sessionsRepository.findAllByDeviceId(command.deviceId)
+
+        const session = await this.sessionsRepository.findByDeviceId(command.deviceId)
         console.log('сессия найдена')
 
-         if (!session || session.deletedAt !== null) {
-            throw new DomainException({
-                code: DomainExceptionCode.Unauthorized,
-                message: "Unauthorized"
-            });
-        }
 
-        if(session?.userId !== command.userId) { throw new DomainException({
+        if (session?.userId !== command.userId) {
+            throw new DomainException({
                 code: DomainExceptionCode.Forbidden,
                 message: "Forbidden"
-              })}
-
-        const isValid = await this.cryptoService.compareToken(
-            
-            command.refreshToken,
-            session.refreshTokenHash
-        );
-
-        if (!isValid) {
-            throw new DomainException({
-                code: DomainExceptionCode.Unauthorized,
-                message: "Unauthorized"
             })
         }
-           
-                session.makeDeleted()
-                await this.sessionsRepository.save(session)
-            
 
-            // const deleteSession = await this.sessionsRepository.deleteSessionById(command.deviceId, command.userId)
-            console.log(session)
-        }
+
+        session.makeDeleted()
+        await this.sessionsRepository.save(session)
+
+        console.log(session.deletedAt)
     }
+}

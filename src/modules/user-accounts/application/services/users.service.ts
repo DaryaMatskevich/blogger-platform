@@ -7,9 +7,9 @@ import {
   Extension,
 } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
+import { User } from '../../../../modules/user-accounts/domain/dto/user.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { EmailService } from '@src/modules/notifications/email.service';
+import { EmailService } from '../../../../modules/notifications/email.service';
 
 @Injectable()
 export class UsersService {

@@ -11,15 +11,18 @@ export class EmailService {
 
     await this.mailerService.sendMail({
       to: email,
-      subject: 'Confirm your registration', 
+      subject: 'Confirm your registration',
       text: `confirm registration via link ${confirmationLink}`,
-       html: `<p>Please confirm your registration by clicking <a href="${confirmationLink}">here</a></p>`
+      html: `<p>Please confirm your registration by clicking <a href="${confirmationLink}">here</a></p>`,
     });
   }
 
- async sendPasswordRecoveryEmail(email: string, recoveryCode: string): Promise<void> {
+  async sendPasswordRecoveryEmail(
+    email: string,
+    recoveryCode: string,
+  ): Promise<void> {
     const recoveryLink = `https://some-front.com/password-recovery?code=${recoveryCode}`;
-await this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Password Recovery',
       text: `To reset your password, please visit: ${recoveryLink}`,

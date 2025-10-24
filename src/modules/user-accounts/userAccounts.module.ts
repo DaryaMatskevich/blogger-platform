@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './api/users.controller';
-import { UsersService } from './application/users.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './domain/dto/user.entity';
+import { UsersService } from './application/services/users.service';
 import { UsersQueryRepository } from './infastructure/query/users.query-repository';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { CryptoService } from './application/services/crypto.service';
@@ -10,7 +8,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { AuthService } from './application/services/auth.service';
 import { AuthQueryRepository } from './infastructure/query/auth.query-repository';
 import { SecurityDevicesQueryRepository } from './infastructure/query/security-devices.query-repository';
-import {  JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthController } from './api/auth.controller';
 import { UsersExternalService } from './application/external/users.external-service';
@@ -26,54 +24,63 @@ import { RegisterUserUseCase } from './application/users-usecases/register-user-
 import { UpdateUserUseCase } from './application/users-usecases/update-user-usecase';
 import { DeleteUserUseCase } from './application/users-usecases/delete-user-usecase';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from './constants/auth-tokens.inject-constants';
-import { CreateSessionUseCase } from './security-devices/application/usecases/create-session.usecase';
-import { SessionsQueryRepository } from './security-devices/infrastructure/query/sessions.query-repository';
-import { SessionsController } from './security-devices/api/sessions-controller';
-import { Session, SessionSchema } from './security-devices/domain/session.entity';
-import { SessionRepository } from './security-devices/infrastructure/sessions.repository';
-import { DeleteSessionUseCase } from './security-devices/application/usecases/delete-session.use-case';
-import { DeleteAllSessionsExcludeCurrentUseCase } from './security-devices/application/usecases/delete-all-sessions-exclude-current.use.case';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from './constants/auth-tokens.inject-constants';
+import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
+import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
+import { SessionsController } from './sessions/api/sessions-controller';
+import { SessionRepository } from './sessions/infrastructure/sessions.repository';
+import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.use-case';
+import { DeleteAllSessionsExcludeCurrentUseCase } from './sessions/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
-
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
 import { ThrottlerModule } from '@nestjs/throttler';
 
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
+import { Session } from '@src/modules/user-accounts/sessions/domain/session.entity';
 
-
-const useCases = [RegisterUserUseCase, 
+const useCases = [
+  RegisterUserUseCase,
   ValidateUserUseCase,
-  ConfirmEmailUseCase, 
+  ConfirmEmailUseCase,
   LoginUseCase,
-  ResendConfirmationEmailUseCase, 
+  ResendConfirmationEmailUseCase,
   SendPasswordRecoveryEmailUseCase,
   SetNewPasswordUseCase,
-   UpdateUserUseCase,
-  DeleteUserUseCase, 
-  CreateSessionUseCase, 
+  UpdateUserUseCase,
+  DeleteUserUseCase,
+  CreateSessionUseCase,
   RefreshTokensUseCase,
-  LogOutUseCase, 
-  DeleteSessionUseCase, 
-  DeleteAllSessionsExcludeCurrentUseCase]
-
+  LogOutUseCase,
+  DeleteSessionUseCase,
+  DeleteAllSessionsExcludeCurrentUseCase,
+];
 
 @Module({
-  imports: [ThrottlerModule.forRoot([
-    {
-      
-         name: 'default', // Имя конфигурации
+  imports: [
+    TypeOrmModule.forFeature([
+      // Укажите ваши entities здесь
+      User,
+      Session,
+    ]),
+    ThrottlerModule.forRoot([
+      {
+        name: 'default', // Имя конфигурации
         ttl: 10000, // 10 секунд
         limit: 5,
-    }]),
-    
-    CqrsModule,
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Session.name, schema: SessionSchema },
-   
+      },
     ]),
-             NotificationsModule
+
+    CqrsModule,
+    // MongooseModule.forFeature([
+    //   { name: User.name, schema: UserSchema },
+    //   { name: Session.name, schema: SessionSchema },
+    // ]),
+    NotificationsModule,
   ],
   controllers: [UsersController, AuthController, SessionsController],
   providers: [
@@ -93,12 +100,12 @@ const useCases = [RegisterUserUseCase,
     SessionsQueryRepository,
     SessionRepository,
     ...useCases,
-         {
+    {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '10s' },
+          signOptions: { expiresIn: '10m' },
         });
       },
       inject: [
@@ -110,15 +117,14 @@ const useCases = [RegisterUserUseCase,
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '20s' },
+          signOptions: { expiresIn: '20m' },
         });
       },
       inject: [
         /*TODO: inject configService. will be in the following lessons*/
       ],
     },
-
   ],
   exports: [JwtStrategy, UsersExternalQueryRepository, UsersExternalService],
 })
-export class UserAccountsModule { }
+export class UserAccountsModule {}

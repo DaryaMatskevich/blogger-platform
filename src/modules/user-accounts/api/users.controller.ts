@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 
 import { UserViewDto } from './view-dto/users.view-dto';
-import { UsersService } from '../application/users.service';
+import { UsersService } from '../application/services/users.service';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { ApiParam } from '@nestjs/swagger';
 import { UpdateUserInputDto } from './input-dto/update-user.input-dto';
@@ -32,14 +32,16 @@ export class UsersController {
   constructor(
     private usersQueryRepository: UsersQueryRepository,
     private usersService: UsersService,
-    private commandBus: CommandBus
+    private commandBus: CommandBus,
   ) {
     console.log('UsersController created');
   }
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id') //users/232342-sdfssdf-23234323
-  async getById(@Param('id', ObjectIdValidationPipe) id: string): Promise<UserViewDto> {
+  async getById(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<UserViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.usersQueryRepository.getByIdOrNotFoundFail(id);
@@ -63,7 +65,9 @@ export class UsersController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateUserInputDto,
   ): Promise<UserViewDto> {
-    const userId = await this.commandBus.execute(new UpdateUserCommand(id, body));
+    const userId = await this.commandBus.execute(
+      new UpdateUserCommand(id, body),
+    );
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }
@@ -71,7 +75,9 @@ export class UsersController {
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param('id', ObjectIdValidationPipe) id: string): Promise<void> {
+  async deleteUser(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<void> {
     return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

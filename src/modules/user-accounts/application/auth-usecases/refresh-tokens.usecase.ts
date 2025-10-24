@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
 import { Inject } from "@nestjs/common";
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from "../../constants/auth-tokens.inject-constants";
-import { SessionRepository } from "../../security-devices/infrastructure/sessions.repository";
+import { SessionRepository } from "../../sessions/infrastructure/sessions.repository";
 import { CryptoService } from "../services/crypto.service";
 import { DomainException } from "../../../../core/exeptions/domain-exeptions";
 import { DomainExceptionCode } from "../../../../core/exeptions/domain-exeption-codes";

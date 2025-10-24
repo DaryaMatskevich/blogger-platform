@@ -4,7 +4,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Request } from 'express';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { SessionRepository } from '../../security-devices/infrastructure/sessions.repository';
+import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
 import { CryptoService } from '../../application/services/crypto.service';
 
 

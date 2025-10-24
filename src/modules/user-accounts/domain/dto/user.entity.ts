@@ -1,99 +1,113 @@
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
-import { Name, NameSchema } from './name.schema';
+// entities/user.entity.ts
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CreateUserDomainDto } from './create-user.domain.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
 
-
-export const loginConstraints = {
-  minLength: 3,
-  maxLength: 10
-}
-
-export const passwordConstraints = {
-  minLength: 6,
-  maxLength: 20
-}
-
-export const emailConstraints = {
-  match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
-}
-
-
-@Schema({ timestamps: true })
-
+@Entity('users')
 export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Prop({ type: String, required: true, ...loginConstraints })
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: false,
+  })
+  @Index('IDX_USER_LOGIN', { unique: true })
   login: string;
 
-
-  @Prop({ type: String, required: true })
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
   passwordHash: string;
 
-
-  @Prop({ type: String, min: 5, required: true, ...emailConstraints })
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
+  @Index('IDX_USER_EMAIL', { unique: true })
   email: string;
 
-  @Prop({ type: Boolean, required: true, default: false })
+  @Column({
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
   isEmailConfirmed: boolean;
 
-  @Prop({ type: String, nullable: true })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   confirmationCode: string | null;
 
-  @Prop({ type: Date, nullable: true })
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
   confirmationCodeCreatedAt: Date | null;
 
-  // @Prop(NameSchema) this variant from docdoesn't make validation for inner object
-  // @Prop({ type: NameSchema })
-  // name: Name;
-
-  @Prop({ type: Date, nullable: true })
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
   confirmationCodeExpiresAt: Date | null;
 
-  @Prop({ type: String, nullable: true })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   recoveryCode: string | null;
 
-  @Prop({ type: Date, nullable: true })
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
   recoveryCodeCreatedAt: Date | null;
 
-  // @Prop(NameSchema) this variant from docdoesn't make validation for inner object
-  // @Prop({ type: NameSchema })
-  // name: Name;
-
-  @Prop({ type: Date, nullable: true })
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
   recoveryCodeExpiresAt: Date | null;
+
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
   updatedAt: Date;
 
-
-  @Prop({ type: Date, nullable: true, default: null })
+  @DeleteDateColumn()
   deletedAt: Date | null;
 
-
-  get id() {
-    // @ts-ignore
-    return this._id.toString();
-  }
-
-
-  static createInstance(dto: CreateUserDomainDto): UserDocument {
-    const user = new this();
+  // Статический метод создания инстанса
+  static createInstance(dto: CreateUserDomainDto): User {
+    const user = new User();
     user.login = dto.login;
     user.passwordHash = dto.passwordHash;
     user.email = dto.email;
-    user.isEmailConfirmed = false; // пользователь ВСЕГДА должен после регистрации подтверждить свой Email
+    user.confirmationCode = dto.confirmationCode;
+    user.confirmationCodeCreatedAt = new Date();
+    user.confirmationCodeExpiresAt = new Date();
+    user.confirmationCodeExpiresAt.setDate(
+      user.confirmationCodeExpiresAt.getDate() + 2,
+    );
+    user.isEmailConfirmed = false;
 
-    // user.name = {
-    //   firstName: 'firstName xxx',
-    //   lastName: 'lastName yyy',
-    // };
-
-    return user as UserDocument;
+    return user;
   }
 
-
-  makeDeleted() {
+  // Методы экземпляра
+  makeDeleted(): void {
     if (this.deletedAt !== null) {
       throw new Error('Entity already deleted');
     }
@@ -106,52 +120,39 @@ export class User {
     }
 
     this.confirmationCode = code;
-    this.confirmationCodeCreatedAt = new Date(); // Добавляем timestamp создания кода
+    this.confirmationCodeCreatedAt = new Date();
     this.confirmationCodeExpiresAt = new Date();
-  this.confirmationCodeExpiresAt.setDate(
-    this.confirmationCodeExpiresAt.getDate() + 2
-  );
-    this.isEmailConfirmed = false; // Сбрасываем статус подтверждения
+    this.confirmationCodeExpiresAt.setDate(
+      this.confirmationCodeExpiresAt.getDate() + 2,
+    );
+    this.isEmailConfirmed = false;
   }
 
-  setRecoveryCode(code: string) {
+  setRecoveryCode(code: string): void {
     if (!code || typeof code !== 'string') {
       throw new Error('Confirmation code must be a non-empty string');
     }
 
     this.recoveryCode = code;
-    this.recoveryCodeCreatedAt = new Date(); // Добавляем timestamp создания кода
-    this.recoveryCodeExpiresAt = new Date();
-   this.recoveryCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    this.recoveryCodeCreatedAt = new Date();
+    this.recoveryCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
   }
 
-confirmEmail() {
-  this.isEmailConfirmed = true;
-  
-  // Очищаем поля кода подтверждения (опционально, но рекомендуется)
-  this.confirmationCode = null;
-  this.confirmationCodeCreatedAt = null;
-  this.confirmationCodeExpiresAt = null;
-}
-  update(dto: UpdateUserDto) {
-    if (dto.email !== this.email) {
+  confirmEmail(): void {
+    this.isEmailConfirmed = true;
+    this.confirmationCode = null;
+    this.confirmationCodeCreatedAt = null;
+    this.confirmationCodeExpiresAt = null;
+  }
+
+  update(dto: UpdateUserDto): void {
+    if (dto.email && dto.email !== this.email) {
       this.isEmailConfirmed = false;
       this.email = dto.email;
     }
   }
 
-  setNewPasswordHash(newPasswordHash: string) {
-    this.passwordHash = newPasswordHash
+  setNewPasswordHash(newPasswordHash: string): void {
+    this.passwordHash = newPasswordHash;
   }
 }
-
-export const UserSchema = SchemaFactory.createForClass(User);
-
-//регистрирует методы сущности в схеме
-UserSchema.loadClass(User);
-
-//Типизация документа
-export type UserDocument = HydratedDocument<User>;
-
-//Типизация модели + статические методы
-export type UserModelType = Model<UserDocument> & typeof User;

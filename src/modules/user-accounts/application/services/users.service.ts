@@ -1,31 +1,26 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../../dto/create-user.dto';
+import { UsersRepository } from '../../infastructure/users.repository';
+import { CryptoService } from './crypto.service';
 import {
   DomainException,
   Extension,
 } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { EmailService } from '../../../../modules/notifications/email.service';
-import { UsersRepository } from '../../infastructure/users.repository';
-import { UsersService } from '../services/users.service';
+import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
+import { v4 as uuidv4 } from 'uuid';
+import { EmailService } from '@src/modules/notifications/email.service';
 
-export class RegisterUserCommand {
-  constructor(public dto: CreateUserDto) {}
-}
-
-@CommandHandler(RegisterUserCommand)
-export class RegisterUserUseCase
-  implements ICommandHandler<RegisterUserCommand>
-{
+@Injectable()
+export class UsersService {
   constructor(
     private usersRepository: UsersRepository,
+    private cryptoService: CryptoService,
     private emailService: EmailService,
-    private usersService: UsersService,
   ) {}
-
-  async execute(command: RegisterUserCommand): Promise<void> {
+  async createUser(dto: CreateUserDto): Promise<string> {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
-      command.dto.login,
+      dto.login,
     );
     if (userWithTheSameLogin) {
       throw new DomainException({
@@ -36,8 +31,9 @@ export class RegisterUserUseCase
         ],
       });
     }
+
     const userWithTheSameEmail = await this.usersRepository.findByEmail(
-      command.dto.email,
+      dto.email,
     );
     if (userWithTheSameEmail) {
       throw new DomainException({
@@ -49,16 +45,20 @@ export class RegisterUserUseCase
       });
     }
 
-    const createdUserId = await this.usersService.createUser(command.dto);
+    const passwordHash = await this.cryptoService.createPasswordHash(
+      dto.password,
+    );
+    const confirmationCode = uuidv4();
 
-    // const confirmCode = uuidv4();
+    const user = User.createInstance({
+      login: dto.login,
+      passwordHash: passwordHash,
+      email: dto.email,
+      confirmationCode: confirmationCode,
+    });
 
-    const user = await this.usersRepository.findOrNotFoundFail(createdUserId);
-
-    // user.setConfirmationCode(confirmCode);
     await this.usersRepository.save(user);
-    console.log('User registered successfully');
-
-    // this.emailService.sendConfirmationEmail(user.email, user.confirmationCode);
+    this.emailService.sendConfirmationEmail(user.email, confirmationCode);
+    return user.id.toString();
   }
 }

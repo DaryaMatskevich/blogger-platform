@@ -6,16 +6,15 @@ import { EmailService } from './email.service';
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: "smtp.mail.ru",
+        host: 'smtp.mail.ru',
         port: 465,
         secure: true,
-      auth: {
-        user: "backendlessons@mail.ru",
-        pass: "P7RQbjw9DkmdvNzF0jH1"
-,
+        auth: {
+          user: 'backendlessons@mail.ru',
+          pass: 'P7RQbjw9DkmdvNzF0jH1',
+        },
       },
-    },
-    defaults: {
+      defaults: {
         from: '"backend-lessons" <backendlessons@mail.ru>',
       },
     }),
@@ -23,4 +22,4 @@ import { EmailService } from './email.service';
   providers: [EmailService],
   exports: [EmailService],
 })
-export class NotificationsModule { }
+export class NotificationsModule {}

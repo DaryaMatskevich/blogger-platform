@@ -33,13 +33,13 @@ import { SetNewPasswordCommand } from '../application/auth-usecases/set-new-pass
 import { RegisterUserCommand } from '../application/users-usecases/register-user-usecase';
 import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-usecase';
 import { Response } from 'express';
-import { CreateSessionCommand } from '../sessions/application/usecases/create-session.usecase';
 import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenGuard } from '../guards/bearer/refresh-token.guard';
 import { ExtractUserWithDeviceId } from '../guards/decorators/extract-deviceId-from-refreshToken.decorator';
 import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
 import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
 import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
+import { CreateSessionCommand } from '../../../modules/user-accounts/sessions/application/usecases/create-session.usecase';
 
 @Controller('auth')
 export class AuthController {

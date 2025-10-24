@@ -40,8 +40,8 @@ import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
-import { Session } from '@src/modules/user-accounts/sessions/domain/session.entity';
+import { User } from '../../modules/user-accounts/domain/dto/user.entity';
+import { Session } from '../../modules/user-accounts/sessions/domain/session.entity';
 
 const useCases = [
   RegisterUserUseCase,

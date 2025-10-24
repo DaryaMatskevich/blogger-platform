@@ -8,7 +8,7 @@ import {
 
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { SessionRepository } from '../../../../modules/user-accounts/sessions/infrastructure/sessions.repository';
+import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
 
 export class RefreshTokensCommand {
   constructor(

@@ -31,7 +31,7 @@ import {
 import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
 import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
 import { SessionsController } from './sessions/api/sessions-controller';
-import { SessionRepository } from './sessions/infrastructure/sessions.repository';
+
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.use-case';
 import { DeleteAllSessionsExcludeCurrentUseCase } from './sessions/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
@@ -42,6 +42,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../modules/user-accounts/domain/dto/user.entity';
 import { Session } from '../../modules/user-accounts/sessions/domain/session.entity';
+import { SessionRepository } from '../../modules/user-accounts/sessions/infrastructure/sessions.repository';
 
 const useCases = [
   RegisterUserUseCase,

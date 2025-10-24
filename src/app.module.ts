@@ -13,8 +13,8 @@ import { DomainHttpExceptionsFilter } from './core/exeptions/filters/domain-exep
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Session } from '@src/modules/user-accounts/sessions/domain/session.entity';
-import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
+import { Session } from './modules/user-accounts/sessions/domain/session.entity';
+import { User } from './modules/user-accounts/domain/dto/user.entity';
 
 @Module({
   imports: [

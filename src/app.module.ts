@@ -1,4 +1,4 @@
-import { configModule } from './dynamic-config-module';
+// import { configModule } from './dynamic-config-module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,7 +18,7 @@ import { User } from '@src/modules/user-accounts/domain/dto/user.entity';
 
 @Module({
   imports: [
-    configModule,
+    //configModule,
     CqrsModule,
     ConfigModule.forRoot(),
     ServeStaticModule.forRoot({

@@ -125,6 +125,11 @@ const useCases = [
       ],
     },
   ],
-  exports: [JwtStrategy, UsersExternalQueryRepository, UsersExternalService],
+  exports: [
+    JwtStrategy,
+    UsersExternalQueryRepository,
+    UsersExternalService,
+    UsersService,
+  ],
 })
 export class UserAccountsModule {}

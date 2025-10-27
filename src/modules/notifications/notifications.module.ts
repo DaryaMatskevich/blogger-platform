@@ -11,7 +11,10 @@ import { EmailService } from './email.service';
         secure: true,
         auth: {
           user: 'backendlessons@mail.ru',
-          pass: 'P7RQbjw9DkmdvNzF0jH1',
+          pass: '3DSVkIwozgE0rfNyiyUC',
+        },
+        tls: {
+          rejectUnauthorized: false, // Важно для обхода сертификатов
         },
       },
       defaults: {

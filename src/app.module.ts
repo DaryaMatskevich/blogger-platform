@@ -16,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './modules/user-accounts/sessions/domain/session.entity';
 import { User } from './modules/user-accounts/domain/dto/user.entity';
 import { TestingModule } from './modules/testing/testing.module';
+import { SaModule } from './sa/sa.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TestingModule } from './modules/testing/testing.module';
 
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
+    SaModule,
     // BloggersPlatformModule,
     CoreModule,
     NotificationsModule,

@@ -27,12 +27,13 @@ import { User } from './modules/user-accounts/domain/dto/user.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres', // или 'mysql', 'sqlite' и т.д.
-      host: 'localhost',
-      port: 5432,
-      username: 'nodejs',
-      password: 'nodejs',
-      database: 'BlogPlatform',
+      //host: 'localhost',
+      //port: 5432,
+      //username: 'nodejs',
+      //password: 'nodejs',
+      //database: 'BlogPlatform',
       entities: [Session, User],
+      url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
       autoLoadEntities: false,
       synchronize: false, // только для разработки!
     }),

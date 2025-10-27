@@ -1,25 +1,18 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { TestingService } from './testing.service';
 
 @Controller('testing')
 export class TestingController {
-  constructor(
-    @InjectConnection() private readonly databaseConnection: Connection,
-  ) {}
+  constructor(private readonly testingService: TestingService) {}
 
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAll() {
-    const collections = await this.databaseConnection.listCollections();
+  async deleteAllData() {
+    // Защита от случайного вызова в продакшене
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('This endpoint is disabled in production');
+    }
 
-    const promises = collections.map((collection) =>
-      this.databaseConnection.collection(collection.name).deleteMany({}),
-    );
-    await Promise.all(promises);
-
-    return {
-      status: 'succeeded',
-    };
+    await this.testingService.deleteAllData();
   }
 }

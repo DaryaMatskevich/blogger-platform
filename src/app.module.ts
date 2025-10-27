@@ -15,6 +15,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './modules/user-accounts/sessions/domain/session.entity';
 import { User } from './modules/user-accounts/domain/dto/user.entity';
+import { TestingModule } from './modules/testing/testing.module';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { User } from './modules/user-accounts/domain/dto/user.entity';
     // }), //ODO: move to env. will be in the following lessons
 
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
-    // TestingModule,
+    TestingModule,
     // BloggersPlatformModule,
     CoreModule,
     NotificationsModule,

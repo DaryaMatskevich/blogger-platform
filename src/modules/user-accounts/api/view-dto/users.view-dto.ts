@@ -10,15 +10,11 @@ export class UserViewDto {
   // lastName: string | null;
 
   static mapToView(user: User): UserViewDto {
-    const roundedDate = new Date(
-      Math.round(user.createdAt.getTime() / 10) * 10,
-    );
-
     return {
       id: user.id.toString(),
       login: user.login,
       email: user.email,
-      createdAt: roundedDate.toISOString(),
+      createdAt: user.createdAt.toISOString(),
     } as UserViewDto;
   }
 }

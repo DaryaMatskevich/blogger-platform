@@ -69,7 +69,7 @@ export class UsersRepository {
                 "confirmationCode", "confirmationCodeCreatedAt", "confirmationCodeExpiresAt",
                 "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
                 "createdAt", "updatedAt", "deletedAt"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW(), $11)
             RETURNING id
         `;
 
@@ -84,13 +84,12 @@ export class UsersRepository {
         user.recoveryCode,
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
-        new Date(), // createdAt
-        new Date(), // updatedAt
         user.deletedAt,
       ]);
 
       // Присваиваем сгенерированный ID обратно объекту пользователя
       user.id = result[0].id;
+      user.createdAt = result[0].createdAt;
     }
   }
 

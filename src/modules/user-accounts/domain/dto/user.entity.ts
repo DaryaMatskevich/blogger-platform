@@ -80,7 +80,11 @@ export class User {
   })
   recoveryCodeExpiresAt: Date | null;
 
-  @CreateDateColumn({ type: 'timestamp', precision: 3 })
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 3,
+    default: () => 'CURRENT_TIMESTAMP(3)',
+  })
   createdAt: Date;
 
   @UpdateDateColumn()

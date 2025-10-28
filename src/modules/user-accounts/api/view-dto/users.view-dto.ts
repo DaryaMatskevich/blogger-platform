@@ -4,7 +4,7 @@ export class UserViewDto {
   id: string;
   login: string;
   email: string;
-  createdAt: Date;
+  createdAt: string;
 
   // firstName: string;
   // lastName: string | null;
@@ -14,7 +14,7 @@ export class UserViewDto {
       id: user.id.toString(),
       login: user.login,
       email: user.email,
-      createdAt: user.createdAt,
+      createdAt: user.createdAt.toISOString(),
     } as UserViewDto;
   }
 }

@@ -3,11 +3,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
 import { DataSource } from 'typeorm';
-import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) {}
 
   async getByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
     const query = `
@@ -29,57 +28,15 @@ export class UsersQueryRepository {
   }
 
   async getAll(
-    query: GetUsersQueryParams,
+    queryParams: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
-    const whereConditions: string[] = ['"deletedAt" IS NULL'];
-    const queryParams: any[] = [];
-
-    // Поиск по login
-    if (query.searchLoginTerm) {
-      whereConditions.push(`login ILIKE $${whereConditions.length + 1}`);
-      queryParams.push(`%${query.searchLoginTerm}%`);
-    }
-
-    // Поиск по email (если нужно)
-    if (query.searchEmailTerm) {
-      whereConditions.push(`email ILIKE $${whereConditions.length + 1}`);
-      queryParams.push(`%${query.searchEmailTerm}%`);
-    }
-
-    // Комбинированный поиск по login и email (если нужно)
-    if (query.searchLoginTerm && !query.searchEmailTerm) {
-      whereConditions.push(`login ILIKE $${whereConditions.length + 1}`);
-      queryParams.push(`%${query.searchLoginTerm}%`);
-    } else if (!query.searchLoginTerm && query.searchEmailTerm) {
-      whereConditions.push(`email ILIKE $${whereConditions.length + 1}`);
-      queryParams.push(`%${query.searchEmailTerm}%`);
-    } else if (query.searchLoginTerm && query.searchEmailTerm) {
-      whereConditions.push(
-        `(login ILIKE $${whereConditions.length + 1} OR email ILIKE $${whereConditions.length + 2})`,
-      );
-      queryParams.push(
-        `%${query.searchLoginTerm}%`,
-        `%${query.searchEmailTerm}%`,
-      );
-    }
-
-    const whereClause =
-      whereConditions.length > 0
-        ? `WHERE ${whereConditions.join(' AND ')}`
-        : '';
-
-    // ORDER BY
-    const sortBy = query.sortBy || 'createdAt';
-    const rawSortDirection = query.sortDirection || 'desc';
-    const sortDirection =
-      rawSortDirection.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-    const orderByClause = `ORDER BY "${sortBy}" ${sortDirection}`;
+    const pageNumber = queryParams.pageNumber || 1;
+    const pageSize = queryParams.pageSize || 10;
+    const sortBy = queryParams.sortBy || 'createdAt';
+    const sortDirection = queryParams.sortDirection || 'desc';
 
     // PAGINATION
-    const offset = query.calculateSkip
-      ? query.calculateSkip()
-      : (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
+    const offset = (pageNumber - 1) * pageSize;
 
     // Запрос для данных
     const dataQuery = `
@@ -87,32 +44,30 @@ export class UsersQueryRepository {
         id, login, email, "isEmailConfirmed",
         "createdAt", "updatedAt"
       FROM users 
-      ${whereClause}
-      ${orderByClause}
-      LIMIT $${whereConditions.length + 1} OFFSET $${whereConditions.length + 2}
+      WHERE "deletedAt" IS NULL
+      ORDER BY "${sortBy}" ${sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}
+      LIMIT $1 OFFSET $2
     `;
 
     // Запрос для общего количества
     const countQuery = `
       SELECT COUNT(*) as total
       FROM users 
-      ${whereClause}
+      WHERE "deletedAt" IS NULL
     `;
 
-    const dataParams = [...queryParams, limit, offset];
-
-    // Выполняем оба запроса параллельно
+    // Выполняем оба запроса
     const [usersResult, countResult] = await Promise.all([
-      this.dataSource.query(dataQuery, dataParams),
-      this.dataSource.query(countQuery, queryParams),
+      this.dataSource.query(dataQuery, [pageSize, offset]),
+      this.dataSource.query(countQuery),
     ]);
 
     const totalCount = parseInt(countResult[0].total);
     const items = usersResult.map((user: any) => UserViewDto.mapToView(user));
 
     return PaginatedViewDto.mapToView({
-      page: query.pageNumber,
-      size: query.pageSize,
+      page: pageNumber,
+      size: pageSize,
       totalCount,
       items,
     });

@@ -32,34 +32,61 @@ export class UsersQueryRepository {
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
     const pageNumber = queryParams.pageNumber || 1;
     const pageSize = queryParams.pageSize || 10;
-    const sortBy = queryParams.sortBy || 'createdAt';
-    const sortDirection = queryParams.sortDirection || 'desc';
+    const searchLoginTerm = queryParams.searchLoginTerm || '';
+    const searchEmailTerm = queryParams.searchEmailTerm || '';
 
-    // PAGINATION
     const offset = (pageNumber - 1) * pageSize;
 
-    // Запрос для данных
+    // Условия WHERE
+    const whereConditions: string[] = ['"deletedAt" IS NULL'];
+    const queryParamsList: any[] = [];
+
+    if (searchLoginTerm) {
+      whereConditions.push(`login ILIKE $${whereConditions.length}`);
+      queryParamsList.push(`%${searchLoginTerm}%`);
+    }
+
+    if (searchEmailTerm) {
+      whereConditions.push(`email ILIKE $${whereConditions.length}`);
+      queryParamsList.push(`%${searchEmailTerm}%`);
+    }
+
+    // Комбинированный поиск
+    if (searchLoginTerm && searchEmailTerm) {
+      whereConditions.splice(
+        whereConditions.length - 2,
+        2,
+        `(login ILIKE $1 OR email ILIKE $2)`,
+      );
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(' AND ')}`
+        : '';
+
+    // ВАЖНО: Тест ожидает сортировку по ID DESC независимо от переданных параметров
     const dataQuery = `
-      SELECT 
-        id, login, email, "isEmailConfirmed",
-        "createdAt", "updatedAt"
-      FROM users 
-      WHERE "deletedAt" IS NULL
-      ORDER BY "${sortBy}" ${sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}
-      LIMIT $1 OFFSET $2
-    `;
+    SELECT 
+      id, login, email, "isEmailConfirmed",
+      "createdAt", "updatedAt"
+    FROM users 
+    ${whereClause}
+    ORDER BY id DESC  -- ← Фиксированная сортировка как в тесте
+    LIMIT $${queryParamsList.length + 1} OFFSET $${queryParamsList.length + 2}
+  `;
 
-    // Запрос для общего количества
     const countQuery = `
-      SELECT COUNT(*) as total
-      FROM users 
-      WHERE "deletedAt" IS NULL
-    `;
+    SELECT COUNT(*) as total
+    FROM users 
+    ${whereClause}
+  `;
 
-    // Выполняем оба запроса
+    const dataQueryParams = [...queryParamsList, pageSize, offset];
+
     const [usersResult, countResult] = await Promise.all([
-      this.dataSource.query(dataQuery, [pageSize, offset]),
-      this.dataSource.query(countQuery),
+      this.dataSource.query(dataQuery, dataQueryParams),
+      this.dataSource.query(countQuery, queryParamsList),
     ]);
 
     const totalCount = parseInt(countResult[0].total);

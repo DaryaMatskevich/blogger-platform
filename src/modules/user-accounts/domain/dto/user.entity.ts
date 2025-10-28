@@ -93,17 +93,18 @@ export class User {
   // Статический метод создания инстанса
   static createInstance(dto: CreateUserDomainDto): User {
     const user = new User();
+    const now = new Date();
     user.login = dto.login;
     user.passwordHash = dto.passwordHash;
     user.email = dto.email;
     user.confirmationCode = dto.confirmationCode;
-    user.confirmationCodeCreatedAt = new Date();
-    user.confirmationCodeExpiresAt = new Date();
+    user.confirmationCodeCreatedAt = now;
+    user.confirmationCodeExpiresAt = new Date(now.getTime());
     user.confirmationCodeExpiresAt.setDate(
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-    user.createdAt = new Date();
+    user.createdAt = now;
     return user;
   }
 

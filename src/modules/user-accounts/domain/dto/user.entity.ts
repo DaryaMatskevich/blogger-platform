@@ -82,6 +82,7 @@ export class User {
   @Column({
     type: 'timestamp',
     precision: 3, // миллисекунды
+    default: () => 'CURRENT_TIMESTAMP(3)',
     nullable: false,
   })
   createdAt: Date;
@@ -108,7 +109,7 @@ export class User {
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-    user.createdAt = now;
+
     return user;
   }
 

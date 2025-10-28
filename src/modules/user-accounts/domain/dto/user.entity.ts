@@ -79,7 +79,11 @@ export class User {
   })
   recoveryCodeExpiresAt: Date | null;
 
-  @Column()
+  @Column({
+    type: 'timestamp',
+    precision: 3, // миллисекунды
+    nullable: false,
+  })
   createdAt: Date;
 
   @UpdateDateColumn()

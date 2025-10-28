@@ -81,7 +81,7 @@ export class User {
 
   @Column({
     type: 'timestamp',
-    precision: 0, // миллисекунды
+    precision: 3, // миллисекунды
     nullable: false,
   })
   createdAt: Date;
@@ -96,19 +96,19 @@ export class User {
   static createInstance(dto: CreateUserDomainDto): User {
     const user = new User();
     const now = new Date();
-    const roundedSeconds = new Date(Math.floor(now.getTime() / 1000) * 1000);
+
     user.login = dto.login;
     user.passwordHash = dto.passwordHash;
     user.email = dto.email;
     user.confirmationCode = dto.confirmationCode;
 
-    user.confirmationCodeCreatedAt = roundedSeconds;
-    user.confirmationCodeExpiresAt = new Date(roundedSeconds);
+    user.confirmationCodeCreatedAt = now;
+    user.confirmationCodeExpiresAt = new Date(now);
     user.confirmationCodeExpiresAt.setDate(
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-    user.createdAt = roundedSeconds;
+    user.createdAt = now;
     return user;
   }
 

@@ -13,7 +13,9 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthController } from './api/auth.controller';
 import { UsersExternalService } from './application/external/users.external-service';
 import { UsersRepository } from './infastructure/users.repository';
-import { UsersExternalQueryRepository } from './infastructure/external-query/external-dto/users.external-query-repository';
+import {
+  UsersExternalQueryRepository
+} from './infastructure/external-query/external-dto/users.external-query-repository';
 import { ValidateUserUseCase } from './application/auth-usecases/validate-user-usecase';
 import { ConfirmEmailUseCase } from './application/auth-usecases/confirm-email-usecase';
 import { LoginUseCase } from './application/auth-usecases/login-usecase';
@@ -33,7 +35,9 @@ import { SessionsQueryRepository } from './sessions/infrastructure/query/session
 import { SessionsController } from './sessions/api/sessions-controller';
 
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.use-case';
-import { DeleteAllSessionsExcludeCurrentUseCase } from './sessions/application/usecases/delete-all-sessions-exclude-current.use.case';
+import {
+  DeleteAllSessionsExcludeCurrentUseCase
+} from './sessions/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
@@ -128,6 +132,7 @@ const useCases = [
   exports: [
     JwtStrategy,
     UsersExternalQueryRepository,
+    UsersQueryRepository,
     UsersExternalService,
     UsersService,
   ],

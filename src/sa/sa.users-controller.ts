@@ -1,11 +1,25 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common';
 
 import { CreateUserDto } from '../modules/user-accounts/dto/create-user.dto';
 import { UsersService } from '../modules/user-accounts/application/services/users.service';
+import { GetUsersQueryParams } from '../modules/user-accounts/api/input-dto/get-users-query-params.input-dto';
+import { PaginatedViewDto } from '../core/dto/base.paginated.view.dto';
+import { UserViewDto } from '../modules/user-accounts/api/view-dto/users.view-dto';
+import { UsersQueryRepository } from '../modules/user-accounts/infastructure/query/users.query-repository';
 
 @Controller('sa/users')
 export class SaUsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private usersQueryRepository: UsersQueryRepository,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -19,5 +33,11 @@ export class SaUsersController {
       email: createUserDto.email,
       createdAt: new Date().toISOString(),
     };
+  }
+
+  async getAll(
+    @Query() query: GetUsersQueryParams,
+  ): Promise<PaginatedViewDto<UserViewDto[]>> {
+    return this.usersQueryRepository.getAll(query);
   }
 }

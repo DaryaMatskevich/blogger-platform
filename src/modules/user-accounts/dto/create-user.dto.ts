@@ -1,6 +1,5 @@
 // dto/create-user.dto.ts
 import {
-  IsDate,
   IsEmail,
   IsString,
   Matches,
@@ -27,7 +26,4 @@ export class CreateUserDto {
   @IsEmail()
   @Matches(emailConstraints.match)
   email: string;
-
-  @IsDate()
-  createdAt: Date;
 }

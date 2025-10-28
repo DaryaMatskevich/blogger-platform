@@ -103,7 +103,7 @@ export class User {
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-    user.createdAt = dto.createdAt || new Date();
+    user.createdAt = new Date();
     return user;
   }
 

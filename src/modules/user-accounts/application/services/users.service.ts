@@ -55,7 +55,6 @@ export class UsersService {
       passwordHash: passwordHash,
       email: dto.email,
       confirmationCode: confirmationCode,
-      createdAt: dto.createdAt,
     });
 
     await this.usersRepository.save(user);

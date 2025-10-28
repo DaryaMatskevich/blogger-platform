@@ -3,4 +3,5 @@ export class CreateUserDomainDto {
   passwordHash: string;
   email: string;
   confirmationCode: string | null;
+  createdAt: Date;
 }

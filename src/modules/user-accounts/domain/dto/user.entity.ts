@@ -1,7 +1,6 @@
 // entities/user.entity.ts
 import {
   Column,
-  CreateDateColumn,
   DeleteDateColumn,
   Entity,
   Index,
@@ -80,10 +79,8 @@ export class User {
   })
   recoveryCodeExpiresAt: Date | null;
 
-  @CreateDateColumn({
+  @Column({
     type: 'timestamp',
-    precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
   })
   createdAt: Date;
 
@@ -106,7 +103,7 @@ export class User {
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-
+    user.createdAt = dto.createdAt || new Date();
     return user;
   }
 

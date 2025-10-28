@@ -84,7 +84,7 @@ export class UsersRepository {
         user.recoveryCode,
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
-        new Date(), // createdAt
+        user.createdAt, // createdAt
         new Date(), // updatedAt
         user.deletedAt,
       ]);

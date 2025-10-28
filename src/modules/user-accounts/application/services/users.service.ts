@@ -58,6 +58,7 @@ export class UsersService {
     });
 
     await this.usersRepository.save(user);
+
     this.emailService.sendConfirmationEmail(user.email, confirmationCode);
     return user.id.toString();
   }

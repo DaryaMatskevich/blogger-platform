@@ -26,6 +26,7 @@ export class UsersRepository {
   }
 
   async save(user: User) {
+    const now = new Date();
     if (user.id) {
       // Update existing user
       const query = `
@@ -44,9 +45,10 @@ export class UsersRepository {
                 "updatedAt" = $11, 
                 "deletedAt" = $12
             WHERE id = $13
-        `;
+              RETURNING "createdAt", "updatedAt"
+      `;
 
-      await this.dataSource.query(query, [
+      const result = await this.dataSource.query(query, [
         user.login,
         user.passwordHash,
         user.email,
@@ -57,10 +59,11 @@ export class UsersRepository {
         user.recoveryCode,
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
-        new Date(), // updatedAt
+        now, // updatedAt
         user.deletedAt,
         user.id,
       ]);
+      user.updatedAt = result[0].updatedAt;
     } else {
       // Insert new user
       const query = `
@@ -70,7 +73,7 @@ export class UsersRepository {
                 "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
                 "createdAt", "updatedAt", "deletedAt"
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , $12, $13)
-            RETURNING id
+            RETURNING id, "createdAt", "updatedAt"
         `;
 
       const result = await this.dataSource.query(query, [
@@ -84,13 +87,15 @@ export class UsersRepository {
         user.recoveryCode,
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
-        user.createdAt,
-        new Date(),
+        user.createdAt || now,
+        now,
         user.deletedAt,
       ]);
 
       // Присваиваем сгенерированный ID обратно объекту пользователя
       user.id = result[0].id;
+      user.createdAt = result[0].createdAt; // Из БД
+      user.updatedAt = result[0].updatedAt; // Из БД
     }
   }
 

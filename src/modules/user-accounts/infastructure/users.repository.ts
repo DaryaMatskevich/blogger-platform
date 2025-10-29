@@ -40,7 +40,7 @@ export class UsersRepository {
       "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
       "createdAt", "updatedAt", "deletedAt"
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING id, "updatedAt"
+    RETURNING id, "createdAt", "updatedAt"
   `;
 
     const now = new Date();
@@ -63,7 +63,9 @@ export class UsersRepository {
     try {
       const result = await this.dataSource.query(query, params);
       user.id = result[0].id;
-      user.updatedAt = new Date(result[0].updatedAt); // Обновляем только updatedAt
+      user.createdAt = new Date(result[0].createdAt);
+      user.updatedAt = new Date(result[0].updatedAt);
+
       return user;
     } catch (error) {
       throw new DomainException({

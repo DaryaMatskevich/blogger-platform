@@ -40,7 +40,7 @@ export class UsersRepository {
       "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
       "createdAt", "updatedAt", "deletedAt"
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING id, "createdAt", "updatedAt"
+    RETURNING id
   `;
 
     const params = [
@@ -62,8 +62,6 @@ export class UsersRepository {
     try {
       const result = await this.dataSource.query(query, params);
       user.id = result[0].id;
-      user.createdAt = result[0].createdAt;
-      user.updatedAt = result[0].updatedAt;
 
       return user;
     } catch (error) {

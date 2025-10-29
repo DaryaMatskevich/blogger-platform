@@ -97,13 +97,14 @@ export class User {
   static createInstance(dto: CreateUserDomainDto): User {
     const user = new User();
     const now = new Date();
+    now.setMinutes(0, 0, 0);
 
     user.login = dto.login;
     user.passwordHash = dto.passwordHash;
     user.email = dto.email;
     user.confirmationCode = dto.confirmationCode;
 
-    user.confirmationCodeCreatedAt = now;
+    user.confirmationCodeCreatedAt = new Date(now);
     user.confirmationCodeExpiresAt = new Date(now);
     user.confirmationCodeExpiresAt.setDate(
       user.confirmationCodeExpiresAt.getDate() + 2,

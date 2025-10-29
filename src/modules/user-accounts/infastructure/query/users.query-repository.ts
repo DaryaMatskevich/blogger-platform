@@ -11,8 +11,7 @@ export class UsersQueryRepository {
   async getByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
     const query = `
       SELECT 
-        id, login, email, "isEmailConfirmed",
-        "createdAt", "updatedAt"
+        id, login, email, "createdAt"
       FROM users 
       WHERE id = $1 AND "deletedAt" IS NULL
     `;

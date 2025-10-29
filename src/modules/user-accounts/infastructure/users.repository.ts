@@ -73,7 +73,7 @@ export class UsersRepository {
                 "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
                 "createdAt", "updatedAt", "deletedAt"
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , $12, $13)
-            RETURNING id, "createdAt", "updatedAt"
+            RETURNING id 
         `;
 
       const result = await this.dataSource.query(query, [
@@ -87,15 +87,13 @@ export class UsersRepository {
         user.recoveryCode,
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
-        user.createdAt || now,
+        user.createdAt,
         now,
         user.deletedAt,
       ]);
 
       // Присваиваем сгенерированный ID обратно объекту пользователя
       user.id = result[0].id;
-      user.createdAt = result[0].createdAt; // Из БД
-      user.updatedAt = result[0].updatedAt; // Из БД
     }
   }
 

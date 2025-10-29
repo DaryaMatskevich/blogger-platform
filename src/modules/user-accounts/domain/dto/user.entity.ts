@@ -109,7 +109,7 @@ export class User {
       user.confirmationCodeExpiresAt.getDate() + 2,
     );
     user.isEmailConfirmed = false;
-
+    user.createdAt = now;
     return user;
   }
 

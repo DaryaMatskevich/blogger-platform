@@ -91,8 +91,6 @@ export class UsersRepository {
 
       // Присваиваем сгенерированный ID обратно объекту пользователя
       user.id = result[0].id;
-      user.createdAt = result[0].createdAt;
-      user.updatedAt = result[0].updatedAt;
     }
   }
 

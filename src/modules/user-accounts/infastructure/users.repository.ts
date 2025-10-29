@@ -25,6 +25,54 @@ export class UsersRepository {
     return result[0] || null;
   }
 
+  async createUser(user: User): Promise<User> {
+    if (user.id) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'User already has an ID. Use save method for updates.',
+      });
+    }
+
+    const query = `
+    INSERT INTO users (
+      login, "passwordHash", email, "isEmailConfirmed",
+      "confirmationCode", "confirmationCodeCreatedAt", "confirmationCodeExpiresAt",
+      "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
+      "createdAt", "updatedAt", "deletedAt"
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    RETURNING id, "updatedAt"
+  `;
+
+    const now = new Date();
+    const params = [
+      user.login,
+      user.passwordHash,
+      user.email,
+      user.isEmailConfirmed,
+      user.confirmationCode,
+      user.confirmationCodeCreatedAt,
+      user.confirmationCodeExpiresAt,
+      user.recoveryCode,
+      user.recoveryCodeCreatedAt,
+      user.recoveryCodeExpiresAt,
+      user.createdAt,
+      now,
+      user.deletedAt,
+    ];
+
+    try {
+      const result = await this.dataSource.query(query, params);
+      user.id = result[0].id;
+      user.updatedAt = new Date(result[0].updatedAt); // Обновляем только updatedAt
+      return user;
+    } catch (error) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: `Failed to create user: ${error.message}`,
+      });
+    }
+  }
+
   async save(user: User) {
     const now = new Date();
     if (user.id) {

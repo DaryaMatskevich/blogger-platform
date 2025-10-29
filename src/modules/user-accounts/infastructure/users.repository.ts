@@ -39,7 +39,7 @@ export class UsersRepository {
       "confirmationCode", "confirmationCodeCreatedAt", "confirmationCodeExpiresAt",
       "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
       "createdAt", "updatedAt", "deletedAt"
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW(), $11)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
     RETURNING id, "createdAt", "updatedAt"
   `;
 
@@ -55,6 +55,7 @@ export class UsersRepository {
       user.recoveryCodeCreatedAt,
       user.recoveryCodeExpiresAt,
       user.createdAt,
+      new Date(),
       user.deletedAt,
     ];
 

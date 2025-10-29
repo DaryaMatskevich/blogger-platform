@@ -50,13 +50,13 @@ export class User {
   confirmationCode: string | null;
 
   @Column({
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   confirmationCodeCreatedAt: Date | null;
 
   @Column({
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   confirmationCodeExpiresAt: Date | null;
@@ -68,28 +68,27 @@ export class User {
   recoveryCode: string | null;
 
   @Column({
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   recoveryCodeCreatedAt: Date | null;
 
   @Column({
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   recoveryCodeExpiresAt: Date | null;
 
   @Column({
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: false,
-    // Без default
   })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamp' })
   deletedAt: Date | null;
 
   // Статический метод создания инстанса

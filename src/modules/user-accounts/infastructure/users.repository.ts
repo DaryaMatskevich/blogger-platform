@@ -47,7 +47,6 @@ export class UsersRepository {
         `;
 
       await this.dataSource.query(query, [
-        user.id,
         user.login,
         user.passwordHash,
         user.email,
@@ -60,6 +59,7 @@ export class UsersRepository {
         user.recoveryCodeExpiresAt,
         new Date(), // updatedAt
         user.deletedAt,
+        user.id,
       ]);
     } else {
       // Insert new user
@@ -69,7 +69,7 @@ export class UsersRepository {
                 "confirmationCode", "confirmationCodeCreatedAt", "confirmationCodeExpiresAt",
                 "recoveryCode", "recoveryCodeCreatedAt", "recoveryCodeExpiresAt",
                 "createdAt", "updatedAt", "deletedAt"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , NOW(), $12)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 , $12, $13)
             RETURNING id
         `;
 
@@ -85,11 +85,14 @@ export class UsersRepository {
         user.recoveryCodeCreatedAt,
         user.recoveryCodeExpiresAt,
         user.createdAt,
+        new Date(),
         user.deletedAt,
       ]);
 
       // Присваиваем сгенерированный ID обратно объекту пользователя
       user.id = result[0].id;
+      user.createdAt = result[0].createdAt;
+      user.updatedAt = result[0].updatedAt;
     }
   }
 

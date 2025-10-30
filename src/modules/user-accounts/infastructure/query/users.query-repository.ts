@@ -33,6 +33,8 @@ export class UsersQueryRepository {
     const pageSize = queryParams.pageSize || 10;
     const searchLoginTerm = queryParams.searchLoginTerm || '';
     const searchEmailTerm = queryParams.searchEmailTerm || '';
+    const sortBy = queryParams.sortBy || 'createdAt'; // по умолчанию
+    const sortDirection = (queryParams.sortDirection || 'desc').toUpperCase();
 
     const offset = (pageNumber - 1) * pageSize;
 
@@ -71,7 +73,7 @@ export class UsersQueryRepository {
       "createdAt", "updatedAt"
     FROM users 
     ${whereClause}
-    ORDER BY id DESC  -- ← Фиксированная сортировка как в тесте
+    ORDER BY "${sortBy}" ${sortDirection}
     LIMIT $${queryParamsList.length + 1} OFFSET $${queryParamsList.length + 2}
   `;
 

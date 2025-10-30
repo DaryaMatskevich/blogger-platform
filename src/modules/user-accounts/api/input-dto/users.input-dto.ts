@@ -36,7 +36,7 @@ export class NewPasswordDto {
 }
 
 export class EmailDto {
-  @IsString()
+  @IsEmail()
   @Matches(emailConstraints.match)
   @Trim()
   email: string;

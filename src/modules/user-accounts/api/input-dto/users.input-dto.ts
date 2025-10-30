@@ -4,7 +4,7 @@ import {
   loginConstraints,
   passwordConstraints,
 } from '../../constants/user.constraints';
-import { IsString, Matches } from 'class-validator';
+import { IsEmail, IsString, Matches } from 'class-validator';
 import { Trim } from '../../../../core/decorators/transform/trim';
 
 //dto для боди при создании юзера. Сюда могут быть добавлены декораторы swagger
@@ -19,7 +19,7 @@ export class CreateUserInputDto {
   password: string;
 
   @Trim()
-  @IsString()
+  @IsEmail()
   @Matches(emailConstraints.match)
   email: string;
 }

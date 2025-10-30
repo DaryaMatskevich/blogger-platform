@@ -1,7 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
-import { DomainException } from '../../../../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 export class DeleteUserCommand {
   constructor(public id: string) {}
@@ -14,36 +16,26 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   async execute(command: DeleteUserCommand): Promise<void> {
     const { id } = command;
 
-    // 1. Проверяем, существует ли пользователь и не удалён ли
-    const checkQuery = `
-      SELECT id, "deletedAt" 
-      FROM users 
-      WHERE id = $1 AND "deletedAt" IS NULL
-    `;
-
-    const userResult = await this.dataSource.query(checkQuery, [id]);
+    // 1. Проверяем существование
+    const userResult = await this.dataSource.query(
+      `SELECT 1 FROM users WHERE id = $1 AND "deletedAt" IS NULL`,
+      [id],
+    );
 
     if (!userResult[0]) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'User not found',
-      });
+      throw new NotFoundException('User not found'); // ← 404
     }
 
-    // 2. Soft delete: устанавливаем deletedAt = NOW()
-    const deleteQuery = `
-      UPDATE users 
-      SET "deletedAt" = NOW() 
-      WHERE id = $1 AND "deletedAt" IS NULL
-      RETURNING id
-    `;
-
-    const result = await this.dataSource.query(deleteQuery, [id]);
+    // 2. Soft delete
+    const result = await this.dataSource.query(
+      `UPDATE users SET "deletedAt" = NOW() WHERE id = $1 AND "deletedAt" IS NULL RETURNING id`,
+      [id],
+    );
 
     if (!result[0]) {
-      throw new Error('Failed to delete user');
+      throw new InternalServerErrorException('Failed to delete user'); // ← 500
     }
 
-    // Ничего не возвращаем — void
+    // void — ничего не возвращаем
   }
 }

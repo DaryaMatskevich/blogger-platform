@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
   Query,
   UseGuards,
@@ -17,7 +16,6 @@ import { GetUsersQueryParams } from '../modules/user-accounts/api/input-dto/get-
 import { PaginatedViewDto } from '../core/dto/base.paginated.view.dto';
 import { UserViewDto } from '../modules/user-accounts/api/view-dto/users.view-dto';
 import { UsersQueryRepository } from '../modules/user-accounts/infastructure/query/users.query-repository';
-import { ObjectIdValidationPipe } from '../core/pipes/object-id-validation-pipe.service';
 import { DeleteUserCommand } from '../modules/user-accounts/application/users-usecases/delete-user-usecase';
 import { CommandBus } from '@nestjs/cqrs';
 import { SaGuard } from '../sa/sa.guard';
@@ -49,9 +47,7 @@ export class SaUsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(
-    @Param('id', ObjectIdValidationPipe) id: string,
-  ): Promise<void> {
+  async deleteUser(id: string): Promise<void> {
     return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

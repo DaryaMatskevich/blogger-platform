@@ -92,22 +92,32 @@ export class User {
   deletedAt: Date | null;
 
   // Статический метод создания инстанса
-  static createInstance(dto: CreateUserDomainDto): User {
+  static createInstance(
+    dto: CreateUserDomainDto,
+    options: { isAdminCreation?: boolean } = {},
+  ): User {
     const user = new User();
     const now = new Date();
 
     user.login = dto.login;
     user.passwordHash = dto.passwordHash;
     user.email = dto.email;
-    user.confirmationCode = dto.confirmationCode;
-
-    user.confirmationCodeCreatedAt = now;
-    user.confirmationCodeExpiresAt = new Date(now);
-    user.confirmationCodeExpiresAt.setDate(
-      user.confirmationCodeExpiresAt.getDate() + 2,
-    );
-    user.isEmailConfirmed = false;
     user.createdAt = now;
+
+    if (options.isAdminCreation) {
+      user.confirmationCode = null;
+      user.confirmationCodeCreatedAt = null;
+      user.confirmationCodeExpiresAt = null;
+      user.isEmailConfirmed = true;
+    } else {
+      user.confirmationCode = dto.confirmationCode;
+      user.confirmationCodeCreatedAt = now;
+      user.confirmationCodeExpiresAt = new Date(now);
+      user.confirmationCodeExpiresAt.setDate(
+        user.confirmationCodeExpiresAt.getDate() + 2,
+      );
+      user.isEmailConfirmed = false;
+    }
     return user;
   }
 

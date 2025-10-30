@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 
 import { CreateUserDto } from '../modules/user-accounts/dto/create-user.dto';
-import { UsersService } from '../modules/user-accounts/application/services/users.service';
 import { GetUsersQueryParams } from '../modules/user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../core/dto/base.paginated.view.dto';
 import { UserViewDto } from '../modules/user-accounts/api/view-dto/users.view-dto';
@@ -19,20 +18,21 @@ import { UsersQueryRepository } from '../modules/user-accounts/infastructure/que
 import { DeleteUserCommand } from '../modules/user-accounts/application/users-usecases/delete-user-usecase';
 import { CommandBus } from '@nestjs/cqrs';
 import { SaGuard } from '../sa/sa.guard';
+import { SaUsersService } from '../sa/sa.users-service';
 
 @UseGuards(SaGuard)
 @Controller('sa/users')
 export class SaUsersController {
   constructor(
     private commandBus: CommandBus,
-    private readonly usersService: UsersService,
+    private readonly saUsersService: SaUsersService,
     private usersQueryRepository: UsersQueryRepository,
   ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserDto: CreateUserDto) {
-    const userId = await this.usersService.createUser(createUserDto);
+    const userId = await this.saUsersService.createUser(createUserDto);
     const user = await this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     // Форматируем ответ согласно требованиям тестов
     return user;

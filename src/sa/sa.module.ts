@@ -3,11 +3,11 @@ import { SaUsersController } from '../sa/sa.users-controller';
 import { UserAccountsModule } from '../modules/user-accounts/userAccounts.module';
 import { SaGuard } from '../sa/sa.guard';
 import { CqrsModule } from '@nestjs/cqrs';
-import { DeleteUserUseCase } from '../modules/user-accounts/application/users-usecases/delete-user-usecase';
+import { SaUsersService } from '../sa/sa.users-service';
 
 @Module({
   imports: [CqrsModule, UserAccountsModule], // ← Импортируем модуль, где находится UsersService
   controllers: [SaUsersController],
-  providers: [SaGuard, DeleteUserUseCase],
+  providers: [SaGuard, SaUsersService],
 })
 export class SaModule {}

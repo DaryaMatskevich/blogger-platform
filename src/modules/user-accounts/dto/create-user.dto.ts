@@ -1,13 +1,6 @@
 // dto/create-user.dto.ts
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import {
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
-import {
-  emailConstraints,
   loginConstraints,
   passwordConstraints,
 } from '../constants/user.constraints';
@@ -24,6 +17,5 @@ export class CreateUserDto {
   password: string;
 
   @IsEmail()
-  @Matches(emailConstraints.match)
   email: string;
 }

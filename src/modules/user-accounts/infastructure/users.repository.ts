@@ -4,6 +4,7 @@ import { DomainException } from '../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { UserViewDto } from '../../user-accounts/api/view-dto/users.view-dto';
 
 @Injectable()
 export class UsersRepository {
@@ -25,7 +26,7 @@ export class UsersRepository {
     return result[0] || null;
   }
 
-  async createUser(user: User): Promise<User> {
+  async createUser(user: User): Promise<UserViewDto> {
     if (user.id) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
@@ -63,7 +64,7 @@ export class UsersRepository {
       const result = await this.dataSource.query(query, params);
       user.id = result[0].id;
 
-      return user;
+      return UserViewDto.mapToView(user);
     } catch (error) {
       throw new DomainException({
         code: DomainExceptionCode.InternalServerError,

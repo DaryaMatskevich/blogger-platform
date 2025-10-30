@@ -59,7 +59,7 @@ export class UsersService {
 
     const createdUserId = await this.usersRepository.createUser(user);
 
-    this.emailService.sendConfirmationEmail(user.email, confirmationCode);
+    await this.emailService.sendConfirmationEmail(user.email, confirmationCode);
     return createdUserId;
   }
 }

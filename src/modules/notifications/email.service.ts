@@ -12,7 +12,10 @@ export class EmailService {
     await this.mailerService.sendMail({
       to: email,
       subject: 'Confirm your registration',
-      text: `confirm registration via link ${confirmationLink}`,
+      text: `
+      Подтвердите регистрацию по ссылке: ${confirmationLink}
+      Или введите код вручную: ${code}
+    `.trim(),
       html: `<p>Please confirm your registration by clicking <a href="${confirmationLink}">here</a></p>`,
     });
   }

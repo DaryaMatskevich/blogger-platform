@@ -10,7 +10,6 @@ import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-
 import { User } from '../../../../modules/user-accounts/domain/dto/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from '../../../../modules/notifications/email.service';
-import { UserViewDto } from '@src/modules/user-accounts/api/view-dto/users.view-dto';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +18,7 @@ export class UsersService {
     private cryptoService: CryptoService,
     private emailService: EmailService,
   ) {}
-  async createUser(dto: CreateUserDto): Promise<UserViewDto> {
+  async createUser(dto: CreateUserDto): Promise<string> {
     const userWithTheSameLogin = await this.usersRepository.findByLogin(
       dto.login,
     );
@@ -58,9 +57,9 @@ export class UsersService {
       confirmationCode: confirmationCode,
     });
 
-    const createdUser = await this.usersRepository.createUser(user);
+    const createdUserId = await this.usersRepository.createUser(user);
 
     this.emailService.sendConfirmationEmail(user.email, confirmationCode);
-    return createdUser;
+    return createdUserId;
   }
 }

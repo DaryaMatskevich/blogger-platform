@@ -34,8 +34,8 @@ export class SaUsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.createUser(createUserDto);
-
+    const userId = await this.usersService.createUser(createUserDto);
+    const user = await this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     // Форматируем ответ согласно требованиям тестов
     return user;
   }

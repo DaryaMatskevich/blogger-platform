@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 export class DeleteUserCommand {
   constructor(public id: string) {}

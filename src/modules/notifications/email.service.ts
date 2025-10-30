@@ -13,7 +13,7 @@ export class EmailService {
       to: email,
       subject: 'Confirm your registration',
       text: `
-      Подтвердите регистрацию по ссылке: ${confirmationLink}
+      Подтвердите регистрацию по ссылке : ${confirmationLink}
       Или введите код вручную: ${code}
     `.trim(),
       html: `<p>Please confirm your registration by clicking <a href="${confirmationLink}">here</a></p>`,

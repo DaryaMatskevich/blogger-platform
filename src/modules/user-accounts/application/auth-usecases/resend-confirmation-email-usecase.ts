@@ -58,6 +58,6 @@ export class ResendConfirmationEmailUseCase
       [confirmCode, user.id],
     );
 
-    this.emailService.sendConfirmationEmail(user.email, confirmCode);
+    await this.emailService.sendConfirmationEmail(user.email, confirmCode);
   }
 }

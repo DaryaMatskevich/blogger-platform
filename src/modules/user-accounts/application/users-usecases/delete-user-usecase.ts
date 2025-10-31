@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { UsersQueryRepository } from '../../../user-accounts/infastructure/query/users.query-repository';
 
 export class DeleteUserCommand {
   constructor(public id: string) {}
@@ -8,33 +8,26 @@ export class DeleteUserCommand {
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private usersQueryRepository: UsersQueryRepository,
+  ) {}
 
   async execute(command: DeleteUserCommand): Promise<void> {
     const { id } = command;
+    const user = await this.usersQueryRepository.getByIdOrNotFoundFail(id);
+    if (user) {
+      // Валидация ID (опционально, но рекомендуется)
 
-    // Выполняем soft delete и проверяем результат
-    const result = await this.dataSource.query(
-      `UPDATE users
+      // Атомарная операция: проверяем и удаляем в одном запросе
+      await this.dataSource.query(
+        `UPDATE users 
        SET "deletedAt" = NOW()
-       WHERE id = $1 AND "deletedAt" IS NULL
-         RETURNING id`,
-      [id],
-    );
-
-    // Если ни одна запись не была обновлена
-    if (result.length === 0) {
-      // Проверяем, существует ли пользователь вообще
-      const existingUser = await this.dataSource.query(
-        `SELECT 1 FROM users WHERE id = $1`,
+       WHERE id = $1 AND "deletedAt" IS NULL 
+       RETURNING id`,
         [id],
       );
-
-      if (!existingUser[0]) {
-        throw new NotFoundException('User not found');
-      } else {
-        throw new NotFoundException('User already deleted');
-      }
     }
   }
 }
+// Если ни одна запись не была обновлена, пользователь не найден или уже удален

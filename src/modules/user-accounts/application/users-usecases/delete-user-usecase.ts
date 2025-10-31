@@ -13,14 +13,18 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   async execute(command: DeleteUserCommand): Promise<void> {
     const { id } = command;
 
-    // 1. Проверяем существование
+    // Выполняем soft delete и проверяем результат
     const result = await this.dataSource.query(
-      `SELECT 1 FROM users WHERE id = $1 AND "deletedAt" IS NULL`,
+      `UPDATE users
+       SET "deletedAt" = NOW()
+       WHERE id = $1 AND "deletedAt" IS NULL
+         RETURNING id`,
       [id],
     );
 
+    // Если ни одна запись не была обновлена
     if (result.length === 0) {
-      // Либо пользователь не найден, либо уже удален
+      // Проверяем, существует ли пользователь вообще
       const existingUser = await this.dataSource.query(
         `SELECT 1 FROM users WHERE id = $1`,
         [id],

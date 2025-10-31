@@ -17,8 +17,8 @@ import { UserViewDto } from '../modules/user-accounts/api/view-dto/users.view-dt
 import { UsersQueryRepository } from '../modules/user-accounts/infastructure/query/users.query-repository';
 import { DeleteUserCommand } from '../modules/user-accounts/application/users-usecases/delete-user-usecase';
 import { CommandBus } from '@nestjs/cqrs';
-import { SaGuard } from '../sa/sa.guard';
 import { SaUsersService } from '../sa/sa.users-service';
+import { SaGuard } from '../sa/sa.guard'; //@UseGuards(SaGuard)
 
 @UseGuards(SaGuard)
 @Controller('sa/users')

@@ -165,6 +165,7 @@ export class AuthController {
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
+    console.log(user.refreshToken, user.deviceId);
     const refreshToken = user.refreshToken;
     const userId = user.userId;
     const deviceId = user.deviceId;

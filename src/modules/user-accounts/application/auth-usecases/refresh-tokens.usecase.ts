@@ -9,6 +9,7 @@ import {
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
+import { DataSource } from 'typeorm';
 
 export class RefreshTokensCommand {
   constructor(
@@ -24,6 +25,7 @@ export class RefreshTokensUseCase
 {
   constructor(
     private sessionsRepository: SessionRepository,
+    private dataSource: DataSource,
 
     @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
     private accessTokenContext: JwtService,
@@ -35,28 +37,34 @@ export class RefreshTokensUseCase
   async execute(
     command: RefreshTokensCommand,
   ): Promise<{ newAccessToken: string; newRefreshToken: string }> {
+    const { userId, deviceId } = command;
     const session = await this.sessionsRepository.findByDeviceId(
       command.deviceId,
     );
 
-    if (session.userId !== command.userId) {
+    if (session.userId !== userId) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'Unauthorized',
       });
     }
 
-    const newAccessToken = this.accessTokenContext.sign({ id: command.userId });
+    const newAccessToken = this.accessTokenContext.sign({ id: userId });
 
     const newRefreshToken = this.refreshTokenContext.sign({
-      userId: command.userId,
-      deviceId: command.deviceId,
+      userId: userId,
+      deviceId: deviceId,
     });
 
     const now = new Date();
-    session.updateLastActiveDate(now);
-    session.updateRefreshToken(newRefreshToken);
-    await this.sessionsRepository.save(session);
+    await this.dataSource.query(
+      `UPDATE sessions 
+       SET "refreshToken" = $1, 
+           "lastActiveDate" = $2,
+           "updatedAt" = NOW()
+       WHERE "deviceId" = $3 AND "userId" = $4`,
+      [newRefreshToken, now, deviceId, userId],
+    );
 
     return {
       newAccessToken,

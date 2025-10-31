@@ -44,9 +44,9 @@ export class SessionRepository {
         "updatedAt",
         "deletedAt"
       FROM sessions
-      WHERE userId = $1
-        AND deviceId = $2
-        AND deletedAt IS NULL
+      WHERE "userId" = $1
+        AND "deviceId" = $2
+        AND "deletedAt" IS NULL
         LIMIT 1
     `;
 
@@ -94,31 +94,19 @@ export class SessionRepository {
       FROM sessions
       WHERE "deviceId" = $1
         AND "deletedAt" IS NULL
-        LIMIT 1
+        
     `;
 
-    const parameters = [deviceId];
+    const result = await this.dataSource.query(query, [deviceId]);
 
-    try {
-      const result = await this.dataSource.query(query, parameters);
-
-      if (!result || result.length === 0) {
-        throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          message: 'Session not found',
-        });
-      }
-
-      return this.mapRawToSession(result[0]);
-    } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
+    if (!result || result.length === 0) {
       throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: 'Error finding session by device ID',
+        code: DomainExceptionCode.NotFound,
+        message: 'Session not found',
       });
     }
+
+    return this.mapRawToSession(result[0]);
   }
 
   async save(session: Session): Promise<Session> {

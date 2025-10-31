@@ -7,6 +7,7 @@ export const ExtractUserWithDeviceId = createParamDecorator(
     return {
       userId: request.user.userId,
       deviceId: request.user.deviceId,
-    refreshToken: request.user.refreshToken}; // Берем из запроса, добавленного guard'ом
-  }
+      refreshToken: request.user.refreshToken,
+    }; // Берем из запроса, добавленного guard'ом
+  },
 );

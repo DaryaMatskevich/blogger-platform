@@ -105,7 +105,7 @@ const useCases = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '10m' },
+          signOptions: { expiresIn: '10s' },
         });
       },
       inject: [
@@ -117,7 +117,7 @@ const useCases = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret', //TODO: move to env. will be in the following lessons
-          signOptions: { expiresIn: '20m' },
+          signOptions: { expiresIn: '20s' },
         });
       },
       inject: [

@@ -1,9 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 export class DeleteUserCommand {
   constructor(public id: string) {}
@@ -17,25 +14,23 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
     const { id } = command;
 
     // 1. Проверяем существование
-    const userResult = await this.dataSource.query(
+    const result = await this.dataSource.query(
       `SELECT 1 FROM users WHERE id = $1 AND "deletedAt" IS NULL`,
       [id],
     );
 
-    if (!userResult[0]) {
-      throw new NotFoundException('User not found'); // ← 404
+    if (result.length === 0) {
+      // Либо пользователь не найден, либо уже удален
+      const existingUser = await this.dataSource.query(
+        `SELECT 1 FROM users WHERE id = $1`,
+        [id],
+      );
+
+      if (!existingUser[0]) {
+        throw new NotFoundException('User not found');
+      } else {
+        throw new NotFoundException('User already deleted');
+      }
     }
-
-    // 2. Soft delete
-    const result = await this.dataSource.query(
-      `UPDATE users SET "deletedAt" = NOW() WHERE id = $1 AND "deletedAt" IS NULL RETURNING id`,
-      [id],
-    );
-
-    if (!result[0]) {
-      throw new InternalServerErrorException('Failed to delete user'); // ← 500
-    }
-
-    // void — ничего не возвращаем
   }
 }

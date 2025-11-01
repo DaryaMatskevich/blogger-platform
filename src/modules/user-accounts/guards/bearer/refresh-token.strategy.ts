@@ -35,16 +35,14 @@ export class RefreshTokenStrategy extends PassportStrategy(
     payload: { userId: string; deviceId: string },
   ): Promise<{ userId: string; deviceId: string; refreshToken: string }> {
     // Проверяем наличие обязательных полей
-    console.log('🔄 RefreshTokenStrategy validate');
-    console.log('📦 Payload:', payload);
-    console.log('🍪 RefreshToken from cookies:', req.cookies?.refreshToken);
-
+    console.log('попал коод');
     if (!payload.userId || !payload.deviceId) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'Invalid token payload',
       });
     }
+    console.log('первую прошел');
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
       throw new DomainException({
@@ -52,29 +50,63 @@ export class RefreshTokenStrategy extends PassportStrategy(
         message: 'Refresh token not found in cookies',
       });
     }
-
+    console.log('refreshToken');
     const session = await this.sessionRepository.findByDeviceId(
       payload.deviceId,
     );
 
-    if (
-      !session ||
-      session.deletedAt !== null ||
-      session.userId !== payload.userId
-    ) {
+    //if (
+    //!session ||
+    // session.deletedAt !== null ||
+    // session.userId !== payload.userId
+    // ) {
+    //console.log('вот и ошибка');
+    //throw new DomainException({
+    // code: DomainExceptionCode.Unauthorized,
+    // message: 'Invalid or expired refresh token',
+    //});
+    //}
+    console.log('🎯 Начало проверки session');
+
+    // Временно убираем проверки по одной чтобы найти проблему
+    if (!session) {
+      console.log('❌ FAIL: !session');
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'Invalid or expired refresh token',
       });
     }
 
+    console.log('✅ PASS: session существует');
+
+    if (session.deletedAt !== null) {
+      console.log('❌ FAIL: session.deletedAt !== null');
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
+    console.log('✅ PASS: session не удалена');
+
+    if (session.userId !== payload.userId) {
+      console.log('❌ FAIL: session.userId !== payload.userId');
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
+    console.log('✅ PASS: userId совпадают');
+    console.log('🎉 Все проверки пройдены!');
+    console.log('проверка!');
     if (session.refreshToken !== refreshToken) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'Invalid or expired refresh token',
       });
     }
-
+    console.log('проверка2!', session.refreshToken);
     return {
       userId: payload.userId,
       deviceId: payload.deviceId,

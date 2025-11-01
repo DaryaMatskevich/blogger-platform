@@ -66,6 +66,7 @@ export class SessionRepository {
       }
 
       return this.mapRawToSession(result[0]);
+      console.log('опана');
     } catch (error) {
       if (error instanceof DomainException) {
         throw error;
@@ -384,7 +385,7 @@ export class SessionRepository {
   private mapRawToSession(raw: RawSessionData): Session {
     const session = new Session();
     session.id = raw.id;
-    session.userId = raw.userId;
+    session.userId = raw.userId.toString();
     session.ip = raw.ip;
     session.title = raw.title;
     session.lastActiveDate = new Date(raw.lastActiveDate);

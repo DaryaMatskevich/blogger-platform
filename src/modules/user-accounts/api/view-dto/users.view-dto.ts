@@ -20,15 +20,15 @@ export class UserViewDto {
 }
 
 export class MeViewDto {
-  userId: string;
-  login: string;
   email: string;
+  login: string;
+  userId: string;
 
   static mapToView(user: User): MeViewDto {
     return {
-      userId: user.id.toString(),
-      login: user.login,
       email: user.email,
+      login: user.login,
+      userId: user.id.toString(),
     } as MeViewDto;
   }
 }

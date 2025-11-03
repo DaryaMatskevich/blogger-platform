@@ -15,28 +15,33 @@ export class SessionsQueryRepository {
   async findAllActiveSessionsByUserId(
     userId: string,
   ): Promise<SessionViewDto[]> {
-    const currentDate = new Date();
+    console.log('rer');
+    const userIdNumber = Number(userId);
+
+    // Проверяем валидность преобразования
 
     const query = `
       SELECT 
         id,
-        user_id as "userId",
+        "userId",
         ip,
         title,
-        last_active_date as "lastActiveDate",
-        device_id as "deviceId",
-        expiration_date as "expirationDate",
-        refresh_token as "refreshToken",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
+        "lastActiveDate",
+        "deviceId",
+        "expirationDate",
+        "refreshToken",
+        "createdAt",
+        "updatedAt"
       FROM sessions 
-      WHERE user_id = $1 
-        AND expiration_date > $2 
-        AND deleted_at IS NULL
-      ORDER BY last_active_date DESC
+      WHERE "userId" = $1 
+        AND "expirationDate"> NOW()
+        
+        AND "deletedAt" IS NULL
+      
+      ORDER BY "lastActiveDate" DESC
     `;
 
-    const parameters = [userId, currentDate];
+    const parameters = [userIdNumber];
 
     try {
       const result = await this.dataSource.query(query, parameters);
@@ -47,7 +52,7 @@ export class SessionsQueryRepository {
           message: 'Sessions not found',
         });
       }
-
+      console.log('куку');
       return result.map((session: any) =>
         SessionViewDto.mapToView(this.mapRawToSession(session)),
       );
@@ -68,7 +73,7 @@ export class SessionsQueryRepository {
     const query = `
       SELECT 
         id,
-        user_id as "userId",
+        user_id as "userId", 
         ip,
         title,
         last_active_date as "lastActiveDate",

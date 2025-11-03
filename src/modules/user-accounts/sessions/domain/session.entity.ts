@@ -28,7 +28,7 @@ export class Session {
   @Column({ type: 'varchar' })
   deviceId: string;
 
-  @DeleteDateColumn({ nullable: true })
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deletedAt: Date | null;
 
   @Column({ type: 'timestamp' })

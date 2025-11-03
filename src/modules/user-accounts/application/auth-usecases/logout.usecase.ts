@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { DataSource } from 'typeorm';
 
 export class LogOutCommand {
   constructor(
@@ -13,24 +13,39 @@ export class LogOutCommand {
 
 @CommandHandler(LogOutCommand)
 export class LogOutUseCase implements ICommandHandler<LogOutCommand> {
-  constructor(private sessionsRepository: SessionRepository) {}
+  constructor(private dataSource: DataSource) {}
 
   async execute(command: LogOutCommand): Promise<void> {
-    const session = await this.sessionsRepository.findByDeviceId(
+    // Находим сессию по deviceId
+    const findSessionQuery = `
+      SELECT id, "userId", "deviceId", "deletedAt" 
+      FROM sessions 
+      WHERE "deviceId" = $1 AND "deletedAt" IS NULL
+    `;
+
+    const sessions = await this.dataSource.query(findSessionQuery, [
       command.deviceId,
-    );
+    ]);
+    const session = sessions[0];
+
     console.log('сессия найдена');
 
-    if (session?.userId !== command.userId) {
+    if (!session || session.userId.toString() !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: 'Forbidden',
       });
     }
 
-    session.makeDeleted();
-    await this.sessionsRepository.save(session);
+    // Помечаем сессию как удаленную
+    const updateQuery = `
+      UPDATE sessions 
+      SET "deletedAt" = NOW() 
+      WHERE id = $1 AND "deletedAt" IS NULL
+    `;
 
-    console.log(session.deletedAt);
+    await this.dataSource.query(updateQuery, [session.id]);
+
+    console.log(new Date()); // deletedAt timestamp
   }
 }

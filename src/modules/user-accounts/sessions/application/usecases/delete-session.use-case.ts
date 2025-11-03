@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infrastructure/sessions.repository';
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
-import { CryptoService } from '../../../application/services/crypto.service';
 
 export class DeleteSessionCommand {
   constructor(
@@ -16,10 +15,7 @@ export class DeleteSessionCommand {
 export class DeleteSessionUseCase
   implements ICommandHandler<DeleteSessionCommand>
 {
-  constructor(
-    private sessionRepository: SessionRepository,
-    private cryptoService: CryptoService,
-  ) {}
+  constructor(private sessionRepository: SessionRepository) {}
 
   async execute(command: DeleteSessionCommand) {
     const session = await this.sessionRepository.findByDeviceId(
@@ -31,7 +27,9 @@ export class DeleteSessionUseCase
         message: 'Forbidden',
       });
 
-    session.makeDeleted();
-    await this.sessionRepository.save(session);
+    await this.sessionRepository.deleteSessionById(
+      command.deviceId,
+      command.userId,
+    );
   }
 }

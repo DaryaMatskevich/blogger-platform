@@ -26,14 +26,14 @@ import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/b
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 // import { CommentViewDto } from '../../comments/api/view-dto/comments.view.dto';
 // import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
-import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
+//import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
 // import { LikeInputModel } from '../dto/like-status.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 // import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 // import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
-import { PostsService } from '../application/posts.service';
+//import { PostsService } from '../application/posts.service';
 // import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 // import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
@@ -42,9 +42,9 @@ export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
-    private postsService: PostsService,
+    //private postsService: PostsService,
     private queryBus: QueryBus,
-    private commentsQueryRepository: CommentsQueryRepository,
+    //private commentsQueryRepository: CommentsQueryRepository,
   ) {
     console.log('UsersController created');
   }

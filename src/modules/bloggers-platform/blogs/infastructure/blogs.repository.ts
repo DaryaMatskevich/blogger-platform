@@ -101,8 +101,8 @@ export class BlogsRepository {
   async delete(id: number): Promise<void> {
     const query = `
       UPDATE blogs 
-      SET deletedAt = CURRENT_TIMESTAMP 
-      WHERE id = $1 AND deletedAt IS NULL
+      SET "deletedAt" = CURRENT_TIMESTAMP 
+      WHERE id = $1 AND "deletedAt" IS NULL
     `;
 
     await this.dataSource.query(query, [id]);

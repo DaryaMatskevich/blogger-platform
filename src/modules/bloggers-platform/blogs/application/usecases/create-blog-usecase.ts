@@ -1,32 +1,22 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { InjectModel } from "@nestjs/mongoose";
-import { Blog, BlogModelType } from "../../domain/dto/blog.entity";
-import { BlogsRepository } from "../../infastructure/blogs.repository";
-import { CreateBlogInputDto } from "../../api/input-dto/blogs.input-dto";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { BlogsRepository } from '../../infastructure/blogs.repository';
+import { CreateBlogInputDto } from '../../api/input-dto/blogs.input-dto';
 
 export class CreateBlogCommand {
-    constructor(public dto: CreateBlogInputDto
-    ) { }
+  constructor(public dto: CreateBlogInputDto) {}
 }
 
 @CommandHandler(CreateBlogCommand)
-export class CreateBlogUseCase
-    implements ICommandHandler<CreateBlogCommand> {
-    constructor(
-        private blogsRepository: BlogsRepository,
-         @InjectModel(Blog.name)
-            private BlogModel: BlogModelType,
-    ) { }
+export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
+  constructor(private blogsRepository: BlogsRepository) {}
 
-async execute(command: CreateBlogCommand): Promise<string> {
-    const blog = this.BlogModel.createInstance({
+  async execute(command: CreateBlogCommand): Promise<number> {
+    const blog = await this.blogsRepository.create({
       name: command.dto.name,
       description: command.dto.description,
-      websiteUrl: command.dto.websiteUrl
+      websiteUrl: command.dto.websiteUrl,
     });
 
-    await this.blogsRepository.save(blog);
-
-    return blog._id.toString();
+    return blog.id;
   }
 }

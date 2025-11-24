@@ -1,90 +1,84 @@
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CreateBlogInputDto } from '../../api/input-dto/blogs.input-dto';
-import { UpdateBlogDto } from '../../dto/update-blog.dto';
-import { minLength } from 'class-validator';
-
-
-//флаг timestemp автоматичеки добавляет поля upatedAt и createdAt
-/**
- * User Entity Schema
- * This class represents the schema and behavior of a User entity.
- */
 
 export const nameConstraints = {
   minLength: 1,
-  maxLength: 15
-}
+  maxLength: 15,
+};
 
 export const descriptionConstraints = {
   minLength: 1,
-  maxLength: 500
-}
+  maxLength: 500,
+};
 
 export const websiteUrlConstraints = {
   minLength: 1,
-  maxlength: 100,
+  maxLength: 100,
   match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
-}
+};
 
-@Schema({ timestamps: true })
+@Entity('blogs')
 export class Blog {
-  @Prop({ type: String, required: true, ...nameConstraints })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({
+    type: 'varchar',
+    length: nameConstraints.maxLength,
+    nullable: false,
+  })
   name: string;
 
-  @Prop({ type: String, required: true, ...descriptionConstraints })
+  @Column({
+    type: 'varchar',
+    length: descriptionConstraints.maxLength,
+    nullable: false,
+  })
   description: string;
 
-  @Prop({ type: String, min: 5, required: true, ...websiteUrlConstraints })
+  @Column({
+    type: 'varchar',
+    length: websiteUrlConstraints.maxLength,
+    nullable: false,
+  })
   websiteUrl: string;
 
-  @Prop({ type: Boolean, default: false })
-  isMembership: Boolean;
+  @Column({
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
+  isMembership: boolean;
 
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
   createdAt: Date;
 
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
   updatedAt: Date;
 
-  @Prop({ type: Date, nullable: true, default: null })
+  @DeleteDateColumn({
+    type: 'timestamp',
+  })
   deletedAt: Date | null;
 
-  static createInstance(dto: CreateBlogInputDto): BlogDocument {
-    const blog = new this();
+  static createBlog(dto: CreateBlogInputDto): Blog {
+    const blog = new Blog();
     blog.name = dto.name;
     blog.description = dto.description;
     blog.websiteUrl = dto.websiteUrl;
+    blog.isMembership = false;
 
-    return blog as BlogDocument;
-  }
-
-  makeDeleted() {
-    if (this.deletedAt !== null) {
-      throw new Error('Entity already deleted');
-    }
-    this.deletedAt = new Date();
-  }
-
-
-  update(dto: UpdateBlogDto) {
-    if (dto.name !== this.name) {
-      this.name = dto.name;
-    }
-    if (dto.description !== this.description) {
-      this.description = dto.description;
-    }
-    if (dto.websiteUrl !== this.websiteUrl) {
-      this.websiteUrl = dto.websiteUrl;
-    }
+    return blog;
   }
 }
-
-export const BlogSchema = SchemaFactory.createForClass(Blog);
-
-//регистрирует методы сущности в схеме
-BlogSchema.loadClass(Blog);
-
-//Типизация документа
-export type BlogDocument = HydratedDocument<Blog>;
-
-//Типизация модели + статические методы
-export type BlogModelType = Model<BlogDocument> & typeof Blog;

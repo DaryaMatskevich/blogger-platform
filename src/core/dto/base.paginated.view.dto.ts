@@ -1,10 +1,9 @@
 export abstract class PaginatedViewDto<T> {
   pagesCount: number;
   page: number;
-   pageSize: number;
-   totalCount: number;
+  pageSize: number;
+  totalCount: number;
   abstract items: T;
-  
 
   //статический метод-утилита для мапинга
   public static mapToView<T>(data: {

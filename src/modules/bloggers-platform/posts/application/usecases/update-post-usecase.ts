@@ -1,29 +1,26 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { UpdatePostDto } from "../../api/input-dto/posts.update-input.dto";
-import { PostsRepository } from "../../infactructure/posts.repository";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UpdatePostDto } from '../../api/input-dto/posts.update-input.dto';
+import { PostsQueryRepository } from '../../../../bloggers-platform/posts/infactructure/query/posts.query-repository';
+import { PostsRepository } from '../../../../bloggers-platform/posts/infactructure/posts.repository';
 
 export class UpdatePostCommand {
-    constructor(public postId: string,
-        public dto: UpdatePostDto
-    ) { }
+  constructor(
+    public postId: string,
+    public dto: UpdatePostDto,
+  ) {}
 }
 
 @CommandHandler(UpdatePostCommand)
-export class UpdatePostUseCase
-    implements ICommandHandler<UpdatePostCommand> {
-    constructor(
-        private postsRepository: PostsRepository,
-    ) { }
+export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
+  constructor(
+    private postsQueryRepository: PostsQueryRepository,
+    private postsRepository: PostsRepository,
+  ) {}
 
-    async execute(command: UpdatePostCommand): Promise<string> {
-        const post = await this.postsRepository.findOrNotFoundFail(command.postId);
+  async execute(command: UpdatePostCommand): Promise<void> {
+    const postId = parseInt(command.postId, 10);
+    await this.postsQueryRepository.getByIdOrNotFoundFail(postId);
 
-        // не присваиваем св-ва сущностям напрямую в сервисах! даже для изменения одного св-ва
-        // создаём метод
-        post.update(command.dto); // change detection
-
-        await this.postsRepository.save(post);
-
-        return post._id.toString();
-    }
+    await this.postsRepository.update(postId, command.dto);
+  }
 }

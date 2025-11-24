@@ -3,4 +3,3 @@ export class CreateBlogDto {
   description: string;
   websiteUrl: string;
 }
-

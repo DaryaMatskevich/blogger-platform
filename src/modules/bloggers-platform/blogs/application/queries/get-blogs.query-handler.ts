@@ -3,8 +3,7 @@ import { Inject } from '@nestjs/common';
 import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.input-dto';
 import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { BlogsQueryRepository } from '../../infastructure/query/blogs.query-repository';
-import { PaginatedViewDto } from '@src/core/dto/base.paginated.view.dto';
-
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view.dto';
 
 export class GetBlogsQuery {
   constructor(public queryParams: GetBlogsQueryParams) {}

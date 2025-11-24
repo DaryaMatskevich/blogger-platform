@@ -1,26 +1,37 @@
-
-import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogExternalDto } from './blogs.external-dto';
-import { Blog, BlogModelType } from '../../../domain/dto/blog.entity';
+import { DataSource } from 'typeorm';
+import { DomainException } from '@src/core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class BlogsExternalQueryRepository {
-  constructor(
-    @InjectModel(Blog.name)
-    private BlogModel: BlogModelType,
-  ) {}
+  constructor(private dataSource: DataSource) {}
 
-  async getByIdOrNotFoundFail(id: string): Promise<BlogExternalDto> {
-    const blog = await this.BlogModel.findOne({
-      _id: id,
-      deletedAt: null,
-    });
+  async findOrNotFoundFail(id: number): Promise<BlogExternalDto> {
+    const query = `
+      SELECT
+        id,
+        name,
+        description,
+        "websiteUrl",
+        "isMembership",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      FROM blogs
+      WHERE id = $1 AND "deletedAt" IS NULL
+    `;
 
-    if (!blog) {
-      throw new NotFoundException('user not found');
+    const result = await this.dataSource.query(query, [id]);
+
+    if (!result) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Blog not found',
+      });
     }
-
+    const blog = result[0];
     return BlogExternalDto.mapToView(blog);
   }
 }

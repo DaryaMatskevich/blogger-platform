@@ -1,5 +1,4 @@
-
-import { PostDocument } from "../../domain/post.entity";
+import { Post } from '../../domain/post.entity';
 
 type LikeInfo = {
   addedAt: Date;
@@ -22,60 +21,57 @@ export class PostViewDto {
   blogId: string;
   blogName: string;
   createdAt: Date;
-  extendedLikesInfo: ExtendedLikesInfo
+  extendedLikesInfo: ExtendedLikesInfo;
 
-  static mapToView(post: PostDocument): PostViewDto {
+  static mapToView(post: Post): PostViewDto {
     const dto = new PostViewDto();
-    
-    dto.id = post._id.toString();
+
+    dto.id = post.id.toString();
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
-    dto.blogId = post.blogId;
+    dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt;
-
-  
 
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo?.likesCount || 0,
       dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
-      myStatus: "None",
-      newestLikes: post.extendedLikesInfo?.newestLikes?.map(like => ({
-        addedAt: like.addedAt,
-        userId: like.userId,
-        login: like.login
-      })) || []
+      myStatus: 'None',
+      newestLikes:
+        post.extendedLikesInfo?.newestLikes?.map((like) => ({
+          addedAt: like.addedAt,
+          userId: like.userId,
+          login: like.login,
+        })) || [],
     };
 
     return dto;
   }
 
-  static mapToViewWithStatus(post: PostDocument, myStatus: string): PostViewDto {
+  static mapToViewWithStatus(post: Post, myStatus: string): PostViewDto {
     const dto = new PostViewDto();
-    
-    dto.id = post._id.toString();
+
+    dto.id = post.id.toString();
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
-    dto.blogId = post.blogId;
+    dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt;
-
-  
 
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo?.likesCount || 0,
       dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
       myStatus: myStatus,
-      newestLikes: post.extendedLikesInfo?.newestLikes?.map(like => ({
-        addedAt: like.addedAt,
-        userId: like.userId,
-        login: like.login
-      })) || []
+      newestLikes:
+        post.extendedLikesInfo?.newestLikes?.map((like) => ({
+          addedAt: like.addedAt,
+          userId: like.userId,
+          login: like.login,
+        })) || [],
     };
 
     return dto;
   }
-
 }

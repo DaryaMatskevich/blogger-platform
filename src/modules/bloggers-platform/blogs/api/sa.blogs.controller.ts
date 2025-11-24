@@ -32,15 +32,19 @@ import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
 import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
-import { GetBlogByIdQuery } from '../application/queries/get-blog-by-id.query-handler';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
-import { ExtractUserIfExistsFromRequest } from '../.././../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { UpdatePostDto } from '@src/modules/bloggers-platform/posts/api/input-dto/posts.update-input.dto';
+import { UpdatePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/update-post-usecase';
+import { DeletePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/delete-post-usecase';
+import { SaGuard } from '../../../../sa/sa.guard';
 
-@Controller('blogs')
-export class BlogsController {
+@UseGuards(SaGuard)
+@Controller('sa/blogs')
+export class SaBlogsController {
   constructor(
     private blogsService: BlogsService,
     private postsService: PostsService,
@@ -50,14 +54,6 @@ export class BlogsController {
     private queryBus: QueryBus,
   ) {
     console.log('UsersController created');
-  }
-
-  @ApiParam({ name: 'id' }) //для сваггера
-  @Get(':id') //users/232342-sdfssdf-23234323
-  async getById(@Param('id') id: string): Promise<BlogViewDto> {
-    // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
-    // промис зарезолвится и затем NestJS вернёт результат клиенту
-    return this.queryBus.execute(new GetBlogByIdQuery(id));
   }
 
   @Get()
@@ -130,5 +126,23 @@ export class BlogsController {
     );
 
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
+  }
+
+  @Put(':id')
+  @HttpCode(204)
+  @UseGuards(BasicAuthGuard)
+  async updatePostForBlog(
+    @Param('id') id: string,
+    @Body() body: UpdatePostDto,
+  ): Promise<void> {
+    await this.commandBus.execute(new UpdatePostCommand(id, body));
+  }
+
+  @ApiParam({ name: 'id' }) //для сваггера
+  @Delete(':id')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePostForBlog(@Param('id') id: string): Promise<void> {
+    return this.commandBus.execute(new DeletePostCommand(id));
   }
 }

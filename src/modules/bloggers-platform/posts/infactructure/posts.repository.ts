@@ -1,38 +1,96 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument, PostModelType } from '../domain/post.entity';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { CreatePostDomainDto } from '../../../bloggers-platform/posts/domain/create-post.domain.dto';
+import { Post } from '../../../bloggers-platform/posts/domain/post.entity';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class PostsRepository {
   //инжектирование модели через DI
-  constructor(@InjectModel(Post.name) private PostModel: PostModelType) {}
+  constructor(private dataSource: DataSource) {}
+  async create(dto: CreatePostDomainDto): Promise<Post> {
+    const query = `
+      INSERT INTO posts (
+        title, 
+        "shortDescription", 
+        content, 
+        "blogId", 
+        "blogName",
+        "extendedLikesInfo"
+      ) 
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING 
+        id,
+        title,
+        "shortDescription",
+        content,
+        "blogId",
+        "blogName",
+        "createdAt",
+        "updatedAt",
+        "deletedAt",
+        "extendedLikesInfo"
+    `;
 
-  async findById(id: string): Promise<PostDocument | null> {
-    return this.PostModel.findOne({
-      _id: id,
-      deletedAt: null,
-    });
+    const extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: 'None',
+      newestLikes: [],
+    };
+
+    const result = await this.dataSource.query(query, [
+      dto.title,
+      dto.shortDescription,
+      dto.content,
+      dto.blogId,
+      dto.blogName,
+      JSON.stringify(extendedLikesInfo),
+    ]);
+
+    return result[0] as Post;
   }
 
-  async save(post: PostDocument) {
-    await post.save();
-  }
+  async update(
+    id: number,
+    dto: { title: string; shortDescription: string; content: string },
+  ): Promise<void> {
+    const query = `
+      UPDATE posts
+      SET
+        title = $1,
+        "shortDescription" = $2,
+        content = $3,
+        "updatedAt" = $4
+      WHERE id = $5
+    `;
 
-  async findOrNotFoundFail(id: string): Promise<PostDocument> {
-    const post = await this.PostModel.findOne({
-      _id: id,
-      deletedAt: null,
-  });
+    const values = [
+      dto.title,
+      dto.shortDescription,
+      dto.content,
+      new Date().toISOString(),
+      id,
+    ];
 
-    if (!post) {
+    const result = await this.dataSource.query(query, values);
+
+    if (result[1] === 0) {
       throw new DomainException({
-              code: DomainExceptionCode.NotFound,
-              message: "Post not found",
-            })
+        code: DomainExceptionCode.NotFound,
+        message: 'Post not found',
+      });
     }
-
-    return post;
   }
- }
+
+  async delete(id: number): Promise<void> {
+    const query = `
+      UPDATE posts
+      SET deletedAt = CURRENT_TIMESTAMP 
+      WHERE id = $1 AND deletedAt IS NULL
+    `;
+
+    await this.dataSource.query(query, [id]);
+  }
+}

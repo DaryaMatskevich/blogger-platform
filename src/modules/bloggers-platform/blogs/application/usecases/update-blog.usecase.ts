@@ -1,29 +1,29 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { BlogsRepository } from "../../infastructure/blogs.repository";
-import { UpdateBlogDto } from "../../dto/update-blog.dto";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { BlogsRepository } from '../../infastructure/blogs.repository';
+import { UpdateBlogDto } from '../../dto/update-blog.dto';
 
 export class UpdateBlogCommand {
-    constructor(public id: string,
-        public dto: UpdateBlogDto) {}
+  constructor(
+    public id: string,
+    public dto: UpdateBlogDto,
+  ) {}
 }
 
 @CommandHandler(UpdateBlogCommand)
-export class UpdateBlogUseCase
-    implements ICommandHandler<UpdateBlogCommand> {
-    constructor(
-        private blogsRepository: BlogsRepository,
-    ) { }
+export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
+  constructor(private blogsRepository: BlogsRepository) {}
 
+  async execute(command: UpdateBlogCommand): Promise<void> {
+    const blogId = parseInt(command.id, 10);
 
-    async execute(command: UpdateBlogCommand): Promise<string> {
-        const blog = await this.blogsRepository.findOrNotFoundFail(command.id);
+    await this.blogsRepository.findOrNotFoundFail(blogId);
 
-        // не присваиваем св-ва сущностям напрямую в сервисах! даже для изменения одного св-ва
-        // создаём метод
-        blog.update(command.dto); // change detection
+    const updateDto = {
+      name: command.dto.name,
+      description: command.dto.description,
+      websiteUrl: command.dto.websiteUrl,
+    };
 
-        await this.blogsRepository.save(blog);
-
-        return blog._id.toString();
-    }
+    await this.blogsRepository.update(blogId, updateDto);
+  }
 }

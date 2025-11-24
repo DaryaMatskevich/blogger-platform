@@ -17,6 +17,8 @@ import { Session } from './modules/user-accounts/sessions/domain/session.entity'
 import { User } from './modules/user-accounts/domain/dto/user.entity';
 import { TestingModule } from './modules/testing/testing.module';
 import { SaModule } from './sa/sa.module';
+import { Blog } from './modules/bloggers-platform/blogs/domain/dto/blog.entity';
+import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { SaModule } from './sa/sa.module';
       //username: 'nodejs',
       //password: 'nodejs',
       //database: 'BlogPlatform',
-      entities: [Session, User],
+      entities: [Session, User, Blog],
       url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
       autoLoadEntities: false,
       synchronize: false, // только для разработки!
@@ -46,7 +48,7 @@ import { SaModule } from './sa/sa.module';
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
     SaModule,
-    // BloggersPlatformModule,
+    BloggersPlatformModule,
     CoreModule,
     NotificationsModule,
   ],

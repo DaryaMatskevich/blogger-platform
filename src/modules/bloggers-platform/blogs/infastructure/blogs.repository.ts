@@ -88,7 +88,7 @@ export class BlogsRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    if (!result || result.length === 0) {
+    if (result.rowCount === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Blog not found',

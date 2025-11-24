@@ -37,7 +37,7 @@ import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
-import { UpdatePostDto } from '@src/modules/bloggers-platform/posts/api/input-dto/posts.update-input.dto';
+import { UpdatePostDto } from '../../../../modules/bloggers-platform/posts/api/input-dto/posts.update-input.dto';
 import { UpdatePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/delete-post-usecase';
 import { SaGuard } from '../../../../sa/sa.guard';

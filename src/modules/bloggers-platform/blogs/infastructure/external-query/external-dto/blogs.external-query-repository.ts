@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { BlogExternalDto } from './blogs.external-dto';
 import { DataSource } from 'typeorm';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../../../core/exeptions/domain-exeption-codes';
 
 @Injectable()
 export class BlogsExternalQueryRepository {

@@ -86,7 +86,7 @@ export class SaBlogsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteBlogCommand(id));
+    await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

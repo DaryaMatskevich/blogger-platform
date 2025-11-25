@@ -28,7 +28,7 @@ export class CreatePostForBlogUseCase
       title: command.dto.title,
       shortDescription: command.dto.shortDescription,
       content: command.dto.content,
-      blogId: command.blogId,
+      blogId: blogId,
       blogName: blog.name,
     });
 

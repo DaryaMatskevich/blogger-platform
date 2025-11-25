@@ -4,9 +4,10 @@ import { TestingService } from './testing.service';
 import { User } from './../user-accounts/domain/dto/user.entity';
 import { Session } from './../../modules/user-accounts/sessions/domain/session.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Blog } from '../../modules/bloggers-platform/blogs/domain/dto/blog.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Session])],
+  imports: [TypeOrmModule.forFeature([User, Session, Blog])],
   controllers: [TestingController],
   providers: [TestingService],
 })

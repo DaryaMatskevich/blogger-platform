@@ -97,7 +97,7 @@ export class SaBlogsController {
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const userId = user?.id || null;
+    // const userId = user?.id || null;
     const blogExists = await this.blogsQueryRepository.blogExists(blogId);
     if (!blogExists) {
       throw new DomainException({
@@ -105,7 +105,7 @@ export class SaBlogsController {
         message: 'Blog not found',
       });
     }
-    return this.blogsService.getAllPostsForBlog(blogId, userId, query);
+    return this.postsQueryRepository.getPostsForBlog(query, blogId);
   }
 
   @Post(':id/posts')
@@ -114,13 +114,6 @@ export class SaBlogsController {
     @Param('id') blogId: string,
     @Body() body: CreatePostForBlogInputDto,
   ): Promise<PostViewDto> {
-    const blogExists = await this.blogsQueryRepository.blogExists(blogId);
-    if (!blogExists) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Blog not found',
-      });
-    }
     const postId = await this.commandBus.execute(
       new CreatePostForBlogCommand(blogId, body),
     );

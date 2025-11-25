@@ -17,7 +17,7 @@ export class PostsRepository {
         content, 
         "blogId", 
         "blogName",
-        "extendedLikesInfo"
+        
       ) 
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING 
@@ -30,15 +30,8 @@ export class PostsRepository {
         "createdAt",
         "updatedAt",
         "deletedAt",
-        "extendedLikesInfo"
+        
     `;
-
-    const extendedLikesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: 'None',
-      newestLikes: [],
-    };
 
     const result = await this.dataSource.query(query, [
       dto.title,
@@ -46,7 +39,6 @@ export class PostsRepository {
       dto.content,
       dto.blogId,
       dto.blogName,
-      JSON.stringify(extendedLikesInfo),
     ]);
 
     return result[0] as Post;

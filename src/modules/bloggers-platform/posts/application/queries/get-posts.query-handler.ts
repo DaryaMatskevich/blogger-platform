@@ -24,6 +24,6 @@ export class GetPostsQueryHandler
   async execute(
     query: GetPostsQuery,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.postsQueryRepository.getAll(query.queryParams, query.userId);
+    return this.postsQueryRepository.getAll(query.queryParams);
   }
 }

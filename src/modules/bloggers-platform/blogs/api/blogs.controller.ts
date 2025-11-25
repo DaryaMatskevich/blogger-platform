@@ -101,7 +101,7 @@ export class BlogsController {
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const userId = user?.id || null;
+    // const userId = user?.id || null;
     const blogExists = await this.blogsQueryRepository.blogExists(blogId);
     if (!blogExists) {
       throw new DomainException({
@@ -109,7 +109,7 @@ export class BlogsController {
         message: 'Blog not found',
       });
     }
-    return this.blogsService.getAllPostsForBlog(blogId, userId, query);
+    return this.postsQueryRepository.getPostsForBlog(query, blogId);
   }
 
   @Post(':id/posts')

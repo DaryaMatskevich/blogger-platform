@@ -29,7 +29,6 @@ import { UserAccountsModule } from '../user-accounts/userAccounts.module'; //imp
 //import { GetCommenttByIdQueryHandler } from './comments/application/queries/get-comment-by-id.query-handler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaBlogsController } from '../bloggers-platform/blogs/api/sa.blogs.controller';
-import { PostLike } from '../bloggers-platform/posts/domain/likes/like.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -57,7 +56,7 @@ const useCases = [
       // Укажите ваши entities здесь
       Blog,
       Post,
-      PostLike,
+      // PostLike,
       //Comment,
       //LikeComment,
     ]),

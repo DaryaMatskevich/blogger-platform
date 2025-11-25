@@ -12,18 +12,17 @@ export class PostsQueryRepository {
 
   async getByIdOrNotFoundFail(postId: number): Promise<PostViewDto> {
     const query = `
-      SELECT 
-        p.id,
-        p.title,
-        p."shortDescription",
-        p.content,
-        p."blogId",
-        p."blogName",
-        p."createdAt",
-        p."updatedAt",
-        p."extendedLikesInfo"
-      FROM posts p
-      WHERE p.id = $1 AND p."deletedAt" IS NULL
+        SELECT p.id,
+               p.title,
+               p."shortDescription",
+               p.content,
+               p."blogId",
+               p."blogName",
+               p."createdAt",
+               p."updatedAt"
+        FROM posts p
+        WHERE p.id = $1
+          AND p."deletedAt" IS NULL
     `;
 
     const result = await this.dataSource.query(query, [postId]);

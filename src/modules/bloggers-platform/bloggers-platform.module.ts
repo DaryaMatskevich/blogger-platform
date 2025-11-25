@@ -4,9 +4,7 @@ import { BlogsRepository } from './blogs/infastructure/blogs.repository';
 import { Blog } from './blogs/domain/dto/blog.entity';
 import { BlogsController } from './blogs/api/blogs.controller';
 import { BlogsQueryRepository } from './blogs/infastructure/query/blogs.query-repository';
-import {
-  BlogsExternalQueryRepository
-} from './blogs/infastructure/external-query/external-dto/blogs.external-query-repository';
+import { BlogsExternalQueryRepository } from './blogs/infastructure/external-query/external-dto/blogs.external-query-repository';
 import { Post } from './posts/domain/post.entity';
 import { PostsController } from './posts/api/posts.controller';
 import { PostsService } from './posts/application/posts.service';
@@ -31,6 +29,7 @@ import { UserAccountsModule } from '../user-accounts/userAccounts.module'; //imp
 //import { GetCommenttByIdQueryHandler } from './comments/application/queries/get-comment-by-id.query-handler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaBlogsController } from '../bloggers-platform/blogs/api/sa.blogs.controller';
+import { PostLike } from '../bloggers-platform/posts/domain/likes/like.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -58,7 +57,7 @@ const useCases = [
       // Укажите ваши entities здесь
       Blog,
       Post,
-      //LikePost,
+      PostLike,
       //Comment,
       //LikeComment,
     ]),

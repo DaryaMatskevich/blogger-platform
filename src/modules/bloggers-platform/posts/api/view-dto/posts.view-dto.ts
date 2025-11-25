@@ -1,5 +1,3 @@
-import { Post } from '../../domain/post.entity';
-
 type LikeInfo = {
   addedAt: Date;
   userId: string;
@@ -23,7 +21,7 @@ export class PostViewDto {
   createdAt: Date;
   extendedLikesInfo: ExtendedLikesInfo;
 
-  static mapToView(post: Post): PostViewDto {
+  static mapToView(post: any): PostViewDto {
     const dto = new PostViewDto();
 
     dto.id = post.id.toString();
@@ -34,43 +32,8 @@ export class PostViewDto {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt;
 
-    dto.extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo?.likesCount || 0,
-      dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
-      myStatus: 'None',
-      newestLikes:
-        post.extendedLikesInfo?.newestLikes?.map((like) => ({
-          addedAt: like.addedAt,
-          userId: like.userId,
-          login: like.login,
-        })) || [],
-    };
-
-    return dto;
-  }
-
-  static mapToViewWithStatus(post: Post, myStatus: string): PostViewDto {
-    const dto = new PostViewDto();
-
-    dto.id = post.id.toString();
-    dto.title = post.title;
-    dto.shortDescription = post.shortDescription;
-    dto.content = post.content;
-    dto.blogId = post.blogId.toString();
-    dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt;
-
-    dto.extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo?.likesCount || 0,
-      dislikesCount: post.extendedLikesInfo?.dislikesCount || 0,
-      myStatus: myStatus,
-      newestLikes:
-        post.extendedLikesInfo?.newestLikes?.map((like) => ({
-          addedAt: like.addedAt,
-          userId: like.userId,
-          login: like.login,
-        })) || [],
-    };
+    // Берем готовые данные из extendedLikesInfo
+    dto.extendedLikesInfo = post.extendedLikesInfo;
 
     return dto;
   }

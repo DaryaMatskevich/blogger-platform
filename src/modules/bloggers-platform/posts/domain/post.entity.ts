@@ -21,16 +21,18 @@ export const contentConstraints = {
   maxLength: 1000,
 };
 
-export interface ExtendedLikesInfo {
-  likesCount: number;
-  dislikesCount: number;
-  myStatus: string;
-  newestLikes: Array<{
-    addedAt: Date;
-    userId: string;
-    login: string;
-  }>;
-}
+// interface ExtendedLikesInfo {
+//   likesCount: number;
+//   dislikesCount: number;
+//   myStatus: string;
+//   newestLikes: Array<{
+//     addedAt: Date;
+//     userId: string;
+//     login: string;
+//   }>;
+// }
+
+//export default ExtendedLikesInfo;
 
 @Entity('posts')
 export class Post {
@@ -90,17 +92,17 @@ export class Post {
   })
   deletedAt: Date | null;
 
-  @Column({
-    name: 'extendedLikesInfo',
-    type: 'jsonb',
-    default: {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: 'None',
-      newestLikes: [],
-    },
-  })
-  extendedLikesInfo: ExtendedLikesInfo;
+  // @Column({
+  //   name: 'extendedLikesInfo',
+  //   type: 'jsonb',
+  //   default: {
+  //     likesCount: 0,
+  //     dislikesCount: 0,
+  //     myStatus: 'None',
+  //     newestLikes: [],
+  //   },
+  // })
+  // extendedLikesInfo: ExtendedLikesInfo;
 }
 
 // makeDeleted() {

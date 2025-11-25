@@ -1,56 +1,27 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { LikeInputModel } from "../../dto/like-status.dto";
-import { HydratedDocument, Model } from "mongoose";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Schema({ timestamps: true })
+@Entity('postLikes')
+export class PostLike {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-export class LikePost {
+  @Column({ name: 'postId' })
+  postId: number;
 
-    @Prop({ type: String, required: true })
-    addedAt: string;
+  @Column({ name: 'userId' })
+  userId: number;
 
-    @Prop({ type: String, required: true })
-    postId: string;
+  @Column({
+    type: 'varchar',
+    default: 'None',
+  })
+  status: string; // 'Like', 'Dislike', 'None'
 
-    @Prop({ type: String, required: true })
-    userId: string;
-
-    @Prop({ type: String, required: true })
-    login: string;
-
-    @Prop({ type: String, required: true })
-    status: string;
-
-
-    static createLikePost(
-        this: LikePostModelType,
-        userId: string,
-        login: string,
-        likeStatus: string,
-        postId: string): LikePostDocument {
-        const like = new this();
-        like.addedAt = (new Date()).toISOString()
-        like.userId = userId;
-        like.login = login;
-        like.status = likeStatus;
-        like.postId = postId
-
-        return like as LikePostDocument;
-    }
-
-    updateStatus(newStatus: string) {
-        this.status = newStatus;
-        this.addedAt = new Date().toISOString()
-    }
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 }
-
-export const LikePostSchema = SchemaFactory.createForClass(LikePost);
-
-//регистрирует методы сущности в схеме
-LikePostSchema.loadClass(LikePost);
-
-//Типизация документа
-export type LikePostDocument = HydratedDocument<LikePost>;
-
-//Типизация модели + статические методы
-export type LikePostModelType = Model<LikePostDocument> & typeof LikePost;

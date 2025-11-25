@@ -5,10 +5,10 @@ import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.
 import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../infactructure/query/posts.query-repository';
 
-
 export class GetPostsQuery {
-  constructor(public queryParams: GetPostsQueryParams,
-    public userId: string | null
+  constructor(
+    public queryParams: GetPostsQueryParams,
+    public userId: string | null,
   ) {}
 }
 

@@ -121,21 +121,25 @@ export class SaBlogsController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   }
 
-  @Put(':id')
+  @Put(':blogId/posts/postId')
   @HttpCode(204)
   @UseGuards(BasicAuthGuard)
   async updatePostForBlog(
-    @Param('id') id: string,
+    @Param('blogId') blogId: string, // ← Получаем blogId
+    @Param('postId') postId: string,
     @Body() body: UpdatePostDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdatePostCommand(id, body));
+    await this.commandBus.execute(new UpdatePostCommand(postId, body));
   }
 
-  @ApiParam({ name: 'id' }) //для сваггера
-  @Delete(':id')
+  @ApiParam({ name: ':blogId/posts/postId' }) //для сваггера
+  @Delete(':blogId/posts/postId')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePostForBlog(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeletePostCommand(id));
+  async deletePostForBlog(
+    @Param('blogId') blogId: string, // ← Получаем blogId
+    @Param('postId') postId: string,
+  ): Promise<void> {
+    return this.commandBus.execute(new DeletePostCommand(postId));
   }
 }

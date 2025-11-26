@@ -40,7 +40,7 @@ export class PostsQueryRepository {
     const query = `
     SELECT EXISTS(
       SELECT 1 FROM posts 
-      WHERE id = $1 AND "blogId" = $2 AND deletedat IS NULL
+      WHERE id = $1 AND "blogId" = $2 AND "deletedAt" IS NULL
     ) as exists
   `;
 

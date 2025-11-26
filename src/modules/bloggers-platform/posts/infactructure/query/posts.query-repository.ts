@@ -36,6 +36,17 @@ export class PostsQueryRepository {
 
     return PostViewDto.mapToView(result[0]);
   }
+  async existsByIdAndBlogId(postId: number, blogId: number): Promise<boolean> {
+    const query = `
+    SELECT EXISTS(
+      SELECT 1 FROM posts 
+      WHERE id = $1 AND "blogId" = $2 AND deletedat IS NULL
+    ) as exists
+  `;
+
+    const result = await this.dataSource.query(query, [postId, blogId]);
+    return result[0].exists;
+  }
 
   async getByIdWithStatusOrNotFoundFail(
     postId: string,

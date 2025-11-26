@@ -22,6 +22,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
 
   async execute(command: DeletePostCommand) {
     const postId = parseInt(command.postId, 10);
+    const blogId = parseInt(command.blogId, 10);
     const blogExist = await this.blogsQueryRepository.blogExists(
       command.blogId,
     );
@@ -31,7 +32,15 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
         message: 'Blog not found',
       });
     }
-    await this.postsQueryRepository.getByIdOrNotFoundFail(postId);
+    const postExistsInBlog =
+      await this.postsQueryRepository.existsByIdAndBlogId(postId, blogId);
+    if (!postExistsInBlog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Post not found',
+      });
+    }
+
     await this.postsRepository.delete(postId);
   }
 }

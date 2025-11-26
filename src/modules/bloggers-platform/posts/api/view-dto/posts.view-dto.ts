@@ -7,7 +7,7 @@ type LikeInfo = {
 type ExtendedLikesInfo = {
   likesCount: number;
   dislikesCount: number;
-  myStatus: ['Like', 'Dislike', 'None'];
+  myStatus: string;
   newestLikes: LikeInfo[];
 };
 
@@ -33,7 +33,12 @@ export class PostViewDto {
     dto.createdAt = post.createdAt;
 
     // Берем готовые данные из extendedLikesInfo
-    dto.extendedLikesInfo = post.extendedLikesInfo;
+    dto.extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: 'None',
+      newestLikes: [],
+    };
 
     return dto;
   }

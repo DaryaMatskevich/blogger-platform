@@ -4,7 +4,6 @@ import {
   shortDescriptionConstraints,
   titleConstraints,
 } from '../../domain/post.entity';
-import { IsString } from 'class-validator';
 
 export class UpdatePostDto {
   @IsStringWithTrim(titleConstraints.minLength, titleConstraints.maxLength)
@@ -18,7 +17,4 @@ export class UpdatePostDto {
 
   @IsStringWithTrim(contentConstraints.minLength, contentConstraints.maxLength)
   content: string;
-
-  @IsString()
-  blogId: string;
 }

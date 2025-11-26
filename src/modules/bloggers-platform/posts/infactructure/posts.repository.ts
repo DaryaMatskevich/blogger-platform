@@ -62,7 +62,7 @@ export class PostsRepository {
       dto.title,
       dto.shortDescription,
       dto.content,
-      new Date().toISOString(),
+      new Date(),
       id,
     ];
 
@@ -79,8 +79,8 @@ export class PostsRepository {
   async delete(id: number): Promise<void> {
     const query = `
       UPDATE posts
-      SET deletedAt = CURRENT_TIMESTAMP 
-      WHERE id = $1 AND deletedAt IS NULL
+      SET "deletedAt" = CURRENT_TIMESTAMP 
+      WHERE id = $1 AND "deletedAt" IS NULL
     `;
 
     await this.dataSource.query(query, [id]);

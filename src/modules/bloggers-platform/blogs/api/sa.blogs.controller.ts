@@ -98,7 +98,8 @@ export class SaBlogsController {
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     // const userId = user?.id || null;
-    const blogExists = await this.blogsQueryRepository.blogExists(blogId);
+    const blogIdNum = parseInt(blogId, 10);
+    const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
     if (!blogExists) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
@@ -129,7 +130,7 @@ export class SaBlogsController {
     @Param('postId') postId: string,
     @Body() body: UpdatePostDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdatePostCommand(postId, body));
+    await this.commandBus.execute(new UpdatePostCommand(postId, blogId, body));
   }
 
   @ApiParam({ name: ':blogId/posts/:postId' }) //для сваггера

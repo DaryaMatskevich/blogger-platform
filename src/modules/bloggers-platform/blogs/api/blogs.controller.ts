@@ -102,7 +102,8 @@ export class BlogsController {
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     // const userId = user?.id || null;
-    const blogExists = await this.blogsQueryRepository.blogExists(blogId);
+    const blogIdNum = parseInt(blogId, 10);
+    const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
     if (!blogExists) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
@@ -118,7 +119,8 @@ export class BlogsController {
     @Param('id') blogId: string,
     @Body() body: CreatePostForBlogInputDto,
   ): Promise<PostViewDto> {
-    const blogExists = await this.blogsQueryRepository.blogExists(blogId);
+    const blogIdNum = parseInt(blogId, 10);
+    const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
     if (!blogExists) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

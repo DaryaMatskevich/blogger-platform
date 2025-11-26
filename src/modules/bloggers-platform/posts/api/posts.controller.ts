@@ -31,7 +31,6 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 // import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
-import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 // import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 //import { PostsService } from '../application/posts.service';
 // import { DomainException } from '../../../../core/exeptions/domain-exeptions';
@@ -54,11 +53,11 @@ export class PostsController {
   @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('id', ObjectIdValidationPipe) postId: string,
+    @Param('id') postId: string,
   ): Promise<PostViewDto> {
-    const userId = user?.id || null;
-    console.log(userId);
-    return this.queryBus.execute(new GetPostByIdQuery(postId, userId));
+    // const userId = user?.id || null;
+    // console.log(userId);
+    return this.queryBus.execute(new GetPostByIdQuery(postId));
   }
 
   @Get()

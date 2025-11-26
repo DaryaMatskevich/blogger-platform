@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepository } from '../../infactructure/posts.repository';
 import { PostsQueryRepository } from '../../infactructure/query/posts.query-repository';
 import { BlogsQueryRepository } from '../../../blogs/infastructure/query/blogs.query-repository';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 
 export class DeletePostCommand {
   constructor(

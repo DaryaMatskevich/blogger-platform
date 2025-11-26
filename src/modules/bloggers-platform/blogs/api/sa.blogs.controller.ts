@@ -140,6 +140,6 @@ export class SaBlogsController {
     @Param('blogId') blogId: string, // ← Получаем blogId
     @Param('postId') postId: string,
   ): Promise<void> {
-    await this.commandBus.execute(new DeletePostCommand(postId));
+    await this.commandBus.execute(new DeletePostCommand(postId, blogId));
   }
 }

@@ -7,7 +7,7 @@ type LikeInfo = {
 type ExtendedLikesInfo = {
   likesCount: number;
   dislikesCount: number;
-  myStatus: string;
+  myStatus: ['Like', 'Dislike', 'None'];
   newestLikes: LikeInfo[];
 };
 

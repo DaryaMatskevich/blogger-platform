@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../user-accounts/domain/dto/user.entity';
 import { Session } from '../user-accounts/sessions/domain/session.entity';
 import { Blog } from '../../modules/bloggers-platform/blogs/domain/dto/blog.entity';
+import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';
 
 // Импортируйте другие сущности
 
@@ -17,6 +18,8 @@ export class TestingService {
     private readonly sessionsRepository: Repository<Session>,
     @InjectRepository(Blog)
     private readonly blogsRepository: Repository<Blog>,
+    @InjectRepository(Post)
+    private readonly postsRepository: Repository<Post>,
     // Добавьте другие репозитории
   ) {}
 
@@ -31,6 +34,9 @@ export class TestingService {
       );
       await this.blogsRepository.query(
         'TRUNCATE TABLE blogs RESTART IDENTITY CASCADE',
+      );
+      await this.postsRepository.query(
+        'TRUNCATE TABLE posts RESTART IDENTITY CASCADE',
       );
     } catch (error) {
       console.error('Error clearing database:', error);

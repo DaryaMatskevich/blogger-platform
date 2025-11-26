@@ -10,13 +10,7 @@ import { DataSource } from 'typeorm';
 export class BlogsQueryRepository {
   constructor(private dataSource: DataSource) {}
 
-  async blogExists(id: string): Promise<boolean> {
-    const blogId = parseInt(id, 10);
-
-    if (isNaN(blogId)) {
-      return false;
-    }
-
+  async blogExists(id: number): Promise<boolean> {
     const query = `
       SELECT id 
       FROM blogs 
@@ -24,7 +18,7 @@ export class BlogsQueryRepository {
       LIMIT 1
     `;
 
-    const result = await this.dataSource.query(query, [blogId]);
+    const result = await this.dataSource.query(query, [id]);
     return result.length > 0;
   }
 

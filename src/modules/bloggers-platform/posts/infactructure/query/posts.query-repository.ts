@@ -48,6 +48,18 @@ export class PostsQueryRepository {
     return result[0].exists;
   }
 
+  async existsById(postId: number): Promise<boolean> {
+    const query = `
+    SELECT EXISTS(
+      SELECT 1 FROM posts 
+      WHERE id = $1 AND "deletedAt" IS NULL
+    ) as exists
+  `;
+
+    const result = await this.dataSource.query(query, [postId]);
+    return result[0].exists;
+  }
+
   async getByIdWithStatusOrNotFoundFail(
     postId: string,
     userId: string | null,

@@ -1,32 +1,57 @@
-import { InjectModel } from '@nestjs/mongoose';
-
-import { Injectable} from '@nestjs/common';
-import { Comment, CommentDocument, CommentModelType } from '../domain/comment.entity';
-import { DomainException } from '../../../../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-
+import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { Comment } from '.././../../../modules/bloggers-platform/comments/domain/comment.entity';
 
 @Injectable()
 export class CommentsRepository {
   //инжектирование модели через DI
-  constructor(@InjectModel(Comment.name) private CommentModel: CommentModelType) {}
+  constructor(private dataSource: DataSource) {}
+  async createComment(commentDto: {
+    content: string;
+    userId: number;
+    userLogin: string;
+    postId: number;
+  }): Promise<Comment> {
+    const query = `
+      INSERT INTO comments
+        ("postId", "content", "userId", "userLogin")
+      VALUES
+        ($1, $2, $3, $4)
+        RETURNING *
+    `;
 
+    const result = await this.dataSource.query(query, [
+      commentDto.postId,
+      commentDto.content,
+      commentDto.userId,
+      commentDto.userLogin,
+    ]);
 
-  async save(comment: CommentDocument) {
-    await comment.save();
+    return result[0];
   }
 
+  async delete(commentId: number): Promise<boolean> {
+    const query = `
+      UPDATE comments 
+      SET "deletedAt" = CURRENT_TIMESTAMP
+      WHERE id = $1 AND "deletedAt" IS NULL
+      RETURNING id
+    `;
 
-   async findOrNotFoundFail(id: string): Promise<CommentDocument> {
-      const comment = await this.CommentModel.findById(id);
-  
-      if (!comment) {
-          throw new DomainException({
-                code: DomainExceptionCode.NotFound,
-                message: "Blog not found",
-              })
-      }
-  
-      return comment;
-    }
+    const result = await this.dataSource.query(query, [commentId]);
+    return result.length > 0;
+  }
+  async update(commentId: number, content: string): Promise<boolean> {
+    const query = `
+      UPDATE comments 
+      SET 
+        "content" = $2,
+        "updatedAt" = CURRENT_TIMESTAMP
+      WHERE id = $1 AND "deletedAt" IS NULL
+      RETURNING id
+    `;
+
+    const result = await this.dataSource.query(query, [commentId, content]);
+    return result.length > 0;
+  }
 }

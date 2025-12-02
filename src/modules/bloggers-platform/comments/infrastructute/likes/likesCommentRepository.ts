@@ -1,23 +1,57 @@
-import { Injectable } from "@nestjs/common";
-import { LikeComment, LikeCommentDocument, LikeCommentModelType,  } from "../../domain/likes/like.entity";
-import { InjectModel } from "@nestjs/mongoose";
+import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { CommentLike } from '../../../../../modules/bloggers-platform/comments/domain/comment-like.entity';
 
 @Injectable()
 export class LikesCommentRepository {
-  constructor(@InjectModel(LikeComment.name) private LikeCommentModel: LikeCommentModelType) { }
+  constructor(private dataSource: DataSource) {}
 
+  async createLike(
+    userId: number,
+    commentId: number,
+    status: 'Like' | 'Dislike' | 'None' = 'None',
+  ): Promise<CommentLike> {
+    const query = `
+      INSERT INTO commentsLikes 
+        ("userId", "commentId", status, "createdAt", "updatedAt")
+      VALUES 
+        ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING *
+    `;
 
-  async getLikeCommentByUserId(userId: string, commentId: string): Promise<LikeCommentDocument | null> {
-
-
-    const likeComment = await this.LikeCommentModel.findOne({
-      userId: userId,
-      commentId: commentId
-    }).exec()
-    return likeComment || null;
+    const result = await this.dataSource.query(query, [
+      userId,
+      commentId,
+      status,
+    ]);
+    return result[0];
   }
 
-  async save(LikeComment: LikeCommentDocument) {
-    await LikeComment.save();
+  async updateLike(
+    userId: number,
+    commentId: number,
+    status: 'Like' | 'Dislike' | 'None',
+  ): Promise<CommentLike | null> {
+    const query = `
+      UPDATE commentsLikes 
+      SET 
+        status = $1,
+        "updatedAt" = CURRENT_TIMESTAMP
+      WHERE 
+        "userId" = $2 AND "commentId" = $3
+      RETURNING *
+    `;
+
+    const result = await this.dataSource.query(query, [
+      status,
+      userId,
+      commentId,
+    ]);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
   }
 }

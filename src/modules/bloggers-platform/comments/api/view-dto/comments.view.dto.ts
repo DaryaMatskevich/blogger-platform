@@ -1,65 +1,57 @@
-import { CommentDocument } from "../../domain/comment.entity";
+import { Comment } from '../../domain/comment.entity';
 
-
-type CommentatorInfo = {
+export class CommentViewDto {
+  id: string;
+  content: string;
+  commentatorInfo: {
     userId: string;
     userLogin: string;
-};
-
-type LikesInfo = {
+  };
+  createdAt: Date;
+  likesInfo: {
     likesCount: number;
     dislikesCount: number;
     myStatus: string;
+  };
 
-};
+  static mapToView(comment: Comment): CommentViewDto {
+    const dto = new CommentViewDto();
 
-export class CommentViewDto {
-    id: string;
-    postId: string;
-    content: string;
-    commentatorInfo: CommentatorInfo;
-    createdAt: Date;
-    likesInfo: LikesInfo
+    dto.id = comment.id.toString();
+    dto.content = comment.content;
+    dto.commentatorInfo = {
+      userId: comment.userId.toString(),
+      userLogin: comment.userLogin,
+    };
+    dto.createdAt = comment.createdAt;
+    dto.likesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: 'None',
+    };
 
-    static mapToView(comment: CommentDocument): CommentViewDto {
-        const dto = new CommentViewDto();
+    return dto;
+  }
 
-        dto.id = comment._id.toString();
-        dto.content = comment.content;
-dto.commentatorInfo = {
-    userId: comment.commentatorInfo.userId,
-    userLogin: comment.commentatorInfo.userLogin
-}
-        dto.createdAt = comment.createdAt;
-        dto.likesInfo = {
-            likesCount: comment.likesInfo?.likesCount || 0,
-            dislikesCount: comment.likesInfo?.dislikesCount || 0,
-            myStatus: "None",
-        };
+  static mapToViewWithStatus(
+    comment: Comment,
+    myStatus: string,
+  ): CommentViewDto {
+    const dto = new CommentViewDto();
 
+    dto.id = comment.id.toString();
+    dto.content = comment.content;
+    dto.commentatorInfo = {
+      userId: comment.userId.toString(),
+      userLogin: comment.userLogin,
+    };
+    dto.createdAt = comment.createdAt;
+    dto.likesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: myStatus,
+    };
 
-
-        return dto;
-    }
-
-     static mapToViewWithStatus(comment: CommentDocument, myStatus: string): CommentViewDto {
-        const dto = new CommentViewDto();
-
-        dto.id = comment._id.toString();
-        dto.content = comment.content;
-dto.commentatorInfo = {
-    userId: comment.commentatorInfo.userId,
-    userLogin: comment.commentatorInfo.userLogin
-}
-        dto.createdAt = comment.createdAt;
-        dto.likesInfo = {
-            likesCount: comment.likesInfo?.likesCount || 0,
-            dislikesCount: comment.likesInfo?.dislikesCount || 0,
-            myStatus: myStatus,
-        };
-
-
-
-        return dto;
-    }
+    return dto;
+  }
 }

@@ -12,7 +12,7 @@ export class UsersExternalQueryRepository {
     private dataSource: DataSource,
   ) {}
 
-  async getByIdOrNotFoundFail(id: string): Promise<UserExternalDto> {
+  async getByIdOrNotFoundFail(id: number): Promise<UserExternalDto> {
     const query = `
       SELECT 
         id,

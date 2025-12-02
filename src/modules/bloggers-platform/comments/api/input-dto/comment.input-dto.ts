@@ -1,7 +1,14 @@
-import { IsStringWithTrim } from "../../../../../core/decorators/validation/is-string-with-trim";
-import { contentConstraints } from "../../domain/comment.entity";
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateCommentInputDto {
-   @IsStringWithTrim(contentConstraints.minLength, contentConstraints.maxLength)
-    content: string
+  @IsString()
+  @IsNotEmpty()
+  @Length(20, 300, {
+    message: 'Content must be between 20 and 300 characters',
+  })
+  content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  postId: string;
 }

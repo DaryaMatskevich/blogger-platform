@@ -1,58 +1,53 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CommentsRepository } from "../../infrastructute/comments.repository";
-import { LikesCommentRepository } from "../../infrastructute/likes/likesCommentRepository";
-import { InjectModel } from "@nestjs/mongoose";
-import { LikeComment, LikeCommentModelType } from "../../domain/likes/like.entity";
-
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { LikesCommentRepository } from '../../infrastructute/likes/likesCommentRepository';
+import { CommentsQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/query/comments.query-repository';
+import { LikesCommentQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/likes/likesCommentQueryRepository';
 
 export class PutLikeStatusForCommentCommand {
-    constructor(public id: string,
-        public userId: string,
-        public likeStatus: string,
-
-    ) { }
+  constructor(
+    public id: string,
+    public userId: string,
+    public likeStatus: 'Like' | 'Dislike' | 'None',
+  ) {}
 }
 
 @CommandHandler(PutLikeStatusForCommentCommand)
 export class PutLikeStatusForCommentUseCase
-    implements ICommandHandler<PutLikeStatusForCommentCommand> {
-    constructor(
-        @InjectModel(LikeComment.name)
-        private LikeCommentModel: LikeCommentModelType,
-        private commentsRepository: CommentsRepository,
-        private likesCommentRepository: LikesCommentRepository
-    ) { }
+  implements ICommandHandler<PutLikeStatusForCommentCommand>
+{
+  constructor(
+    private commentsQueryRepository: CommentsQueryRepository,
+    private likesCommentRepository: LikesCommentRepository,
+    private likesCommentQueryRepository: LikesCommentQueryRepository,
+  ) {}
 
-    async execute(command: PutLikeStatusForCommentCommand) {
-        const comment = await this.commentsRepository.findOrNotFoundFail(command.id);
-        const currentLikeComment = await this.likesCommentRepository.getLikeCommentByUserId(command.userId, command.id)
-        const oldLikeStatus = currentLikeComment?.status || "None"
-        if (oldLikeStatus === command.likeStatus) {
-            return;
-        }
+  async execute(command: PutLikeStatusForCommentCommand) {
+    const commentIdNum = parseInt(command.id, 10);
+    const userIdNum = parseInt(command.userId, 10);
 
-        if (!currentLikeComment) {
+    await this.commentsQueryRepository.getByIdOrNotFoundFail(commentIdNum);
+    const currentLikeStatus =
+      await this.likesCommentQueryRepository.getCurrentUserStatus(
+        userIdNum,
+        commentIdNum,
+      );
 
-            const likeComment = this.LikeCommentModel.createLikeComment(
-                command.userId,
-                command.likeStatus,
-                command.id
-            )
-            await this.likesCommentRepository.save(likeComment)
-        }
-        else {
-            currentLikeComment.updateStatus(command.likeStatus)
-            await this.likesCommentRepository.save(currentLikeComment)
-            console.log(currentLikeComment)
-        }
-       
-        comment.changeLikesCounter(
-            oldLikeStatus,
-            command.likeStatus,
-            
-        );
-        // Сохраняем изменения поста
-
-        await this.commentsRepository.save(comment);
+    if (currentLikeStatus === command.likeStatus) {
+      return;
     }
+
+    if (!currentLikeStatus) {
+      await this.likesCommentRepository.createLike(
+        userIdNum,
+        commentIdNum,
+        command.likeStatus,
+      );
+    } else {
+      await this.likesCommentRepository.updateLike(
+        userIdNum,
+        commentIdNum,
+        command.likeStatus,
+      );
+    }
+  }
 }

@@ -1,3 +1,3 @@
 export enum CommentsSortBy {
-  CreatedAt = 'createdAt'
- }
+  CreatedAt = 'createdAt',
+}

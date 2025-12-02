@@ -1,41 +1,37 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-export const contentConstraints = {
-  minLength: 20,
-  maxLength: 300,
-  // или другие настройки
-};
-
-@Entity('comments')
-export class Comment {
+@Entity('posts_likes')
+export class PostLike {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'integer', nullable: false })
   postId: number;
 
-  @Column({ type: 'varchar', length: 300, nullable: false })
-  content: string;
-
   @Column({ type: 'varchar', length: 255, nullable: false })
-  userId: number;
+  userId: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   userLogin: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: false,
+    enum: ['Like', 'Dislike', 'None'],
+    default: 'None',
+  })
+  status: 'Like' | 'Dislike' | 'None';
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deletedAt: Date | null;
 }

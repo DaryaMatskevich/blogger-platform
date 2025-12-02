@@ -19,6 +19,8 @@ import { TestingModule } from './modules/testing/testing.module';
 import { SaModule } from './sa/sa.module';
 import { Blog } from './modules/bloggers-platform/blogs/domain/dto/blog.entity';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
+import { CommentLike } from './modules/bloggers-platform/comments/domain/comment-like.entity';
+import { Comment } from './modules/bloggers-platform/comments/domain/comment.entity';
 
 @Module({
   imports: [
@@ -36,7 +38,7 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
       //username: 'nodejs',
       //password: 'nodejs',
       //database: 'BlogPlatform',
-      entities: [Session, User, Blog],
+      entities: [Session, User, Blog, Comment, CommentLike],
       url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
       autoLoadEntities: false,
       synchronize: false, // только для разработки!

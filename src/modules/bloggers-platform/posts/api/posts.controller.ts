@@ -25,9 +25,9 @@ import { CommentsQueryRepository } from '../../comments/infrastructute/query/com
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 // import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
-import { JwtAuthGuard } from '@src/modules/user-accounts/guards/bearer/jwt-auth.guard';
-import { ExtractUserFromRequest } from '@src/modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
-import { CreateCommentInputDto } from '@src/modules/bloggers-platform/comments/api/input-dto/comment.input-dto';
+import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
+import { CreateCommentInputDto } from '../../../../modules/bloggers-platform/comments/api/input-dto/comment.input-dto';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';

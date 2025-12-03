@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('posts_likes')
+@Entity('postLikes')
 export class PostLike {
   @PrimaryGeneratedColumn()
   id: number;
@@ -14,8 +14,8 @@ export class PostLike {
   @Column({ type: 'integer', nullable: false })
   postId: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  userId: string;
+  @Column({ type: 'integer', nullable: false })
+  userId: number;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   userLogin: string;

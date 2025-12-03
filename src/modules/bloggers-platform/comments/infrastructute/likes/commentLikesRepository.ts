@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { CommentLike } from '../../../../../modules/bloggers-platform/comments/domain/comment-like.entity';
 
 @Injectable()
-export class LikesCommentRepository {
+export class CommentLikesRepository {
   constructor(private dataSource: DataSource) {}
 
   async createLike(
@@ -12,7 +12,7 @@ export class LikesCommentRepository {
     status: 'Like' | 'Dislike' | 'None' = 'None',
   ): Promise<CommentLike> {
     const query = `
-      INSERT INTO commentsLikes 
+      INSERT INTO "commentLikes"
         ("userId", "commentId", status, "createdAt", "updatedAt")
       VALUES 
         ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -33,7 +33,7 @@ export class LikesCommentRepository {
     status: 'Like' | 'Dislike' | 'None',
   ): Promise<CommentLike | null> {
     const query = `
-      UPDATE commentsLikes 
+      UPDATE "commentLikes"
       SET 
         status = $1,
         "updatedAt" = CURRENT_TIMESTAMP

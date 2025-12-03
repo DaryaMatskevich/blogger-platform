@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('commentsLikes')
+@Entity('commentLikes')
 export class CommentLike {
   @PrimaryColumn({ type: 'integer' })
   commentId: number;

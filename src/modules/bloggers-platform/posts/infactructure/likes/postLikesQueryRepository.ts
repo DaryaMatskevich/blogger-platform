@@ -2,20 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
 @Injectable()
-export class LikesCommentQueryRepository {
+export class PostLikesQueryRepository {
   constructor(private dataSource: DataSource) {}
   async getLikesCount(
-    commentId: number,
+    postId: number,
   ): Promise<{ likes: number; dislikes: number }> {
     const query = `
       SELECT 
         COUNT(CASE WHEN status = 'Like' THEN 1 END) as likes,
         COUNT(CASE WHEN status = 'Dislike' THEN 1 END) as dislikes
-      FROM commentsLikes 
-      WHERE "commentId" = $1 AND status != 'None'
+      FROM "postLikes"
+      WHERE "postId" = $1 AND status != 'None'
     `;
 
-    const result = await this.dataSource.query(query, [commentId]);
+    const result = await this.dataSource.query(query, [postId]);
     return {
       likes: parseInt(result[0].likes) || 0,
       dislikes: parseInt(result[0].dislikes) || 0,
@@ -23,16 +23,16 @@ export class LikesCommentQueryRepository {
   }
   async getCurrentUserStatus(
     userId: number,
-    commentId: number,
+    postId: number,
   ): Promise<'Like' | 'Dislike' | 'None'> {
     const query = `
-      SELECT status FROM "commentsLikes" 
-      WHERE "userId" = $1 AND "commentId" = $2
+      SELECT status FROM "postLikes" 
+      WHERE "userId" = $1 AND "postId" = $2
       LIMIT 1
     `;
 
     try {
-      const result = await this.dataSource.query(query, [userId, commentId]);
+      const result = await this.dataSource.query(query, [userId, postId]);
 
       if (result.length === 0) {
         return 'None';

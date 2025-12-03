@@ -23,7 +23,7 @@ import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { CreateCommentForPostUseCase } from './comments/application/usecases/create-comment-for-post.usecase';
 import { UserAccountsModule } from '../user-accounts/userAccounts.module'; //import { LikePost } from './posts/domain/likes/like.entity';
-//import { putLikeStatusForPostUseCase } from './posts/application/usecases/put-likeStatus.usecase';
+import { putLikeStatusForPostUseCase } from './posts/application/usecases/put-likeStatus.usecase';
 import { PutLikeStatusForCommentUseCase } from './comments/application/usecases/put-likeStatus.usecase';
 import { GetCommenttByIdQueryHandler } from './comments/application/queries/get-comment-by-id.query-handler';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -32,10 +32,13 @@ import { CommentsRepository } from './comments/infrastructute/comments.repositor
 import { CommentsQueryRepository } from './comments/infrastructute/query/comments.query-repository';
 import { CommentsController } from './comments/api/comments.controller';
 import { DeleteCommentUseCase } from '../bloggers-platform/comments/application/usecases/delete-comment-usecase';
-import { LikesCommentRepository } from '../bloggers-platform/comments/infrastructute/likes/likesCommentRepository';
-import { LikesCommentQueryRepository } from '../bloggers-platform/comments/infrastructute/likes/likesCommentQueryRepository';
 import { Comment } from '../bloggers-platform/comments/domain/comment.entity';
 import { CommentLike } from '../bloggers-platform/comments/domain/comment-like.entity';
+import { PostLike } from '../bloggers-platform/posts/domain/likes/post-like.entity';
+import { PostLikesQueryRepository } from '../bloggers-platform/posts/infactructure/likes/postLikesQueryRepository';
+import { PostLikesRepository } from '../bloggers-platform/posts/infactructure/likes/postLikesRepository';
+import { CommentLikesRepository } from '../bloggers-platform/comments/infrastructute/likes/commentLikesRepository';
+import { CommentLikesQueryRepository } from '../bloggers-platform/comments/infrastructute/likes/commentLikesQueryRepository';
 
 const useCases = [
   CreateBlogUseCase,
@@ -43,7 +46,7 @@ const useCases = [
   // DeleteBlogUseCase,
   //CreatePostUseCase,
   UpdatePostUseCase,
-  //putLikeStatusForPostUseCase,
+  putLikeStatusForPostUseCase,
   DeletePostUseCase,
   CreatePostForBlogUseCase,
   PutLikeStatusForCommentUseCase,
@@ -63,7 +66,7 @@ const useCases = [
       // Укажите ваши entities здесь
       Blog,
       Post,
-      // PostLike,
+      PostLike,
       Comment,
       CommentLike,
     ]),
@@ -86,10 +89,10 @@ const useCases = [
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
-    // LikesPostQueryRepository,
-    // LikesPostRepository,
-    LikesCommentRepository,
-    LikesCommentQueryRepository,
+    PostLikesQueryRepository,
+    PostLikesRepository,
+    CommentLikesRepository,
+    CommentLikesQueryRepository,
     ...useCases,
   ],
   exports: [BlogsExternalQueryRepository],

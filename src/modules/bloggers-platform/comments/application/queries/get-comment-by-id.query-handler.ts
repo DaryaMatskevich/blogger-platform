@@ -1,7 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CommentViewDto } from '../../api/view-dto/comments.view.dto';
 import { CommentsQueryRepository } from '../../infrastructute/query/comments.query-repository';
-import { LikesCommentQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/likes/likesCommentQueryRepository';
+
+// import { CommentLikesQueryRepository } from '../../infrastructute/likes/commentLikesQueryRepository';
 
 export class GetCommentByIdQuery {
   constructor(
@@ -16,7 +17,7 @@ export class GetCommenttByIdQueryHandler
 {
   constructor(
     private readonly commentsQueryRepository: CommentsQueryRepository,
-    private likesCommentQueryRepository: LikesCommentQueryRepository,
+    //private commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
   async execute(query: GetCommentByIdQuery): Promise<CommentViewDto> {

@@ -8,6 +8,7 @@ import { Blog } from '../../modules/bloggers-platform/blogs/domain/dto/blog.enti
 import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';
 import { Comment } from '../../modules/bloggers-platform/comments/domain/comment.entity';
 import { CommentLike } from '../../modules/bloggers-platform/comments/domain/comment-like.entity';
+import { PostLike } from '../../modules/bloggers-platform/posts/domain/likes/post-like.entity';
 
 // Импортируйте другие сущности
 
@@ -25,7 +26,9 @@ export class TestingService {
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
     @InjectRepository(CommentLike)
-    private readonly likesCommentRepository: Repository<CommentLike>,
+    private readonly commentLikesRepository: Repository<CommentLike>,
+    @InjectRepository(PostLike)
+    private readonly postLikesRepository: Repository<PostLike>,
     // Добавьте другие репозитории
   ) {}
 
@@ -47,8 +50,11 @@ export class TestingService {
       await this.commentsRepository.query(
         'TRUNCATE TABLE comments RESTART IDENTITY CASCADE',
       );
-      await this.likesCommentRepository.query(
-        'TRUNCATE TABLE commentslikes RESTART IDENTITY CASCADE',
+      await this.commentLikesRepository.query(
+        'TRUNCATE TABLE "commentLikes" RESTART IDENTITY CASCADE',
+      );
+      await this.postLikesRepository.query(
+        'TRUNCATE TABLE "postLikes" RESTART IDENTITY CASCADE',
       );
     } catch (error) {
       console.error('Error clearing database:', error);

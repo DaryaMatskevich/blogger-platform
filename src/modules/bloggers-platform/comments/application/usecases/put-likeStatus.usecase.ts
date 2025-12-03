@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LikesCommentRepository } from '../../infrastructute/likes/likesCommentRepository';
+import { CommentLikesRepository } from '../../infrastructute/likes/commentLikesRepository';
 import { CommentsQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/query/comments.query-repository';
-import { LikesCommentQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/likes/likesCommentQueryRepository';
+import { CommentLikesQueryRepository } from '../../infrastructute/likes/commentLikesQueryRepository';
 
 export class PutLikeStatusForCommentCommand {
   constructor(
@@ -17,8 +17,8 @@ export class PutLikeStatusForCommentUseCase
 {
   constructor(
     private commentsQueryRepository: CommentsQueryRepository,
-    private likesCommentRepository: LikesCommentRepository,
-    private likesCommentQueryRepository: LikesCommentQueryRepository,
+    private commentLikesRepository: CommentLikesRepository,
+    private commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
   async execute(command: PutLikeStatusForCommentCommand) {
@@ -27,7 +27,7 @@ export class PutLikeStatusForCommentUseCase
 
     await this.commentsQueryRepository.getByIdOrNotFoundFail(commentIdNum);
     const currentLikeStatus =
-      await this.likesCommentQueryRepository.getCurrentUserStatus(
+      await this.commentLikesQueryRepository.getCurrentUserStatus(
         userIdNum,
         commentIdNum,
       );
@@ -37,13 +37,13 @@ export class PutLikeStatusForCommentUseCase
     }
 
     if (!currentLikeStatus) {
-      await this.likesCommentRepository.createLike(
+      await this.commentLikesRepository.createLike(
         userIdNum,
         commentIdNum,
         command.likeStatus,
       );
     } else {
-      await this.likesCommentRepository.updateLike(
+      await this.commentLikesRepository.updateLike(
         userIdNum,
         commentIdNum,
         command.likeStatus,

@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -21,9 +23,8 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view.dto';
 import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
 import { CommentsQueryRepository } from '../../comments/infrastructute/query/comments.query-repository';
-// import { LikeInputModel } from '../dto/like-status.dto';
+import { LikeInputModel } from '../dto/like-status.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
-// import { PutLikeStatusForPostCommand } from '../application/usecases/put-likeStatus.usecase';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { JwtAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
@@ -31,6 +32,7 @@ import { CreateCommentInputDto } from '../../../../modules/bloggers-platform/com
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { PutLikeStatusForPostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/put-likeStatus.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -133,17 +135,17 @@ export class PostsController {
       // userId,
     );
   }
-  //
-  // @Put(':id/like-status')
-  // @HttpCode(204)
-  // @UseGuards(JwtAuthGuard)
-  // async putLikeStatusForPost(
-  //   @Param('id', ObjectIdValidationPipe) postId: string,
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Body() body: LikeInputModel,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new PutLikeStatusForPostCommand(postId, user.id, body.likeStatus),
-  //   );
-  // }
+
+  @Put(':id/like-status')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async putLikeStatusForPost(
+    @Param('id') postId: string,
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Body() body: LikeInputModel,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new PutLikeStatusForPostCommand(postId, user.id, body.likeStatus),
+    );
+  }
 }

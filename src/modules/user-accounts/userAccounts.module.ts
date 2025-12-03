@@ -31,13 +31,12 @@ import {
 import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
 import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
 import { SessionsController } from './sessions/api/sessions-controller';
-
+import { ThrottlerModule } from '@nestjs/throttler';
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.use-case';
 import { DeleteAllSessionsExcludeCurrentUseCase } from './sessions/application/usecases/delete-all-sessions-exclude-current.use.case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 import { LogOutUseCase } from './application/auth-usecases/logout.usecase';
 import { RefreshTokensUseCase } from './application/auth-usecases/refresh-tokens.usecase';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../modules/user-accounts/domain/dto/user.entity';
 import { Session } from '../../modules/user-accounts/sessions/domain/session.entity';
@@ -70,7 +69,7 @@ const useCases = [
     ThrottlerModule.forRoot([
       {
         name: 'default', // Имя конфигурации
-        ttl: 10000, // 10 секунд
+        ttl: 1000000, // 10 секунд
         limit: 5,
       },
     ]),

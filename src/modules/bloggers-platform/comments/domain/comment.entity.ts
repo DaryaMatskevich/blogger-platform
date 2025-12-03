@@ -18,13 +18,13 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'integer', nullable: false })
   postId: number;
 
   @Column({ type: 'varchar', length: 300, nullable: false })
   content: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'integer', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', length: 255, nullable: false })

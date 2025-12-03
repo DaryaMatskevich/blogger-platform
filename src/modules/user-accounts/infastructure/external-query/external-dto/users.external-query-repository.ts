@@ -18,11 +18,11 @@ export class UsersExternalQueryRepository {
         id,
         login,
         email,
-        created_at as "createdAt",
-        updated_at as "updatedAt",
-        deleted_at as "deletedAt"
+       "createdAt",
+       "updatedAt",
+      "deletedAt"
       FROM users 
-      WHERE id = $1 AND deleted_at IS NULL
+      WHERE id = $1 AND "deletedAt" IS NULL
     `;
 
     const result = await this.dataSource.query(query, [id]);

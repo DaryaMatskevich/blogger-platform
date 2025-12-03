@@ -7,8 +7,4 @@ export class CreateCommentInputDto {
     message: 'Content must be between 20 and 300 characters',
   })
   content: string;
-
-  @IsString()
-  @IsNotEmpty()
-  postId: string;
 }

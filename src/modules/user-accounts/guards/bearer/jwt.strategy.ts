@@ -3,7 +3,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { UserContextDto } from '../dto/user-contex.dto';
 
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -18,9 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * функция принимает payload из jwt токена и возвращает то, что впоследствии будет записано в req.user
    * @param payload
    */
-  async validate(payload: {id: string}): Promise<UserContextDto> {
-    
+  async validate(payload: { id: string }): Promise<UserContextDto> {
     return {
-      id: payload.id}
+      id: payload.id,
+    };
   }
 }

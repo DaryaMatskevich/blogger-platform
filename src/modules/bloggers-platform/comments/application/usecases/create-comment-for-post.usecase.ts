@@ -24,7 +24,7 @@ export class CreateCommentForPostUseCase
     private postsQueryRepository: PostsQueryRepository,
   ) {}
 
-  async execute(command: CreateCommentForPostCommand): Promise<string> {
+  async execute(command: CreateCommentForPostCommand): Promise<number> {
     const postIdNum = parseInt(command.postId, 10);
     const userIdNum = parseInt(command.userId, 10);
     const postExist = await this.postsQueryRepository.existsById(postIdNum);
@@ -38,16 +38,16 @@ export class CreateCommentForPostUseCase
 
     const user =
       await this.usersExternalQueryRepository.getByIdOrNotFoundFail(userIdNum);
-
+    console.log('дощло до сюда');
     const commentDto = {
       content: command.dto.content,
       userId: userIdNum,
       userLogin: user.login,
       postId: postIdNum,
     };
-
+    console.log('дощло до сюда');
     const comment = await this.commentsRepository.createComment(commentDto);
 
-    return comment.id.toString();
+    return comment.id;
   }
 }

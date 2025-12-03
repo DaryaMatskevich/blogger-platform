@@ -110,14 +110,14 @@ export class PostsController {
   }
 
   @Get(':id/comments')
-  @UseGuards(JwtOptionalAuthGuard)
+  // @UseGuards(JwtOptionalAuthGuard)
   async getCommentsForPost(
     @Query() query: GetCommentsQueryParams,
     @Param('id') postId: string,
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    // @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    console.log(user);
-    const userId = user?.id;
+    // console.log(user);
+    // const userId = user?.id;
     const postIdNum = parseInt(postId, 10);
     const postExists = await this.postsQueryRepository.existsById(postIdNum);
     if (!postExists) {
@@ -130,7 +130,7 @@ export class PostsController {
     return this.commentsQueryRepository.getCommentsForPost(
       query,
       postId,
-      userId,
+      // userId,
     );
   }
   //

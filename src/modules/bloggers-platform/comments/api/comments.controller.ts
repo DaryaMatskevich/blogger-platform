@@ -24,7 +24,6 @@ import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 // import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
-import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe.service';
 
 @Controller('comments')
 export class CommentsController {
@@ -52,7 +51,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async deleteComment(
-    @Param('id', ObjectIdValidationPipe) commentId: string,
+    @Param('id') commentId: string,
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<void> {
     return this.commandBus.execute(

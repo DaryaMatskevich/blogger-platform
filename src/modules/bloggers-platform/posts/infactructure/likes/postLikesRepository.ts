@@ -34,7 +34,7 @@ export class PostLikesRepository {
         status = $1,
         "updatedAt" = CURRENT_TIMESTAMP
       WHERE 
-        "userId" = $2 AND "commentId" = $3
+        "userId" = $2 AND "postId" = $3
       RETURNING *
     `;
 

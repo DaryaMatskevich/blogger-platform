@@ -1,13 +1,13 @@
-type LikeInfo = {
+export type LikeInfo = {
   addedAt: Date;
   userId: string;
   login: string;
 };
 
-type ExtendedLikesInfo = {
+export type ExtendedLikesInfo = {
   likesCount: number;
   dislikesCount: number;
-  myStatus: string;
+  myStatus: string; // 'Like' | 'Dislike' | 'None'
   newestLikes: LikeInfo[];
 };
 
@@ -21,23 +21,45 @@ export class PostViewDto {
   createdAt: Date;
   extendedLikesInfo: ExtendedLikesInfo;
 
-  static mapToView(post: any): PostViewDto {
+  static mapToView(data: {
+    id: number;
+    title: string;
+    shortDescription: string;
+    content: string;
+    blogId: number;
+    blogName: string;
+    createdAt: Date;
+    extendedLikesInfo: {
+      likesCount: number;
+      dislikesCount: number;
+      myStatus: string;
+      newestLikes: Array<{
+        addedAt: Date;
+        userId: string;
+        login: string;
+      }>;
+    };
+  }): PostViewDto {
     const dto = new PostViewDto();
 
-    dto.id = post.id.toString();
-    dto.title = post.title;
-    dto.shortDescription = post.shortDescription;
-    dto.content = post.content;
-    dto.blogId = post.blogId.toString();
-    dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt;
+    dto.id = data.id.toString();
+    dto.title = data.title;
+    dto.shortDescription = data.shortDescription;
+    dto.content = data.content;
+    dto.blogId = data.blogId.toString();
+    dto.blogName = data.blogName;
+    dto.createdAt = data.createdAt;
 
-    // Берем готовые данные из extendedLikesInfo
+    // Для неавторизованного пользователя всегда 'None'
     dto.extendedLikesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
+      likesCount: data.extendedLikesInfo.likesCount,
+      dislikesCount: data.extendedLikesInfo.dislikesCount,
       myStatus: 'None',
-      newestLikes: [],
+      newestLikes: data.extendedLikesInfo.newestLikes.map((like) => ({
+        addedAt: like.addedAt,
+        userId: like.userId,
+        login: like.login,
+      })),
     };
 
     return dto;

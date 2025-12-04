@@ -12,17 +12,55 @@ export class PostsQueryRepository {
 
   async getByIdOrNotFoundFail(postId: number): Promise<PostViewDto> {
     const query = `
-        SELECT p.id,
-               p.title,
-               p."shortDescription",
-               p.content,
-               p."blogId",
-               p."blogName",
-               p."createdAt",
-               p."updatedAt"
-        FROM posts p
-        WHERE p.id = $1
-          AND p."deletedAt" IS NULL
+        WITH post_data AS (
+            SELECT
+                p.id,
+                p.title,
+                p."shortDescription",
+                p.content,
+                p."blogId",
+                p."blogName",
+                p."createdAt",
+                -- Количество лайков
+                COALESCE(
+                        (SELECT COUNT(*)
+                         FROM "postLikes" pl
+                         WHERE pl."postId" = p.id AND pl.status = 'Like'),
+                        0
+                ) as "likesCount",
+                -- Количество дизлайков
+                COALESCE(
+                        (SELECT COUNT(*)
+                         FROM "postLikes" pl
+                         WHERE pl."postId" = p.id AND pl.status = 'Dislike'),
+                        0
+                ) as "dislikesCount"
+            FROM "posts" p
+            WHERE p.id = $1
+              AND p."deletedAt" IS NULL
+        ),
+             newest_likes AS (
+                 SELECT
+                     pl."postId",
+                     JSON_AGG(
+                             JSON_BUILD_OBJECT(
+                                     'addedAt', pl."createdAt",
+                                     'userId', pl."userId"::text,
+                                     'login', u.login
+                             )
+                                 ORDER BY pl."createdAt" DESC
+                     ) as "newestLikes"
+                 FROM "postLikes" pl
+                          INNER JOIN "users" u ON pl."userId" = u.id
+                 WHERE pl."postId" = $1
+                   AND pl.status = 'Like'
+                 GROUP BY pl."postId"
+             )
+        SELECT
+            pd.*,
+            COALESCE(nl."newestLikes", '[]') as "newestLikes"
+        FROM post_data pd
+                 LEFT JOIN newest_likes nl ON pd.id = nl."postId"
     `;
 
     const result = await this.dataSource.query(query, [postId]);
@@ -34,7 +72,26 @@ export class PostsQueryRepository {
       });
     }
 
-    return PostViewDto.mapToView(result[0]);
+    const post = result[0];
+
+    // Ограничиваем newestLikes до 3 элементов
+    const newestLikes = post.newestLikes.slice(0, 3);
+
+    return PostViewDto.mapToView({
+      id: post.id,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: parseInt(post.likesCount),
+        dislikesCount: parseInt(post.dislikesCount),
+        myStatus: 'None', // Для неавторизованного всегда 'None'
+        newestLikes: newestLikes,
+      },
+    });
   }
 
   async existsByIdAndBlogId(postId: number, blogId: number): Promise<boolean> {

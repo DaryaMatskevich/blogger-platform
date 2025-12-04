@@ -69,7 +69,7 @@ const useCases = [
     ThrottlerModule.forRoot([
       {
         name: 'default', // Имя конфигурации
-        ttl: 1000000, // 10 секунд
+        ttl: 10000, // 10 секунд
         limit: 5,
       },
     ]),

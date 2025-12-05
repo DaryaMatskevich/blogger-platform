@@ -101,7 +101,7 @@ export class BlogsController {
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    // const userId = user?.id || null;
+    const userId = user?.id || null;
     const blogIdNum = parseInt(blogId, 10);
     const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
     if (!blogExists) {
@@ -110,7 +110,19 @@ export class BlogsController {
         message: 'Blog not found',
       });
     }
-    return this.postsQueryRepository.getPostsForBlog(query, blogId);
+    if (userId) {
+      const userIdNum = parseInt(userId, 10);
+      return this.postsQueryRepository.getPostsForBlogWithLikeStatus(
+        query,
+        blogIdNum,
+        userIdNum,
+      );
+    } else {
+      return this.postsQueryRepository.getPostsForBlogWithoutUserStatus(
+        query,
+        blogIdNum,
+      );
+    }
   }
 
   @Post(':id/posts')

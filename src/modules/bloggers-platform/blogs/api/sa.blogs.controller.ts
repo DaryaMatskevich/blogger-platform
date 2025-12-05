@@ -106,7 +106,10 @@ export class SaBlogsController {
         message: 'Blog not found',
       });
     }
-    return this.postsQueryRepository.getPostsForBlog(query, blogId);
+    return this.postsQueryRepository.getPostsForBlogWithoutUserStatus(
+      query,
+      blogIdNum,
+    );
   }
 
   @Post(':id/posts')

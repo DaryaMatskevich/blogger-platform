@@ -38,7 +38,7 @@ export class putLikeStatusForPostUseCase
       return;
     }
 
-    if (!currentLikeStatus) {
+    if (!currentLikeStatus || currentLikeStatus === 'None') {
       await this.postLikesRepository.createLike(
         userIdNum,
         postIdNum,

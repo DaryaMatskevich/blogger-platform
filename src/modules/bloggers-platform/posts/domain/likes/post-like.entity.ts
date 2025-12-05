@@ -17,9 +17,6 @@ export class PostLike {
   @Column({ type: 'integer', nullable: false })
   userId: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  userLogin: string;
-
   @Column({
     type: 'varchar',
     length: 10,

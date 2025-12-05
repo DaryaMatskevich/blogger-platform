@@ -13,13 +13,13 @@ export class PostLikesRepository {
   ): Promise<PostLike> {
     const query = `
       INSERT INTO "postLikes"
-        ("userId", "postId", status, "createdAt", "updatedAt")
+        ( "postId", "userId", status, "createdAt", "updatedAt")
       VALUES 
         ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *
     `;
 
-    const result = await this.dataSource.query(query, [userId, postId, status]);
+    const result = await this.dataSource.query(query, [postId, userId, status]);
     return result[0];
   }
 

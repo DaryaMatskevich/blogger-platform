@@ -24,7 +24,7 @@ export class PostLikesQueryRepository {
   async getCurrentUserStatus(
     userId: number,
     postId: number,
-  ): Promise<'Like' | 'Dislike' | 'None'> {
+  ): Promise<'Like' | 'Dislike' | 'None' | null> {
     const query = `
       SELECT status FROM "postLikes" 
       WHERE "userId" = $1 AND "postId" = $2
@@ -35,14 +35,14 @@ export class PostLikesQueryRepository {
       const result = await this.dataSource.query(query, [userId, postId]);
 
       if (result.length === 0) {
-        return 'None';
+        return null;
       }
 
       return result[0].status;
     } catch (error) {
       // В случае ошибки (например, если таблица не существует) возвращаем None
       console.error('Error getting user status:', error);
-      return 'None';
+      return null;
     }
   }
 }

@@ -34,11 +34,15 @@ export class putLikeStatusForPostUseCase
         postIdNum,
       );
 
+    if (currentLikeStatus === null && command.likeStatus === 'None') {
+      return;
+    }
+
     if (currentLikeStatus === command.likeStatus) {
       return;
     }
 
-    if (!currentLikeStatus || currentLikeStatus === 'None') {
+    if (currentLikeStatus === null) {
       await this.postLikesRepository.createLike(
         userIdNum,
         postIdNum,

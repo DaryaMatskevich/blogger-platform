@@ -6,7 +6,7 @@ import { PostsQueryRepository } from '../../infactructure/query/posts.query-repo
 export class GetPostByIdQuery {
   constructor(
     public id: string,
-    // public userId: string | null,
+    public userId: string | null,
   ) {}
 }
 
@@ -22,9 +22,14 @@ export class GetPostByIdQueryHandler
   async execute(query: GetPostByIdQuery): Promise<PostViewDto> {
     // console.log(query.userId);
     const postIdNum = parseInt(query.id, 10);
-    return this.postsQueryRepository.getByIdOrNotFoundFail(
-      postIdNum,
-      // query.userId,
-    );
+    if (query.userId) {
+      const userIdNum = parseInt(query.userId, 10);
+      return this.postsQueryRepository.getByIdWithStatusOrNotFoundFail(
+        postIdNum,
+        userIdNum,
+      );
+    } else {
+      return this.postsQueryRepository.getByIdOrNotFoundFail(postIdNum);
+    }
   }
 }

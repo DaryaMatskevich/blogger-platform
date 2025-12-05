@@ -53,9 +53,9 @@ export class PostsController {
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Param('id') postId: string,
   ): Promise<PostViewDto> {
-    // const userId = user?.id || null;
+    const userId = user?.id || null;
     // console.log(userId);
-    return this.queryBus.execute(new GetPostByIdQuery(postId));
+    return this.queryBus.execute(new GetPostByIdQuery(postId, userId));
   }
 
   @Get()

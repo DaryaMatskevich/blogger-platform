@@ -119,8 +119,8 @@ export class PostsQueryRepository {
   }
 
   async getByIdWithStatusOrNotFoundFail(
-    postId: string,
-    userId: string | null,
+    postId: number,
+    userId: number,
   ): Promise<PostViewDto> {
     const query = `
       SELECT 
@@ -131,15 +131,13 @@ export class PostsQueryRepository {
         p."blogId",
         p."blogName",
         p."createdAt",
-        p."updatedAt",
+        p."updatedAt"
        
       FROM posts p
       WHERE p.id = $1 AND p."deletedAt" IS NULL
     `;
 
-    const postResult = await this.dataSource.query(query, [
-      parseInt(postId, 10),
-    ]);
+    const postResult = await this.dataSource.query(query, [postId]);
 
     if (postResult.length === 0) {
       throw new DomainException({
@@ -150,21 +148,21 @@ export class PostsQueryRepository {
     const post = postResult[0];
     // 2. Затем получаем информацию о лайках
     const likesCount = await this.dataSource.query(
-      `SELECT COUNT(*) as count FROM postLikes WHERE "postId" = $1 AND status = 'Like'`,
-      [parseInt(postId, 10)],
+      `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Like'`,
+      [postId],
     );
 
     const dislikesCount = await this.dataSource.query(
-      `SELECT COUNT(*) as count FROM postLikes WHERE "postId" = $1 AND status = 'Dislike'`,
-      [parseInt(postId, 10)],
+      `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Dislike'`,
+      [postId],
     );
 
     // 3. Статус текущего пользователя
     let myStatus = 'None';
     if (userId) {
       const userStatus = await this.dataSource.query(
-        `SELECT status FROM postLikes WHERE "postId" = $1 AND "userId" = $2`,
-        [parseInt(postId, 10), parseInt(userId, 10)],
+        `SELECT status FROM "postLikes" WHERE "postId" = $1 AND "userId" = $2`,
+        [postId, userId],
       );
       myStatus = userStatus[0]?.status || 'None';
     }
@@ -172,15 +170,15 @@ export class PostsQueryRepository {
     // 4. Последние 3 лайка
     const newestLikes = await this.dataSource.query(
       `SELECT
-           pl."createdAt" as "addedAt",
-           pl."userId",
-           u.login
-       FROM postLikes pl
-                LEFT JOIN users u ON u.id = pl."userId"
+         pl."createdAt",
+         pl."userId",
+         u.login
+       FROM "postLikes" pl
+              LEFT JOIN users u ON u.id = pl."userId"
        WHERE pl."postId" = $1 AND pl.status = 'Like'
        ORDER BY pl."createdAt" DESC
-           LIMIT 3`,
-      [parseInt(postId, 10)],
+         LIMIT 3`,
+      [postId],
     );
 
     // 5. Собираем все вместе
@@ -191,9 +189,9 @@ export class PostsQueryRepository {
         dislikesCount: parseInt(dislikesCount[0]?.count) || 0,
         myStatus,
         newestLikes: newestLikes.map((like) => ({
-          addedAt: like.addedAt,
-          userId: like.userId.toString(),
-          login: like.login,
+          addedAt: like.createdAt, // исправлено: createdAt -> addedAt
+          userId: like.userId?.toString() || '', // безопасное преобразование
+          login: like.login || '', // если login может быть null
         })),
       },
     };

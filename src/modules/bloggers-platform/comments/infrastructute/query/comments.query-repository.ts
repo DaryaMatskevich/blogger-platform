@@ -37,17 +37,19 @@ export class CommentsQueryRepository {
     commentId: number,
     myStatus: 'None' | 'Like' | 'Dislike',
   ): Promise<CommentViewDto> {
-    const query = `
-      SELECT 
+    const commentQuery = `
+      SELECT
         c.*,
         u.login as "userLogin"
       FROM comments c
-      LEFT JOIN users u ON c."userId" = u.id
+             LEFT JOIN users u ON c."userId" = u.id
       WHERE c.id = $1 AND c."deletedAt" IS NULL
     `;
 
-    const result = await this.dataSource.query(query, [commentId]);
-    const comment = result[0];
+    const commentResult = await this.dataSource.query(commentQuery, [
+      commentId,
+    ]);
+    const comment = commentResult[0];
 
     if (!comment) {
       throw new DomainException({
@@ -56,7 +58,22 @@ export class CommentsQueryRepository {
       });
     }
 
-    return CommentViewDto.mapToViewWithStatus(comment, myStatus);
+    // 2. Получаем статистику лайков для этого комментария
+    const likesQuery = `
+    SELECT 
+      COUNT(CASE WHEN status = 'Like' THEN 1 END) as "likesCount",
+      COUNT(CASE WHEN status = 'Dislike' THEN 1 END) as "dislikesCount"
+    FROM "commentLikes"
+    WHERE "commentId" = $1
+  `;
+
+    const likesResult = await this.dataSource.query(likesQuery, [commentId]);
+    const likesInfo = likesResult[0] || { likesCount: 0, dislikesCount: 0 };
+
+    return CommentViewDto.mapToViewWithStatus(comment, myStatus, {
+      likesCount: parseInt(likesInfo.likesCount) || 0,
+      dislikesCount: parseInt(likesInfo.dislikesCount) || 0,
+    });
   }
 
   async getCommentsForPost(

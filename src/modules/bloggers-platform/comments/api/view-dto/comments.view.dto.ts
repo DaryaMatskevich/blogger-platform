@@ -34,8 +34,12 @@ export class CommentViewDto {
   }
 
   static mapToViewWithStatus(
-    comment: Comment,
-    myStatus: string,
+    comment: any,
+    myStatus: 'None' | 'Like' | 'Dislike',
+    likesInfo?: {
+      likesCount: number;
+      dislikesCount: number;
+    },
   ): CommentViewDto {
     const dto = new CommentViewDto();
 
@@ -43,12 +47,12 @@ export class CommentViewDto {
     dto.content = comment.content;
     dto.commentatorInfo = {
       userId: comment.userId.toString(),
-      userLogin: comment.userLogin,
+      userLogin: comment.userLogin || '',
     };
     dto.createdAt = comment.createdAt;
     dto.likesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
+      likesCount: likesInfo?.likesCount || 0,
+      dislikesCount: likesInfo?.dislikesCount || 0,
       myStatus: myStatus,
     };
 

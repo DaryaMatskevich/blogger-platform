@@ -39,11 +39,12 @@ import { PostLikesQueryRepository } from '../bloggers-platform/posts/infactructu
 import { PostLikesRepository } from '../bloggers-platform/posts/infactructure/likes/postLikesRepository';
 import { CommentLikesRepository } from '../bloggers-platform/comments/infrastructute/likes/commentLikesRepository';
 import { CommentLikesQueryRepository } from '../bloggers-platform/comments/infrastructute/likes/commentLikesQueryRepository';
+import { DeleteBlogUseCase } from '../bloggers-platform/blogs/application/usecases/delete-blog-usecase';
 
 const useCases = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
-  // DeleteBlogUseCase,
+  DeleteBlogUseCase,
   //CreatePostUseCase,
   UpdatePostUseCase,
   putLikeStatusForPostUseCase,

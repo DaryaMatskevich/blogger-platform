@@ -34,8 +34,8 @@ export class CommentsQueryRepository {
   }
 
   async getByIdWithStatusOrNotFoundFail(
-    commentId: string,
-    myStatus: string,
+    commentId: number,
+    myStatus: 'None' | 'Like' | 'Dislike',
   ): Promise<CommentViewDto> {
     const query = `
       SELECT 

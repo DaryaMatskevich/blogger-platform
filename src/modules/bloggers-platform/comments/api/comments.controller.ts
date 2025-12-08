@@ -22,7 +22,7 @@ import { DeleteCommentCommand } from '../application/usecases/delete-comment-use
 import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
 import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
-// import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
 
 @Controller('comments')
@@ -38,12 +38,12 @@ export class CommentsController {
   // @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @Param('id') id: string,
-    // @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<CommentViewDto> {
     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
     // промис зарезолвится и затем NestJS вернёт результат клиенту
-    // const userId = user?.id || null;
-    return this.queryBus.execute(new GetCommentByIdQuery(id));
+    const userId = user?.id || null;
+    return this.queryBus.execute(new GetCommentByIdQuery(id, userId));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера

@@ -438,12 +438,122 @@ export class PostsQueryRepository {
     });
   }
 
+  async getAllforBlogwithLikeStatus(
+    query: GetPostsQueryParams,
+    blogId: number,
+    userId: number,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    // 1. Получаем посты
+    const postsQuery = `
+      SELECT
+        id,
+        title,
+        "shortDescription",
+        content,
+        "blogId",
+        "blogName",
+        "createdAt",
+        "updatedAt"
+      FROM posts
+      WHERE "blogId" = $1 and "deletedAt" IS NULL
+      ORDER BY "${query.sortBy}" ${query.sortDirection.toString() === 'asc' ? 'ASC' : 'DESC'}
+    LIMIT $1 OFFSET $2
+    `;
+
+    const posts = await this.dataSource.query(postsQuery, [
+      query.pageSize,
+      query.calculateSkip(),
+    ]);
+
+    if (posts.length === 0) {
+      return PaginatedViewDto.mapToView({
+        page: query.pageNumber,
+        size: query.pageSize,
+        totalCount: 0,
+        items: [],
+      });
+    }
+
+    // 2. Для каждого поста отдельно получаем информацию о лайках
+    const items: PostViewDto[] = [];
+
+    for (const post of posts) {
+      const postId = post.id;
+
+      // Получаем количество лайков
+      const likesCount = await this.dataSource.query(
+        `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Like'`,
+        [postId],
+      );
+
+      // Получаем количество дизлайков
+      const dislikesCount = await this.dataSource.query(
+        `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Dislike'`,
+        [postId],
+      );
+
+      // Статус текущего пользователя
+      let myStatus = 'None';
+      if (userId) {
+        const userStatus = await this.dataSource.query(
+          `SELECT status FROM "postLikes" WHERE "postId" = $1 AND "userId" = $2`,
+          [postId, userId],
+        );
+        myStatus = userStatus[0]?.status || 'None';
+      }
+
+      // Последние 3 лайка
+      const newestLikes = await this.dataSource.query(
+        `SELECT
+         pl."createdAt",
+         pl."userId",
+         u.login
+       FROM "postLikes" pl
+              LEFT JOIN users u ON u.id = pl."userId"
+       WHERE pl."postId" = $1 AND pl.status = 'Like'
+       ORDER BY pl."createdAt" DESC
+         LIMIT 3`,
+        [postId],
+      );
+
+      // Собираем пост с лайками
+      const postWithLikes = {
+        ...post,
+        extendedLikesInfo: {
+          likesCount: parseInt(likesCount[0]?.count) || 0,
+          dislikesCount: parseInt(dislikesCount[0]?.count) || 0,
+          myStatus,
+          newestLikes: newestLikes.map((like) => ({
+            addedAt: like.createdAt,
+            userId: like.userId?.toString() || '',
+            login: like.login || '',
+          })),
+        },
+      };
+
+      items.push(PostViewDto.mapToView(postWithLikes));
+    }
+
+    // 3. Получаем общее количество постов
+    const countQuery = `SELECT COUNT(*) as total FROM posts WHERE "deletedAt" IS NULL`;
+    const countResult = await this.dataSource.query(countQuery);
+    const totalCount = parseInt(countResult[0].total);
+
+    // 4. Возвращаем результат
+    return PaginatedViewDto.mapToView({
+      page: query.pageNumber,
+      size: query.pageSize,
+      totalCount,
+      items,
+    });
+  }
+
   async getPostsForBlogWithLikeStatus(
     query: GetPostsQueryParams,
     blogId: number,
     userId: number,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    // Базовый запрос для постов блога (БЕЗ extendedLikesInfo)
+    // Базовый запрос для постов блога
     const postsQuery = `
         SELECT
             p.id,
@@ -467,10 +577,18 @@ export class PostsQueryRepository {
     ]);
 
     if (posts.length === 0) {
+      const countQuery = `
+          SELECT COUNT(*) as total
+          FROM posts p
+          WHERE p."deletedAt" IS NULL AND p."blogId" = $1
+      `;
+      const countResult = await this.dataSource.query(countQuery, [blogId]);
+      const totalCount = parseInt(countResult[0].total, 10);
+
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
         size: query.pageSize,
-        totalCount: 0,
+        totalCount,
         items: [],
       });
     }
@@ -504,14 +622,14 @@ export class PostsQueryRepository {
 
     // 1. Количество лайков
     const likesResult = await this.dataSource.query(
-      `SELECT COUNT(*) as count FROM postLikes WHERE "postId" = $1 AND status = 'Like'`,
+      `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Like'`,
       [postId],
     );
     const likesCount = parseInt(likesResult[0]?.count) || 0;
 
     // 2. Количество дизлайков
     const dislikesResult = await this.dataSource.query(
-      `SELECT COUNT(*) as count FROM postLikes WHERE "postId" = $1 AND status = 'Dislike'`,
+      `SELECT COUNT(*) as count FROM "postLikes" WHERE "postId" = $1 AND status = 'Dislike'`,
       [postId],
     );
     const dislikesCount = parseInt(dislikesResult[0]?.count) || 0;
@@ -520,30 +638,30 @@ export class PostsQueryRepository {
     let myStatus = 'None';
     if (userId) {
       const userStatusResult = await this.dataSource.query(
-        `SELECT status FROM postLikes WHERE "postId" = $1 AND "userId" = $2`,
+        `SELECT status FROM "postLikes" WHERE "postId" = $1 AND "userId" = $2`,
         [postId, userId],
       );
       myStatus = userStatusResult[0]?.status || 'None';
     }
 
-    // 4. Последние 3 лайка
+    // 4. Последние 3 лайка - ВАЖНО: добавлен JOIN с users!
     const newestLikesResult = await this.dataSource.query(
-      `SELECT 
-      pl."createdAt" as "addedAt", 
-      pl."userId", 
-      u.login 
-     FROM postLikes pl
-     LEFT JOIN users u ON u.id = pl."userId"
-     WHERE pl."postId" = $1 AND pl.status = 'Like' 
-     ORDER BY pl."createdAt" DESC 
-     LIMIT 3`,
+      `SELECT
+           pl."createdAt" as "addedAt",
+           pl."userId",
+           u.login  -- Теперь login будет правильно получен
+       FROM "postLikes" pl
+                LEFT JOIN users u ON u.id = pl."userId"  -- ← ДОБАВЛЕН JOIN!
+       WHERE pl."postId" = $1 AND pl.status = 'Like'
+       ORDER BY pl."createdAt" DESC
+           LIMIT 3`,
       [postId],
     );
 
     const newestLikes = newestLikesResult.map((like) => ({
       addedAt: like.addedAt,
       userId: like.userId.toString(),
-      login: like.login,
+      login: like.login, // Теперь здесь будет реальный login из таблицы users
     }));
 
     // 5. Собираем пост с информацией о лайках
@@ -557,6 +675,7 @@ export class PostsQueryRepository {
       },
     };
   }
+
   async getPostsForBlogWithoutUserStatus(
     query: GetPostsQueryParams,
     blogId: number,

@@ -14,7 +14,13 @@ export class CommentViewDto {
     myStatus: string;
   };
 
-  static mapToView(comment: Comment): CommentViewDto {
+  static mapToView(
+    comment: Comment,
+    likesInfo?: {
+      likesCount: number;
+      dislikesCount: number;
+    },
+  ): CommentViewDto {
     const dto = new CommentViewDto();
 
     dto.id = comment.id.toString();
@@ -25,8 +31,8 @@ export class CommentViewDto {
     };
     dto.createdAt = comment.createdAt;
     dto.likesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
+      likesCount: likesInfo?.likesCount || 0,
+      dislikesCount: likesInfo?.dislikesCount || 0,
       myStatus: 'None',
     };
 

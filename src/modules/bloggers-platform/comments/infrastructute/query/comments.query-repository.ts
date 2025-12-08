@@ -29,27 +29,37 @@ export class CommentsQueryRepository {
         message: 'Comment not found',
       });
     }
+    const likesQuery = `
+    SELECT 
+      COUNT(CASE WHEN status = 'Like' THEN 1 END) as "likesCount",
+      COUNT(CASE WHEN status = 'Dislike' THEN 1 END) as "dislikesCount"
+    FROM "commentLikes"
+    WHERE "commentId" = $1
+  `;
 
-    return CommentViewDto.mapToView(comment);
+    const likesResult = await this.dataSource.query(likesQuery, [id]);
+    const likesInfo = likesResult[0] || { likesCount: 0, dislikesCount: 0 };
+    return CommentViewDto.mapToView(comment, {
+      likesCount: parseInt(likesInfo.likesCount) || 0,
+      dislikesCount: parseInt(likesInfo.dislikesCount) || 0,
+    });
   }
 
   async getByIdWithStatusOrNotFoundFail(
     commentId: number,
     myStatus: 'None' | 'Like' | 'Dislike',
   ): Promise<CommentViewDto> {
-    const commentQuery = `
-      SELECT
+    const query = `
+      SELECT 
         c.*,
         u.login as "userLogin"
       FROM comments c
-             LEFT JOIN users u ON c."userId" = u.id
+      LEFT JOIN users u ON c."userId" = u.id
       WHERE c.id = $1 AND c."deletedAt" IS NULL
     `;
 
-    const commentResult = await this.dataSource.query(commentQuery, [
-      commentId,
-    ]);
-    const comment = commentResult[0];
+    const result = await this.dataSource.query(query, [commentId]);
+    const comment = result[0];
 
     if (!comment) {
       throw new DomainException({
@@ -57,8 +67,6 @@ export class CommentsQueryRepository {
         message: 'Comment not found',
       });
     }
-
-    // 2. Получаем статистику лайков для этого комментария
     const likesQuery = `
     SELECT 
       COUNT(CASE WHEN status = 'Like' THEN 1 END) as "likesCount",

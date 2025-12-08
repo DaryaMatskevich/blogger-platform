@@ -34,13 +34,25 @@ export class CommentLikesQueryRepository {
     try {
       const result = await this.dataSource.query(query, [userId, commentId]);
 
+      // Проверяем, есть ли записи
       if (result.length === 0) {
         return 'None';
       }
 
-      return result[0].status;
+      // Получаем статус из первой записи
+      const status = result[0].status;
+
+      // Проверяем допустимые значения
+      if (status === 'Like') {
+        return 'Like';
+      }
+      if (status === 'Dislike') {
+        return 'Dislike';
+      }
+
+      // Если статус не 'Like' и не 'Dislike', возвращаем 'None'
+      return 'None';
     } catch (error) {
-      // В случае ошибки (например, если таблица не существует) возвращаем None
       console.error('Error getting user status:', error);
       return 'None';
     }

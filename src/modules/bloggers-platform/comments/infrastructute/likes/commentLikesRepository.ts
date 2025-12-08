@@ -13,15 +13,15 @@ export class CommentLikesRepository {
   ): Promise<CommentLike> {
     const query = `
       INSERT INTO "commentLikes"
-        ("userId", "commentId", status, "createdAt", "updatedAt")
+        ("commentId", "userId", status, "createdAt", "updatedAt")
       VALUES 
         ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *
     `;
 
     const result = await this.dataSource.query(query, [
-      userId,
       commentId,
+      userId,
       status,
     ]);
     return result[0];

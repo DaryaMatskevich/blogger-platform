@@ -36,7 +36,7 @@ export class PutLikeStatusForCommentUseCase
       return;
     }
 
-    if (!currentLikeStatus) {
+    if (currentLikeStatus === 'None') {
       await this.commentLikesRepository.createLike(
         userIdNum,
         commentIdNum,

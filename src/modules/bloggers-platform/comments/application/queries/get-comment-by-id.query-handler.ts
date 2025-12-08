@@ -30,7 +30,7 @@ export class GetCommenttByIdQueryHandler
           userIdNum,
           commentIdNum,
         );
-
+      console.log(likeStatus);
       return this.commentsQueryRepository.getByIdWithStatusOrNotFoundFail(
         commentIdNum,
         likeStatus,

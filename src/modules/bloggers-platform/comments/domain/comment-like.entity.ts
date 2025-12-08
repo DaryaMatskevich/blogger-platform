@@ -11,7 +11,7 @@ export class CommentLike {
   @PrimaryColumn({ type: 'integer' })
   commentId: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'integer' })
   userId: number;
 
   @Column({

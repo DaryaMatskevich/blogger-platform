@@ -24,6 +24,7 @@ import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
+import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 
 @Controller('comments')
 export class CommentsController {
@@ -35,7 +36,7 @@ export class CommentsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id')
-  // @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @Param('id') id: string,
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,

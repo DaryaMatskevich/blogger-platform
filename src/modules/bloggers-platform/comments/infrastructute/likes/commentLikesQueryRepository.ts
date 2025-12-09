@@ -24,37 +24,33 @@ export class CommentLikesQueryRepository {
   async getCurrentUserStatus(
     userId: number,
     commentId: number,
-  ): Promise<'Like' | 'Dislike' | 'None'> {
+  ): Promise<'Like' | 'Dislike' | 'None' | null> {
     const query = `
       SELECT status FROM "commentLikes" 
       WHERE "userId" = $1 AND "commentId" = $2
       LIMIT 1
     `;
 
-    try {
-      const result = await this.dataSource.query(query, [userId, commentId]);
+    const result = await this.dataSource.query(query, [userId, commentId]);
 
-      // Проверяем, есть ли записи
-      if (result.length === 0) {
-        return 'None';
-      }
+    // Проверяем, есть ли записи
+    if (result.length === 0) {
+      return null;
+    }
 
-      // Получаем статус из первой записи
-      const status = result[0].status;
+    // Получаем статус из первой записи
+    const status = result[0].status;
 
-      // Проверяем допустимые значения
-      if (status === 'Like') {
-        return 'Like';
-      }
-      if (status === 'Dislike') {
-        return 'Dislike';
-      }
-
-      // Если статус не 'Like' и не 'Dislike', возвращаем 'None'
-      return 'None';
-    } catch (error) {
-      console.error('Error getting user status:', error);
+    // Проверяем допустимые значения
+    if (status === 'Like') {
+      return 'Like';
+    }
+    if (status === 'Dislike') {
+      return 'Dislike';
+    }
+    if (status === 'None') {
       return 'None';
     }
+    return null;
   }
 }

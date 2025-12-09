@@ -32,22 +32,30 @@ export class PutLikeStatusForCommentUseCase
         commentIdNum,
       );
 
+    // Статус не изменился
     if (currentLikeStatus === command.likeStatus) {
       return;
     }
 
-    if (currentLikeStatus === 'None') {
-      await this.commentLikesRepository.createLike(
-        userIdNum,
-        commentIdNum,
-        command.likeStatus,
-      );
+    // Определяем действие
+    if (currentLikeStatus === null) {
+      // Нет записи
+      if (command.likeStatus !== 'None') {
+        await this.commentLikesRepository.createLike(
+          userIdNum,
+          commentIdNum,
+          command.likeStatus,
+        );
+      }
+      // Если 'None' - ничего не делаем (не создаем запись)
     } else {
+      // Запись есть - всегда обновляем
       await this.commentLikesRepository.updateLike(
         userIdNum,
         commentIdNum,
         command.likeStatus,
       );
+      // Даже если command.likeStatus === 'None' - просто обновим
     }
   }
 }

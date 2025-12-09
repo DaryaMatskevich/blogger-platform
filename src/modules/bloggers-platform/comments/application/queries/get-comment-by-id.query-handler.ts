@@ -31,10 +31,12 @@ export class GetCommenttByIdQueryHandler
           commentIdNum,
         );
       console.log(likeStatus);
-      return this.commentsQueryRepository.getByIdWithStatusOrNotFoundFail(
-        commentIdNum,
-        likeStatus,
-      );
+      if (likeStatus) {
+        return this.commentsQueryRepository.getByIdWithStatusOrNotFoundFail(
+          commentIdNum,
+          likeStatus,
+        );
+      }
     }
 
     return this.commentsQueryRepository.getByIdOrNotFoundFail(commentIdNum);

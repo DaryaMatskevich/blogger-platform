@@ -2,13 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('commentLikes')
 export class CommentLike {
-  @PrimaryColumn({ type: 'integer' })
+  @PrimaryGeneratedColumn()
+  id: number; // Добавляем отдельный id как PRIMARY KEY
+
+  @Column({ type: 'integer' })
   commentId: number;
 
   @Column({ type: 'integer' })

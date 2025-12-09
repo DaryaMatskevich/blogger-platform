@@ -84,20 +84,112 @@ export class CommentsQueryRepository {
     });
   }
 
-  async getCommentsForPost(
+  async getCommentsForPostwithStatus(
     query: GetCommentsQueryParams,
-    postId: string,
+    postId: number,
+    userId: number,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    // Базовый запрос с подсчетом лайков
+    const commentsQuery = `
+      SELECT
+        c.*,
+        u.login as "userLogin",
+        -- Подсчет лайков
+        COALESCE(like_counts.likes, 0) as "likesCount",
+        COALESCE(like_counts.dislikes, 0) as "dislikesCount",
+        -- Статус текущего пользователя (если авторизован)
+        ${
+          userId
+            ? `COALESCE(
+              (SELECT cl.status 
+               FROM "commentLikes" cl 
+               WHERE cl."commentId" = c.id AND cl."userId" = $2
+               LIMIT 1
+              ), 'None'
+            ) as "myStatus"`
+            : `'None' as "myStatus"`
+        }
+      FROM comments c
+             LEFT JOIN users u ON c."userId" = u.id
+             LEFT JOIN (
+        -- Агрегация лайков по комментариям
+        SELECT
+          "commentId",
+          COUNT(CASE WHEN status = 'Like' THEN 1 END) as likes,
+          COUNT(CASE WHEN status = 'Dislike' THEN 1 END) as dislikes
+        FROM "commentLikes"
+        GROUP BY "commentId"
+      ) like_counts ON like_counts."commentId" = c.id
+      WHERE c."deletedAt" IS NULL
+        AND c."postId" = $1
+      ORDER BY c."${query.sortBy}" ${query.sortDirection}
+    LIMIT $3 OFFSET $4
+    `;
+
+    const params = userId
+      ? [postId, userId, query.pageSize, query.calculateSkip()]
+      : [postId, query.pageSize, query.calculateSkip()];
+
+    const comments = await this.dataSource.query(commentsQuery, params);
+
+    if (comments.length === 0) {
+      return PaginatedViewDto.mapToView({
+        page: query.pageNumber,
+        size: query.pageSize,
+        totalCount: 0,
+        items: [],
+      });
+    }
+
+    // Получаем общее количество комментариев
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM comments
+      WHERE "deletedAt" IS NULL AND "postId" = $1
+    `;
+    const countResult = await this.dataSource.query(countQuery, [postId]);
+    const totalCount = parseInt(countResult[0].count);
+
+    // Формируем результат
+    const items = comments.map((comment) => ({
+      ...CommentViewDto.mapToView(comment),
+      likesInfo: {
+        likesCount: Number(comment.likesCount) || 0,
+        dislikesCount: Number(comment.dislikesCount) || 0,
+        myStatus: comment.myStatus || 'None',
+      },
+    }));
+
+    return PaginatedViewDto.mapToView({
+      page: query.pageNumber,
+      size: query.pageSize,
+      totalCount,
+      items,
+    });
+  }
+  async getCommentsForPostWithoutUserStatus(
+    query: GetCommentsQueryParams,
+    postId: number,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     const commentsQuery = `
     SELECT 
       c.*,
       u.login as "userLogin",
-      0 as "likesCount",  -- Добавляем нулевые счетчики
-      0 as "dislikesCount",
-      'None' as "myStatus"  -- И дефолтный статус
+      -- Только подсчет лайков, без статуса пользователя
+      COALESCE(like_counts.likes, 0) as "likesCount",
+      COALESCE(like_counts.dislikes, 0) as "dislikesCount"
     FROM comments c
     LEFT JOIN users u ON c."userId" = u.id
-    WHERE c."deletedAt" IS NULL AND c."postId" = $1
+    LEFT JOIN (
+      SELECT 
+        "commentId",
+        COUNT(CASE WHEN status = 'Like' THEN 1 END) as likes,
+        COUNT(CASE WHEN status = 'Dislike' THEN 1 END) as dislikes
+      FROM "commentLikes"
+      GROUP BY "commentId"
+    ) like_counts ON like_counts."commentId" = c.id
+    WHERE c."deletedAt" IS NULL 
+      AND c."postId" = $1
     ORDER BY c."${query.sortBy}" ${query.sortDirection}
     LIMIT $2 OFFSET $3
   `;
@@ -126,17 +218,15 @@ export class CommentsQueryRepository {
     const countResult = await this.dataSource.query(countQuery, [postId]);
     const totalCount = parseInt(countResult[0].count);
 
-    // Формируем результат
-    const items = comments.map((comment) => {
-      return {
-        ...CommentViewDto.mapToView(comment),
-        likesInfo: {
-          likesCount: comment.likesCount || 0,
-          dislikesCount: comment.dislikesCount || 0,
-          myStatus: comment.myStatus || 'None',
-        },
-      };
-    });
+    // Формируем результат - всегда 'None' для myStatus
+    const items = comments.map((comment) => ({
+      ...CommentViewDto.mapToView(comment),
+      likesInfo: {
+        likesCount: Number(comment.likesCount) || 0,
+        dislikesCount: Number(comment.dislikesCount) || 0,
+        myStatus: 'None' as const, // Всегда 'None' для неавторизованных
+      },
+    }));
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,

@@ -112,15 +112,16 @@ export class PostsController {
   }
 
   @Get(':id/comments')
-  // @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtOptionalAuthGuard)
   async getCommentsForPost(
     @Query() query: GetCommentsQueryParams,
     @Param('id') postId: string,
-    // @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     // console.log(user);
-    // const userId = user?.id;
+    const userId = user?.id;
     const postIdNum = parseInt(postId, 10);
+
     const postExists = await this.postsQueryRepository.existsById(postIdNum);
     if (!postExists) {
       throw new DomainException({
@@ -128,12 +129,19 @@ export class PostsController {
         message: 'Post not found',
       });
     }
-
-    return this.commentsQueryRepository.getCommentsForPost(
-      query,
-      postId,
-      // userId,
-    );
+    if (userId) {
+      const userIdNum = parseInt(userId, 10);
+      return this.commentsQueryRepository.getCommentsForPostwithStatus(
+        query,
+        postIdNum,
+        userIdNum,
+      );
+    } else {
+      return this.commentsQueryRepository.getCommentsForPostWithoutUserStatus(
+        query,
+        postIdNum,
+      );
+    }
   }
 
   @Put(':id/like-status')

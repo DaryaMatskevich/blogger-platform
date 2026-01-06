@@ -41,7 +41,7 @@ import { RefreshTokensCommand } from '../application/auth-usecases/refresh-token
 import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
 import { CreateSessionCommand } from '../../../modules/user-accounts/sessions/application/usecases/create-session.usecase';
 
-import { ThrottlerGuard } from '@nestjs/throttler';
+// import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -50,7 +50,7 @@ export class AuthController {
     private commandBus: CommandBus,
   ) {}
   @Post('registration')
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() body: CreateUserInputDto): Promise<void> {
     return await this.commandBus.execute(new RegisterUserCommand(body));
@@ -58,7 +58,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
 
   //swagger doc
@@ -105,7 +105,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   passwordRecovery(@Body() body: EmailDto): Promise<void> {
     return this.commandBus.execute(
       new SendPasswordRecoveryEmailCommand(body.email),
@@ -113,7 +113,7 @@ export class AuthController {
   }
 
   @Post('new-password')
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   newPassword(@Body() body: NewPasswordDto): Promise<void> {
     return this.commandBus.execute(
       new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
@@ -121,14 +121,14 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   registrationConfirmation(@Body() body: { code: string }): Promise<void> {
     return this.commandBus.execute(new ConfirmEmailCommand(body.code));
   }
 
   @Post('registration-email-resending')
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationEmailResending(@Body() body: EmailDto): Promise<void> {
     return await this.commandBus.execute(

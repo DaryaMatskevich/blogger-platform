@@ -1,32 +1,17 @@
 import { IsStringWithTrim } from '../../../../../core/decorators/validation/is-string-with-trim';
 import { Matches } from 'class-validator';
-import {
-  descriptionConstraints,
-  nameConstraints,
-  websiteUrlConstraints,
-} from '../../domain/dto/blog.entity';
+import { BLOG } from '../../../../../modules/bloggers-platform/blogs/constants/blog.constants';
 
-//dto для боди при создании юзера. Сюда могут быть добавлены декораторы swagger
-export class CreateBlogInputDto {
-  @IsStringWithTrim(nameConstraints.minLength, nameConstraints.maxLength)
+export class BlogInputDto {
+  @IsStringWithTrim(BLOG.NAME_MIN, BLOG.NAME_MAX)
   name: string;
 
-  @IsStringWithTrim(
-    descriptionConstraints.minLength,
-    descriptionConstraints.maxLength,
-  )
+  @IsStringWithTrim(BLOG.DESC_MIN, BLOG.DESC_MAX)
   description: string;
 
-  @IsStringWithTrim(
-    websiteUrlConstraints.minLength,
-    websiteUrlConstraints.maxLength,
-  )
-  @Matches(
-    /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
-    {
-      message:
-        'websiteUrl must be a valid URL starting with https:// , field : websiteUrl',
-    },
-  )
+  @IsStringWithTrim(BLOG.URL_MIN, BLOG.URL_MAX)
+  @Matches(BLOG.URL_PATTERN, {
+    message: 'URL должен начинаться с https://',
+  })
   websiteUrl: string;
 }

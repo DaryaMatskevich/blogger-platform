@@ -5,7 +5,7 @@ import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { Request } from 'express';
 
 @Injectable()
-export class BasicAuthGuard implements CanActivate {
+export class AdminBasicAuthGuard implements CanActivate {
   private readonly validUsername = 'admin';
   private readonly validPassword = 'qwerty';
 

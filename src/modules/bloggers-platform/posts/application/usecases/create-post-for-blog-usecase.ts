@@ -1,12 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsQueryRepository } from '../../../../../modules/bloggers-platform/blogs/infastructure/query/blogs.query-repository';
-import { CreatePostForBlogInputDto } from '../../api/input-dto/posts.input-dto';
 import { PostsRepository } from '../../infactructure/posts.repository';
+import { PostInputDto } from '../../../../../modules/bloggers-platform/posts/api/input-dto/posts.input-dto';
+import { DomainException } from '@src/core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
 
 export class CreatePostForBlogCommand {
   constructor(
     public blogId: string,
-    public dto: CreatePostForBlogInputDto,
+    public dto: PostInputDto,
   ) {}
 }
 
@@ -20,18 +22,23 @@ export class CreatePostForBlogUseCase
   ) {}
 
   async execute(command: CreatePostForBlogCommand): Promise<number> {
-    const blogId = parseInt(command.blogId, 10);
+    const blogIdNum = parseInt(command.blogId, 10);
 
-    const blog = await this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
+    const blog = await this.blogsQueryRepository.blogExists(blogIdNum);
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Blog not found',
+      });
+    }
 
-    const post = await this.postsRepository.create({
+    const result = await this.postsRepository.create({
       title: command.dto.title,
       shortDescription: command.dto.shortDescription,
       content: command.dto.content,
-      blogId: blogId,
-      blogName: blog.name,
+      blogId: blogIdNum,
     });
 
-    return post.id;
+    return result.id;
   }
 }

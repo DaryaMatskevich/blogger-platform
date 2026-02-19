@@ -9,19 +9,11 @@ export class CryptoService {
     return bcrypt.hash(password, salt);
   }
 
-  comparePasswords(password: string, hash: string ): Promise<boolean> {
+  comparePasswords(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
 
   async checkPassword(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash)
-  }
-
-  async hashToken(token: string): Promise<string> {
-    return bcrypt.hash(token, 10);
-  }
-
-  async compareToken(token: string, hashedToken: string): Promise<boolean> {
-    return await bcrypt.compare(token, hashedToken);
+    return bcrypt.compare(password, hash);
   }
 }

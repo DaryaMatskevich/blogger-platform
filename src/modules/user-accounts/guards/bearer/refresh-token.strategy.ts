@@ -4,14 +4,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
+import { SessionsQueryRepository } from '../../../../modules/user-accounts/sessions/infrastructure/query/sessions.query-repository';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'refresh-jwt',
 ) {
-  constructor(private sessionRepository: SessionRepository) {
+  constructor(private sessionsQueryRepository: SessionsQueryRepository) {
     super({
       // Извлекаем токен из cookies
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -51,7 +51,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
       });
     }
     console.log('refreshToken');
-    const session = await this.sessionRepository.findByDeviceId(
+    const session = await this.sessionsQueryRepository.findByDeviceId(
       payload.deviceId,
     );
 

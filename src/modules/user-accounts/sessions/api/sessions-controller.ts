@@ -43,7 +43,7 @@ export class SessionsController {
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
   ): Promise<void> {
     return this.commandBus.execute(
-      new DeleteSessionCommand(deviceId, user.userId, user.refreshToken),
+      new DeleteSessionCommand(deviceId, user.userId),
     );
   }
 

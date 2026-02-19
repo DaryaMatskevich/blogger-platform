@@ -39,6 +39,12 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
       });
     }
 
-    await this.postsRepository.delete(postId);
+    const wasDeleted = await this.postsRepository.delete(postId);
+    if (!wasDeleted) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Blog deletion failed',
+      });
+    }
   }
 }

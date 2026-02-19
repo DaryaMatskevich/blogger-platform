@@ -1,39 +1,13 @@
 import { IsStringWithTrim } from '../../../../../core/decorators/validation/is-string-with-trim';
-import {
-  contentConstraints,
-  shortDescriptionConstraints,
-  titleConstraints,
-} from '../../domain/post.entity';
-import { IsString } from 'class-validator';
+import { POST } from '../../../../../modules/bloggers-platform/posts/constants/post.constants';
 
-//dto для боди при создании юзера. Сюда могут быть добавлены декораторы swagger
-export class CreatePostInputDto {
-  @IsStringWithTrim(titleConstraints.minLength, titleConstraints.maxLength)
+export class PostInputDto {
+  @IsStringWithTrim(POST.TITLE.MIN, POST.TITLE.MAX)
   title: string;
 
-  @IsStringWithTrim(
-    shortDescriptionConstraints.minLength,
-    shortDescriptionConstraints.maxLength,
-  )
+  @IsStringWithTrim(POST.SHORT_DESCRIPTION.MIN, POST.SHORT_DESCRIPTION.MAX)
   shortDescription: string;
 
-  @IsStringWithTrim(contentConstraints.minLength, contentConstraints.maxLength)
-  content: string;
-
-  @IsString()
-  blogId: string;
-}
-
-export class CreatePostForBlogInputDto {
-  @IsStringWithTrim(titleConstraints.minLength, titleConstraints.maxLength)
-  title: string;
-
-  @IsStringWithTrim(
-    shortDescriptionConstraints.minLength,
-    shortDescriptionConstraints.maxLength,
-  )
-  shortDescription: string;
-
-  @IsStringWithTrim(contentConstraints.minLength, contentConstraints.maxLength)
+  @IsStringWithTrim(POST.CONTENT.MIN, POST.CONTENT.MAX)
   content: string;
 }

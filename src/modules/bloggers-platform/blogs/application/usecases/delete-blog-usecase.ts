@@ -17,14 +17,20 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
 
   async execute(command: DeleteBlogCommand) {
     const blogIdNum = parseInt(command.id, 10);
-    const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
-    if (!blogExists) {
+    const blog = await this.blogsQueryRepository.findBlogById(blogIdNum);
+    if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Blog not found',
       });
     }
 
-    await this.blogsRepository.delete(blogIdNum);
+    const wasDeleted = await this.blogsRepository.delete(blogIdNum);
+    if (!wasDeleted) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Blog deletion failed',
+      });
+    }
   }
 }

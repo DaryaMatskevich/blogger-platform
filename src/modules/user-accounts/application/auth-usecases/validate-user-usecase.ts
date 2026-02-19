@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../infastructure/users.repository';
 import { CryptoService } from '../services/crypto.service';
 import { UserContextDto } from '../../guards/dto/user-contex.dto';
+import { UsersQueryRepository } from '@src/modules/user-accounts/infastructure/query/users.query-repository';
 
 export class ValidateUserCommand {
   constructor(
@@ -16,12 +16,13 @@ export class ValidateUserUseCase
 {
   constructor(
     private cryptoService: CryptoService,
-    private usersRepository: UsersRepository,
+    private usersQueryRepository: UsersQueryRepository,
   ) {}
 
   async execute(command: ValidateUserCommand): Promise<UserContextDto | null> {
     const { loginOrEmail, password } = command;
-    const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
+    const user =
+      await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
 
     if (!user) {
       return null;

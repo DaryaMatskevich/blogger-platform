@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdatePostDto } from '../../api/input-dto/posts.update-input.dto';
 import { PostsQueryRepository } from '../../../../bloggers-platform/posts/infactructure/query/posts.query-repository';
 import { PostsRepository } from '../../../../bloggers-platform/posts/infactructure/posts.repository';
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 import { BlogsQueryRepository } from '../../../../bloggers-platform/blogs/infastructure/query/blogs.query-repository';
+import { UpdatePostDto } from '../../../../../modules/bloggers-platform/posts/dto/update-post.dto';
 
 export class UpdatePostCommand {
   constructor(
@@ -25,22 +25,28 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   async execute(command: UpdatePostCommand): Promise<void> {
     const postId = parseInt(command.postId, 10);
     const blogId = parseInt(command.blogId, 10);
-    const blogExist = await this.blogsQueryRepository.blogExists(blogId);
-    if (!blogExist) {
+    const isBlogExist = await this.blogsQueryRepository.blogExists(blogId);
+    if (!isBlogExist) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Blog not found',
       });
     }
-    const postExistsInBlog =
-      await this.postsQueryRepository.existsByIdAndBlogId(postId, blogId);
-    if (!postExistsInBlog) {
+    const isPostBelongsToBlog =
+      await this.postsQueryRepository.isPostBelongsToBlog(postId, blogId);
+    if (!isPostBelongsToBlog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Post not found',
       });
     }
 
-    await this.postsRepository.update(postId, command.dto);
+    const result = await this.postsRepository.update(postId, command.dto);
+    if (result) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Post not found',
+      });
+    }
   }
 }

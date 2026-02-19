@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsRepository } from './blogs/infastructure/blogs.repository';
-import { Blog } from './blogs/domain/dto/blog.entity';
+import { Blog } from './blogs/domain/blog.entity';
 import { BlogsController } from './blogs/api/blogs.controller';
 import { BlogsQueryRepository } from './blogs/infastructure/query/blogs.query-repository';
 import { BlogsExternalQueryRepository } from './blogs/infastructure/external-query/external-dto/blogs.external-query-repository';

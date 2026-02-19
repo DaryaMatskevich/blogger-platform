@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user-accounts/domain/dto/user.entity';
 import { Session } from '../user-accounts/sessions/domain/session.entity';
-import { Blog } from '../../modules/bloggers-platform/blogs/domain/dto/blog.entity';
+import { Blog } from '../bloggers-platform/blogs/domain/blog.entity';
 import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';
 import { Comment } from '../../modules/bloggers-platform/comments/domain/comment.entity';
 import { CommentLike } from '../../modules/bloggers-platform/comments/domain/comment-like.entity';

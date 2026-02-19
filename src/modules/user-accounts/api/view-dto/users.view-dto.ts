@@ -6,9 +6,6 @@ export class UserViewDto {
   email: string;
   createdAt: string;
 
-  // firstName: string;
-  // lastName: string | null;
-
   static mapToView(user: User): UserViewDto {
     return {
       id: user.id.toString(),

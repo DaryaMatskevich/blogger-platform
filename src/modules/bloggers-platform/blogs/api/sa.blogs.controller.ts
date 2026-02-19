@@ -13,48 +13,40 @@ import {
 } from '@nestjs/common';
 
 import { BlogViewDto } from './view-dto/blogs.view-dto';
-import { CreateBlogInputDto } from './input-dto/blogs.input-dto';
+import { BlogInputDto } from './input-dto/blogs.input-dto';
 import { ApiParam } from '@nestjs/swagger';
-import { UpdateBlogInputDto } from './input-dto/update-blog.input-dto';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
-import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infastructure/query/blogs.query-repository';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
-import { CreatePostForBlogInputDto } from '../../posts/api/input-dto/posts.input-dto';
-import { PostsService } from '../../posts/application/posts.service';
+import { PostInputDto } from '../../posts/api/input-dto/posts.input-dto';
 import { PostsQueryRepository } from '../../posts/infactructure/query/posts.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
-import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
+import { AdminAuthGuard } from '@src/modules/sa/guards/basic/admin-auth.guard';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
-import { UpdatePostDto } from '../../../../modules/bloggers-platform/posts/api/input-dto/posts.update-input.dto';
 import { UpdatePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/delete-post-usecase';
-import { SaGuard } from '../../../../sa/sa.guard';
+import { SaGuard } from '@src/modules/sa/sa.guard';
 
 @UseGuards(SaGuard)
 @Controller('sa/blogs')
 export class SaBlogsController {
   constructor(
-    private blogsService: BlogsService,
-    private postsService: PostsService,
     private blogsQueryRepository: BlogsQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
-  ) {
-    console.log('UsersController created');
-  }
+  ) {}
 
   @Get()
   async getAll(
@@ -64,8 +56,8 @@ export class SaBlogsController {
   }
 
   @Post()
-  @UseGuards(BasicAuthGuard)
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
+  @UseGuards(AdminAuthGuard)
+  async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
     const blogId = await this.commandBus.execute(new CreateBlogCommand(body));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
@@ -73,20 +65,20 @@ export class SaBlogsController {
 
   @Put(':id')
   @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminAuthGuard)
   async updateBlog(
     @Param('id') id: string,
-    @Body() body: UpdateBlogInputDto,
+    @Body() body: BlogInputDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdateBlogCommand(id, body));
+    return this.commandBus.execute(new UpdateBlogCommand(id, body));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    await this.commandBus.execute(new DeleteBlogCommand(id));
+    return this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера
@@ -97,7 +89,6 @@ export class SaBlogsController {
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    // const userId = user?.id || null;
     const blogIdNum = parseInt(blogId, 10);
     const blogExists = await this.blogsQueryRepository.blogExists(blogIdNum);
     if (!blogExists) {
@@ -113,10 +104,10 @@ export class SaBlogsController {
   }
 
   @Post(':id/posts')
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminAuthGuard)
   async createPostForBlog(
     @Param('id') blogId: string,
-    @Body() body: CreatePostForBlogInputDto,
+    @Body() body: PostInputDto,
   ): Promise<PostViewDto> {
     const postId = await this.commandBus.execute(
       new CreatePostForBlogCommand(blogId, body),
@@ -127,23 +118,23 @@ export class SaBlogsController {
 
   @Put(':blogId/posts/:postId')
   @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminAuthGuard)
   async updatePostForBlog(
-    @Param('blogId') blogId: string, // ← Получаем blogId
+    @Param('blogId') blogId: string,
     @Param('postId') postId: string,
-    @Body() body: UpdatePostDto,
+    @Body() body: PostInputDto,
   ): Promise<void> {
     await this.commandBus.execute(new UpdatePostCommand(postId, blogId, body));
   }
 
   @ApiParam({ name: ':blogId/posts/:postId' }) //для сваггера
   @Delete(':blogId/posts/:postId')
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostForBlog(
-    @Param('blogId') blogId: string, // ← Получаем blogId
+    @Param('blogId') blogId: string,
     @Param('postId') postId: string,
   ): Promise<void> {
-    await this.commandBus.execute(new DeletePostCommand(postId, blogId));
+    return this.commandBus.execute(new DeletePostCommand(postId, blogId));
   }
 }

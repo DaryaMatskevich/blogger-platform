@@ -5,10 +5,30 @@ import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 import { DataSource } from 'typeorm';
+import { Blog } from '../../domain/blog.entity';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(private dataSource: DataSource) {}
+
+  async findBlogById(id: number): Promise<Blog | null> {
+    const query = `
+    SELECT
+      id,
+      name,
+      description,
+      "websiteUrl",
+      "isMembership",
+      "createdAt",
+      "updatedAt",
+      "deletedAt"
+    FROM blogs
+    WHERE id = $1 AND "deletedAt" IS NULL
+  `;
+
+    const result = await this.dataSource.query(query, [id]);
+    return result[0] || null;
+  }
 
   async blogExists(id: number): Promise<boolean> {
     const query = `

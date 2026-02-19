@@ -8,14 +8,14 @@ export abstract class PaginatedViewDto<T> {
   //статический метод-утилита для мапинга
   public static mapToView<T>(data: {
     page: number;
-    size: number;
+    pageSize: number;
     totalCount: number;
     items: T;
   }): PaginatedViewDto<T> {
     return {
-      pagesCount: Math.ceil(data.totalCount / data.size),
+      pagesCount: Math.ceil(data.totalCount / data.pageSize),
       page: data.page,
-      pageSize: data.size,
+      pageSize: data.pageSize,
       totalCount: data.totalCount,
       items: data.items,
     };

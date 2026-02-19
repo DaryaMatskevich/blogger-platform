@@ -8,8 +8,8 @@ import {
 
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { SessionRepository } from '../../sessions/infrastructure/sessions.repository';
-import { DataSource } from 'typeorm';
+import { SessionsRepository } from '../../sessions/infrastructure/sessions.repository';
+import { SessionsQueryRepository } from '../../../../modules/user-accounts/sessions/infrastructure/query/sessions.query-repository';
 
 export class RefreshTokensCommand {
   constructor(
@@ -24,8 +24,8 @@ export class RefreshTokensUseCase
   implements ICommandHandler<RefreshTokensCommand>
 {
   constructor(
-    private sessionsRepository: SessionRepository,
-    private dataSource: DataSource,
+    private sessionsRepository: SessionsRepository,
+    private sessionsQueryRepository: SessionsQueryRepository,
 
     @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
     private accessTokenContext: JwtService,
@@ -38,9 +38,16 @@ export class RefreshTokensUseCase
     command: RefreshTokensCommand,
   ): Promise<{ newAccessToken: string; newRefreshToken: string }> {
     const { userId, deviceId } = command;
-    const session = await this.sessionsRepository.findByDeviceId(
+    const session = await this.sessionsQueryRepository.findByDeviceId(
       command.deviceId,
     );
+
+    if (!session) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad Request',
+      });
+    }
 
     if (session.userId !== userId) {
       throw new DomainException({
@@ -57,15 +64,19 @@ export class RefreshTokensUseCase
     });
 
     const now = new Date();
-    await this.dataSource.query(
-      `UPDATE sessions 
-       SET "refreshToken" = $1, 
-           "lastActiveDate" = $2,
-           "updatedAt" = NOW()
-       WHERE "deviceId" = $3 AND "userId" = $4`,
-      [newRefreshToken, now, deviceId, userId],
+    const updated = await this.sessionsRepository.updateSessionRefreshToken(
+      deviceId,
+      userId,
+      newRefreshToken,
+      now,
     );
 
+    if (!updated) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Failed to update session',
+      });
+    }
     return {
       newAccessToken,
       newRefreshToken,

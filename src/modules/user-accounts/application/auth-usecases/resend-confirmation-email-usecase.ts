@@ -7,6 +7,8 @@ import {
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { UsersQueryRepository } from '../../../../modules/user-accounts/infastructure/query/users.query-repository';
+import { ConfirmationRepository } from '../../../../modules/user-accounts/infastructure/confirmation.repository';
 
 export class ResendConfirmationEmailCommand {
   constructor(public email: string) {}
@@ -18,6 +20,8 @@ export class ResendConfirmationEmailUseCase
 {
   constructor(
     private emailService: EmailService,
+    private usersQueryRepository: UsersQueryRepository,
+    private confirmationRepository: ConfirmationRepository,
     private dataSource: DataSource,
   ) {}
 
@@ -25,14 +29,9 @@ export class ResendConfirmationEmailUseCase
     const { email } = command;
 
     // 1. Находим пользователя по email
-    const userResult = await this.dataSource.query(
-      `SELECT id, email, "isEmailConfirmed", "confirmationCode" 
-       FROM users 
-       WHERE email = $1`,
-      [email],
-    );
+    const user = await this.usersQueryRepository.findByEmail(email);
 
-    if (userResult.length === 0) {
+    if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'User with this email not found',
@@ -40,9 +39,18 @@ export class ResendConfirmationEmailUseCase
       });
     }
 
-    const user = userResult[0];
+    const confirmation =
+      await this.confirmationRepository.findConfirmationByUserId(user.id);
 
-    if (user.isEmailConfirmed) {
+    if (!confirmation) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Confirmation record not found',
+        extensions: [new Extension('Confirmation not found', 'userId')],
+      });
+    }
+
+    if (confirmation.isEmailConfirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'User is already confirmed',
@@ -51,13 +59,17 @@ export class ResendConfirmationEmailUseCase
     }
     const confirmCode = uuidv4();
 
-    await this.dataSource.query(
-      `UPDATE users 
-       SET "confirmationCode" = $1, "updatedAt" = NOW() 
-       WHERE id = $2`,
-      [confirmCode, user.id],
+    const updated = await this.confirmationRepository.updateConfirmationCode(
+      user.id,
+      confirmCode,
     );
-
+    if (!updated) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Failed to update confirmation code. Please try again later.',
+        extensions: [new Extension('Internal server error', 'email')],
+      });
+    }
     this.emailService.sendConfirmationEmail(user.email, confirmCode);
   }
 }

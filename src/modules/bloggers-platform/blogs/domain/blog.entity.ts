@@ -3,26 +3,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CreateBlogInputDto } from '../../api/input-dto/blogs.input-dto';
-
-export const nameConstraints = {
-  minLength: 1,
-  maxLength: 15,
-};
-
-export const descriptionConstraints = {
-  minLength: 1,
-  maxLength: 500,
-};
-
-export const websiteUrlConstraints = {
-  minLength: 1,
-  maxLength: 100,
-  match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
-};
+import { Post } from '../../posts/domain/post.entity';
+import { BLOG } from '../constants/blog.constants';
 
 @Entity('blogs')
 export class Blog {
@@ -31,21 +17,21 @@ export class Blog {
 
   @Column({
     type: 'varchar',
-    length: nameConstraints.maxLength,
+    length: BLOG.NAME.MAX,
     nullable: false,
   })
   name: string;
 
   @Column({
     type: 'varchar',
-    length: descriptionConstraints.maxLength,
+    length: BLOG.DESCRIPTION.MAX,
     nullable: false,
   })
   description: string;
 
   @Column({
     type: 'varchar',
-    length: websiteUrlConstraints.maxLength,
+    length: BLOG.WEBSITE_URL.MAX,
     nullable: false,
   })
   websiteUrl: string;
@@ -72,13 +58,6 @@ export class Blog {
   })
   deletedAt: Date | null;
 
-  static createBlog(dto: CreateBlogInputDto): Blog {
-    const blog = new Blog();
-    blog.name = dto.name;
-    blog.description = dto.description;
-    blog.websiteUrl = dto.websiteUrl;
-    blog.isMembership = false;
-
-    return blog;
-  }
+  @OneToMany(() => Post, (post) => post.blog)
+  posts: Post[];
 }

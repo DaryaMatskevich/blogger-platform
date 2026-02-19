@@ -1,36 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { CreatePostDomainDto } from '../../../bloggers-platform/posts/domain/create-post.domain.dto';
-import { Post } from '../../../bloggers-platform/posts/domain/post.entity';
-import { DomainException } from '../../../../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatePostDto } from '../../../../modules/bloggers-platform/posts/dto/update-post.dto';
 
 @Injectable()
 export class PostsRepository {
-  //инжектирование модели через DI
   constructor(private dataSource: DataSource) {}
-  async create(dto: CreatePostDomainDto): Promise<Post> {
+
+  async create(dto: CreatePostDto): Promise<{ id: number }> {
     const query = `
-      INSERT INTO posts (
-        title, 
-        "shortDescription", 
-        content, 
-        "blogId", 
-        "blogName"
-        
-      ) 
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING 
-        id,
-        title,
-        "shortDescription",
-        content,
-        "blogId",
-        "blogName",
-        "createdAt",
-        "updatedAt",
-        "deletedAt"
-        
+      INSERT INTO posts (title,
+                         "shortDescription",
+                         content,
+                         "blogId")
+      VALUES ($1, $2, $3, $4) RETURNING 
+      id
     `;
 
     const result = await this.dataSource.query(query, [
@@ -38,16 +22,12 @@ export class PostsRepository {
       dto.shortDescription,
       dto.content,
       dto.blogId,
-      dto.blogName,
     ]);
 
-    return result[0] as Post;
+    return { id: result[0].id };
   }
 
-  async update(
-    id: number,
-    dto: { title: string; shortDescription: string; content: string },
-  ): Promise<void> {
+  async update(id: number, dto: UpdatePostDto): Promise<boolean> {
     const query = `
       UPDATE posts
       SET
@@ -68,21 +48,18 @@ export class PostsRepository {
 
     const result = await this.dataSource.query(query, values);
 
-    if (result[1] === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Post not found',
-      });
-    }
+    return result.length > 0;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number): Promise<boolean> {
     const query = `
       UPDATE posts
       SET "deletedAt" = CURRENT_TIMESTAMP 
       WHERE id = $1 AND "deletedAt" IS NULL
     `;
 
-    await this.dataSource.query(query, [id]);
+    const result = await this.dataSource.query(query, [id]);
+
+    return result.length > 0;
   }
 }

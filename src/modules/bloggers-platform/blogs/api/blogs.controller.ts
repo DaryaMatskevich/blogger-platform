@@ -13,24 +13,20 @@ import {
 } from '@nestjs/common';
 
 import { BlogViewDto } from './view-dto/blogs.view-dto';
-import { CreateBlogInputDto } from './input-dto/blogs.input-dto';
+import { BlogInputDto } from './input-dto/blogs.input-dto';
 import { ApiParam } from '@nestjs/swagger';
-import { UpdateBlogInputDto } from './input-dto/update-blog.input-dto';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
-import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infastructure/query/blogs.query-repository';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { CreatePostForBlogInputDto } from '../../posts/api/input-dto/posts.input-dto';
-import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infactructure/query/posts.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
-import { BasicAuthGuard } from '../../../../modules/user-accounts/guards/basic/basic-auth.guard';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { GetBlogByIdQuery } from '../application/queries/get-blog-by-id.query-handler';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
@@ -38,25 +34,20 @@ import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-
 import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { ExtractUserIfExistsFromRequest } from '../.././../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
+import { AdminBasicAuthGuard } from '@src/modules/sa/guards/basic/admin-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private blogsService: BlogsService,
-    private postsService: PostsService,
     private blogsQueryRepository: BlogsQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
-  ) {
-    console.log('UsersController created');
-  }
+  ) {}
 
   @ApiParam({ name: 'id' }) //для сваггера
-  @Get(':id') //users/232342-sdfssdf-23234323
+  @Get(':id')
   async getById(@Param('id') id: string): Promise<BlogViewDto> {
-    // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
-    // промис зарезолвится и затем NestJS вернёт результат клиенту
     return this.queryBus.execute(new GetBlogByIdQuery(id));
   }
 
@@ -68,8 +59,8 @@ export class BlogsController {
   }
 
   @Post()
-  @UseGuards(BasicAuthGuard)
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
+  @UseGuards(AdminBasicAuthGuard)
+  async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
     const blogId = await this.commandBus.execute(new CreateBlogCommand(body));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
@@ -77,17 +68,17 @@ export class BlogsController {
 
   @Put(':id')
   @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminBasicAuthGuard)
   async updateBlog(
     @Param('id') id: string,
-    @Body() body: UpdateBlogInputDto,
+    @Body() body: BlogInputDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdateBlogCommand(id, body));
+    return this.commandBus.execute(new UpdateBlogCommand(id, body));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminBasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
@@ -126,7 +117,7 @@ export class BlogsController {
   }
 
   @Post(':id/posts')
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(AdminBasicAuthGuard)
   async createPostForBlog(
     @Param('id') blogId: string,
     @Body() body: CreatePostForBlogInputDto,

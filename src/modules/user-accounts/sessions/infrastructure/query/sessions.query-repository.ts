@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SessionViewDto } from '../../api/view-dto/sessions.view-dto';
-import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
+import { Session } from '../../../../../modules/user-accounts/sessions/domain/session.entity';
 
 @Injectable()
 export class SessionsQueryRepository {
@@ -15,29 +14,18 @@ export class SessionsQueryRepository {
   async findAllActiveSessionsByUserId(
     userId: string,
   ): Promise<SessionViewDto[]> {
-    console.log('rer');
     const userIdNumber = Number(userId);
 
-    // Проверяем валидность преобразования
-
     const query = `
-      SELECT 
-        id,
-        "userId",
+      SELECT
         ip,
         title,
         "lastActiveDate",
-        "deviceId",
-        "expirationDate",
-        "refreshToken",
-        "createdAt",
-        "updatedAt"
-      FROM sessions 
-      WHERE "userId" = $1 
-        AND "expirationDate"> NOW()
-        
+        "deviceId"
+      FROM sessions
+      WHERE "userId" = $1
+        AND "expirationDate" > NOW()
         AND "deletedAt" IS NULL
-      
       ORDER BY "lastActiveDate" DESC
     `;
 
@@ -47,207 +35,47 @@ export class SessionsQueryRepository {
       const result = await this.dataSource.query(query, parameters);
 
       if (!result || result.length === 0) {
-        throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          message: 'Sessions not found',
-        });
+        return [];
       }
-      console.log('куку');
-      return result.map((session: any) =>
-        SessionViewDto.mapToView(this.mapRawToSession(session)),
-      );
+
+      // Прямой маппинг без mapRawToSession
+      return result.map((session: any) => ({
+        ip: session.ip,
+        title: session.title,
+        lastActiveDate: session.lastActiveDate,
+        deviceId: session.deviceId,
+      }));
     } catch (error) {
-      if (error instanceof DomainException) {
-        throw error;
-      }
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error fetching sessions',
-      });
+      console.error('Error fetching sessions:', error);
+      return [];
     }
   }
 
-  async findSessionByDeviceId(
-    deviceId: string,
-  ): Promise<SessionViewDto | null> {
+  async findByDeviceId(deviceId: string): Promise<Session | null> {
     const query = `
-      SELECT 
+      SELECT
         id,
-        user_id as "userId", 
+        "userId",
         ip,
         title,
-        last_active_date as "lastActiveDate",
-        device_id as "deviceId",
-        expiration_date as "expirationDate",
-        refresh_token as "refreshToken",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM sessions 
-      WHERE device_id = $1 
-        AND deleted_at IS NULL
-      LIMIT 1
+        "lastActiveDate",
+        "deviceId",
+        "expirationDate",
+        "refreshToken",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      FROM sessions
+      WHERE "deviceId" = $1
+        AND "deletedAt" IS NULL
     `;
 
-    const parameters = [deviceId];
+    const result = await this.dataSource.query(query, [deviceId]);
 
-    try {
-      const result = await this.dataSource.query(query, parameters);
-
-      if (!result || result.length === 0) {
-        return null;
-      }
-
-      return SessionViewDto.mapToView(this.mapRawToSession(result[0]));
-    } catch {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error fetching session by device ID',
-      });
+    if (!result || result.length === 0) {
+      return null;
     }
-  }
 
-  async findSessionByRefreshToken(
-    refreshToken: string,
-  ): Promise<SessionViewDto | null> {
-    const query = `
-      SELECT 
-        id,
-        user_id as "userId",
-        ip,
-        title,
-        last_active_date as "lastActiveDate",
-        device_id as "deviceId",
-        expiration_date as "expirationDate",
-        refresh_token as "refreshToken",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM sessions 
-      WHERE refresh_token = $1 
-        AND deleted_at IS NULL
-      LIMIT 1
-    `;
-
-    const parameters = [refreshToken];
-
-    try {
-      const result = await this.dataSource.query(query, parameters);
-
-      if (!result || result.length === 0) {
-        return null;
-      }
-
-      return SessionViewDto.mapToView(this.mapRawToSession(result[0]));
-    } catch {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error fetching session by refresh token',
-      });
-    }
-  }
-
-  async isSessionActive(deviceId: string): Promise<boolean> {
-    const currentDate = new Date();
-
-    const query = `
-      SELECT COUNT(*) as count
-      FROM sessions 
-      WHERE device_id = $1 
-        AND expiration_date > $2 
-        AND deleted_at IS NULL
-    `;
-
-    const parameters = [deviceId, currentDate];
-
-    try {
-      const result = await this.dataSource.query(query, parameters);
-      return parseInt(result[0].count) > 0;
-    } catch {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error checking session activity',
-      });
-    }
-  }
-
-  async getActiveSessionsCount(userId: string): Promise<number> {
-    const currentDate = new Date();
-
-    const query = `
-      SELECT COUNT(*) as count
-      FROM sessions 
-      WHERE user_id = $1 
-        AND expiration_date > $2 
-        AND deleted_at IS NULL
-    `;
-
-    const parameters = [userId, currentDate];
-
-    try {
-      const result = await this.dataSource.query(query, parameters);
-      return parseInt(result[0].count);
-    } catch {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error counting active sessions',
-      });
-    }
-  }
-
-  async findSessionByUserIdAndDeviceId(
-    userId: string,
-    deviceId: string,
-  ): Promise<SessionViewDto | null> {
-    const query = `
-      SELECT 
-        id,
-        user_id as "userId",
-        ip,
-        title,
-        last_active_date as "lastActiveDate",
-        device_id as "deviceId",
-        expiration_date as "expirationDate",
-        refresh_token as "refreshToken",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM sessions 
-      WHERE user_id = $1 
-        AND device_id = $2 
-        AND deleted_at IS NULL
-      LIMIT 1
-    `;
-
-    const parameters = [userId, deviceId];
-
-    try {
-      const result = await this.dataSource.query(query, parameters);
-
-      if (!result || result.length === 0) {
-        return null;
-      }
-
-      return SessionViewDto.mapToView(this.mapRawToSession(result[0]));
-    } catch {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Error fetching session by user ID and device ID',
-      });
-    }
-  }
-
-  // Вспомогательный метод для преобразования сырых данных в объект Session
-  private mapRawToSession(raw: any): any {
-    return {
-      id: raw.id,
-      userId: raw.userId,
-      ip: raw.ip,
-      title: raw.title,
-      lastActiveDate: raw.lastActiveDate,
-      deviceId: raw.deviceId,
-      expirationDate: raw.expirationDate,
-      refreshToken: raw.refreshToken,
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-      deletedAt: null, // Так как мы фильтруем по deleted_at IS NULL
-    };
+    return result[0];
   }
 }

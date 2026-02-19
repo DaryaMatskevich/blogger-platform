@@ -18,7 +18,6 @@ import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dt
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetPostByIdQuery } from '../application/queries/get-post-by-id.query-handler';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
-// import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view.dto';
 import { CreateCommentForPostCommand } from '../../comments/application/usecases/create-comment-for-post.usecase';
@@ -39,22 +38,19 @@ export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
-    //private postsService: PostsService,
     private queryBus: QueryBus,
     private commentsQueryRepository: CommentsQueryRepository,
-  ) {
-    console.log('UsersController created');
-  }
+  ) {}
 
   @ApiParam({ name: 'id' }) //для сваггера
-  @Get(':id') //users/232342-sdfssdf-23234323
+  @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
   async getById(
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
     @Param('id') postId: string,
   ): Promise<PostViewDto> {
     const userId = user?.id || null;
-    // console.log(userId);
+
     return this.queryBus.execute(new GetPostByIdQuery(postId, userId));
   }
 
@@ -67,34 +63,6 @@ export class PostsController {
     const userId = user?.id || null;
     return this.queryBus.execute(new GetPostsQuery(query, userId));
   }
-
-  // @Post()
-  // @UseGuards(BasicAuthGuard)
-  // async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
-  //   const postId = await this.commandBus.execute(new CreatePostCommand(body));
-  //
-  //   return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
-  // }
-
-  // @Put(':id')
-  // @UseGuards(BasicAuthGuard)
-  // @HttpCode(204)
-  // async updatePost(
-  //   @Param('id') id: string,
-  //   @Body() body: UpdatePostDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new UpdatePostCommand(id, body));
-  // }
-
-  // @ApiParam({ name: 'id' }) //для сваггера
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(BasicAuthGuard)
-  // async deletePost(
-  //   @Param('id', ObjectIdValidationPipe) id: string,
-  // ): Promise<void> {
-  //   return this.commandBus.execute(new DeletePostCommand(id));
-  // }
 
   @Post(':id/comments')
   @UseGuards(JwtAuthGuard)

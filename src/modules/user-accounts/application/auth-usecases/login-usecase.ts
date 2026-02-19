@@ -26,7 +26,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   async execute(
     command: LoginCommand,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    console.log('что за херня ' + command.userId);
     const accessToken = this.accessTokenContext.sign({
       id: command.userId,
     });

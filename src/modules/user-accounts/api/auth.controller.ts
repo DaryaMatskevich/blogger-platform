@@ -19,18 +19,15 @@ import {
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
-import { Nullable, UserContextDto } from '../guards/dto/user-contex.dto';
+import { UserContextDto } from '../guards/dto/user-contex.dto';
 import { ExtractUserFromRequest } from '../guards/decorators/param/extracr-user-from-request.decorator';
-import { ExtractUserIfExistsFromRequest } from '../guards/decorators/param/extract-user-if-exists-from-request.decorator';
-import { JwtOptionalAuthGuard } from '../guards/bearer/jwt-optional-auth.guard';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
-import { AuthQueryRepository } from '../infastructure/query/auth.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from '../application/auth-usecases/login-usecase';
 import { ResendConfirmationEmailCommand } from '../application/auth-usecases/resend-confirmation-email-usecase';
 import { SendPasswordRecoveryEmailCommand } from '../application/auth-usecases/send-password-recovery-email-usecase';
 import { SetNewPasswordCommand } from '../application/auth-usecases/set-new-password-usecase';
-import { RegisterUserCommand } from '../application/users-usecases/register-user-usecase';
+import { RegisterUserCommand } from '../application/auth-usecases/register-user-usecase';
 import { ConfirmEmailCommand } from '../application/auth-usecases/confirm-email-usecase';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,27 +37,29 @@ import { UserWithDeviceIdContextDto } from '../guards/dto/deviceId-context.dto';
 import { RefreshTokensCommand } from '../application/auth-usecases/refresh-tokens.usecase';
 import { LogOutCommand } from '../application/auth-usecases/logout.usecase';
 import { CreateSessionCommand } from '../../../modules/user-accounts/sessions/application/usecases/create-session.usecase';
+import { UsersQueryRepository } from '../../../modules/user-accounts/infastructure/query/users.query-repository';
+import { DomainException } from '../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../core/exeptions/domain-exeption-codes';
 
 // import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private authQueryRepository: AuthQueryRepository,
+    private usersQueryRepository: UsersQueryRepository,
     private commandBus: CommandBus,
   ) {}
   @Post('registration')
   // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() body: CreateUserInputDto): Promise<void> {
-    return await this.commandBus.execute(new RegisterUserCommand(body));
+    await this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
   // @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
-
   //swagger doc
   @ApiBody({
     schema: {
@@ -72,13 +71,11 @@ export class AuthController {
     },
   })
   async login(
-    /*@Request() req: any*/
     @ExtractUserFromRequest() user: UserContextDto,
     @Headers('user-agent') userAgent: string,
     @Ip() ip: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
-    console.log(user.id);
     const title = this.getDeviceTitle(userAgent);
     const deviceId = uuidv4();
 
@@ -101,7 +98,7 @@ export class AuthController {
       secure: true,
     });
 
-    return { accessToken: result.accessToken }; // Возвращаем accessToken в теле
+    return { accessToken: result.accessToken };
   }
 
   @Post('password-recovery')
@@ -139,25 +136,17 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
-    return this.authQueryRepository.me(user.id);
-  }
-
-  @ApiBearerAuth()
-  @Get('me-or-default')
-  @UseGuards(JwtOptionalAuthGuard)
-  async meOrDefault(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto,
-  ): Promise<Nullable<MeViewDto>> {
-    if (user) {
-      return this.authQueryRepository.me(user.id);
-    } else {
-      return {
-        login: 'anonymous',
-        userId: null,
-        email: null,
-      };
+  async me(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<MeViewDto> {
+    const user = await this.usersQueryRepository.me(userContext.id);
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `User not found`,
+      });
     }
+    return user;
   }
 
   @Post('refresh-token')
@@ -167,7 +156,6 @@ export class AuthController {
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
-    console.log(user.refreshToken, user.deviceId);
     const refreshToken = user.refreshToken;
     const userId = user.userId;
     const deviceId = user.deviceId;
@@ -197,7 +185,6 @@ export class AuthController {
     await this.commandBus.execute(
       new LogOutCommand(userId, deviceId, refreshToken),
     );
-    console.log(refreshToken + 'отобразился');
 
     response.clearCookie('refreshToken', {
       httpOnly: true,

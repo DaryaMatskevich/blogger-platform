@@ -1,65 +1,53 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../../dto/create-user.dto';
 import { UsersRepository } from '../../infastructure/users.repository';
 import { CryptoService } from './crypto.service';
-import {
-  DomainException,
-  Extension,
-} from '../../../../core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
-import { User } from '../../../../modules/user-accounts/domain/dto/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from '../../../../modules/notifications/email.service';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
+import { CreateUserInputDto } from '../../../../modules/user-accounts/api/input-dto/users.input-dto';
+import { ConfirmationRepository } from '../../../../modules/user-accounts/infastructure/confirmation.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
     private usersRepository: UsersRepository,
+    private confirmationRepository: ConfirmationRepository,
     private cryptoService: CryptoService,
     private emailService: EmailService,
   ) {}
-  async createUser(dto: CreateUserDto): Promise<string> {
-    const userWithTheSameLogin = await this.usersRepository.findByLogin(
-      dto.login,
-    );
-    if (userWithTheSameLogin) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'User with the same login already exists',
-        extensions: [
-          new Extension('User with the same login already exists', 'login'),
-        ],
-      });
-    }
 
-    const userWithTheSameEmail = await this.usersRepository.findByEmail(
-      dto.email,
-    );
-    if (userWithTheSameEmail) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: 'User with the same email already exists',
-        extensions: [
-          new Extension('User with the same email already exists', 'email'),
-        ],
-      });
-    }
-
+  async createUser(dto: CreateUserInputDto): Promise<void> {
     const passwordHash = await this.cryptoService.createPasswordHash(
       dto.password,
     );
+
     const confirmationCode = uuidv4();
 
-    const user = User.createInstance({
+    const user = {
       login: dto.login,
-      passwordHash: passwordHash,
       email: dto.email,
-      confirmationCode: confirmationCode,
-    });
+      passwordHash: passwordHash,
+    };
 
-    const createdUserId = await this.usersRepository.createUser(user);
+    const confirmation = {
+      code: confirmationCode,
+      isEmailConfirmed: false,
+    };
+    try {
+      const userId = await this.usersRepository.createUser(user);
 
-    this.emailService.sendConfirmationEmail(user.email, confirmationCode);
-    return createdUserId;
+      await this.confirmationRepository.createConfirmation(
+        confirmation,
+        userId,
+      );
+
+      this.emailService.sendConfirmationEmail(user.email, confirmationCode);
+    } catch (error) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: `Failed to create user: ${error.message}`,
+      });
+    }
   }
 }

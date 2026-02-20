@@ -94,18 +94,6 @@ export class PostsQueryRepository {
     });
   }
 
-  async isPostBelongsToBlog(postId: number, blogId: number): Promise<boolean> {
-    const query = `SELECT EXISTS
-                            (SELECT 1
-                             FROM posts
-                             WHERE id = $1
-                               AND "blogId" = $2
-                               AND "deletedAt" IS NULL)`;
-
-    const result = await this.dataSource.query(query, [postId, blogId]);
-    return result[0]?.exists ?? false;
-  }
-
   async existsById(postId: number): Promise<boolean> {
     const query = `
     SELECT EXISTS(
@@ -226,7 +214,7 @@ export class PostsQueryRepository {
     if (posts.length === 0) {
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount: 0,
         items: [],
       });
@@ -317,10 +305,26 @@ export class PostsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });
+  }
+
+  async findPostInBlog(postId: number, blogId: number): Promise<boolean> {
+    const result = await this.dataSource.query(
+      `
+        SELECT EXISTS(
+          SELECT 1 FROM posts
+          WHERE id = $1
+            AND "blogId" = $2
+            AND "deletedAt" IS NULL
+        )
+      `,
+      [postId, blogId],
+    );
+
+    return result[0]?.exists || false;
   }
 
   async getAllwithLikeStatus(
@@ -352,7 +356,7 @@ export class PostsQueryRepository {
     if (posts.length === 0) {
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount: 0,
         items: [],
       });
@@ -426,7 +430,7 @@ export class PostsQueryRepository {
     // 4. Возвращаем результат
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });
@@ -471,7 +475,7 @@ export class PostsQueryRepository {
 
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount,
         items: [],
       });
@@ -495,7 +499,7 @@ export class PostsQueryRepository {
 
     return PaginatedViewDto.mapToView<PostViewDto[]>({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });
@@ -590,7 +594,7 @@ export class PostsQueryRepository {
     if (posts.length === 0) {
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount: 0,
         items: [],
       });
@@ -615,7 +619,7 @@ export class PostsQueryRepository {
 
     return PaginatedViewDto.mapToView<PostViewDto[]>({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });

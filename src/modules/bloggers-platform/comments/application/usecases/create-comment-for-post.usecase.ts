@@ -45,7 +45,7 @@ export class CreateCommentForPostUseCase
       userLogin: user.login,
       postId: postIdNum,
     };
-    console.log('дощло до сюда');
+
     const comment = await this.commentsRepository.createComment(commentDto);
 
     return comment.id;

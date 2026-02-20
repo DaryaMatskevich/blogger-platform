@@ -35,6 +35,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../modules/user-accounts/domain/dto/user.entity';
 import { Session } from '../../modules/user-accounts/sessions/domain/session.entity';
 import { SessionsRepository } from '../../modules/user-accounts/sessions/infrastructure/sessions.repository';
+import { ConfirmationRepository } from '../../modules/user-accounts/infastructure/confirmation.repository';
 
 const useCases = [
   RegisterUserUseCase,
@@ -87,6 +88,7 @@ const useCases = [
     UsersExternalQueryRepository,
     SessionsQueryRepository,
     SessionsRepository,
+    ConfirmationRepository,
     ...useCases,
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -120,6 +122,7 @@ const useCases = [
     UsersService,
     CryptoService,
     UsersRepository,
+    ConfirmationRepository,
   ],
 })
 export class UserAccountsModule {}

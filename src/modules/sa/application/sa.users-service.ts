@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../../user-accounts/infastructure/users.repository';
 import { CryptoService } from '../../user-accounts/application/services/crypto.service';
-import { CreateUserInputDto } from '@src/modules/user-accounts/api/input-dto/users.input-dto';
+import { CreateUserInputDto } from '../../../modules/user-accounts/api/input-dto/users.input-dto';
+import { ConfirmationRepository } from '../../../modules/user-accounts/infastructure/confirmation.repository';
 
 @Injectable()
 export class SaUsersService {
   constructor(
     private usersRepository: UsersRepository,
+    private confirmationRepository: ConfirmationRepository,
     private cryptoService: CryptoService,
   ) {}
   async createUserByAdmin(dto: CreateUserInputDto): Promise<number> {
@@ -21,7 +23,7 @@ export class SaUsersService {
     });
 
     // Админ создает - сразу подтвержденный email
-    await this.usersRepository.createConfirmation(
+    await this.confirmationRepository.createConfirmation(
       {
         code: null,
         isEmailConfirmed: true,

@@ -135,7 +135,7 @@ export class CommentsQueryRepository {
     if (comments.length === 0) {
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount: 0,
         items: [],
       });
@@ -162,7 +162,7 @@ export class CommentsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });
@@ -203,7 +203,7 @@ export class CommentsQueryRepository {
     if (comments.length === 0) {
       return PaginatedViewDto.mapToView({
         page: query.pageNumber,
-        size: query.pageSize,
+        pageSize: query.pageSize,
         totalCount: 0,
         items: [],
       });
@@ -230,7 +230,7 @@ export class CommentsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });

@@ -22,6 +22,8 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
 import { CommentLike } from './modules/bloggers-platform/comments/domain/comment-like.entity';
 import { Comment } from './modules/bloggers-platform/comments/domain/comment.entity';
 import { PostLike } from './modules/bloggers-platform/posts/domain/likes/post-like.entity';
+import { Confirmation } from './modules/user-accounts/domain/dto/confirmation.entity';
+import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
 
 @Module({
   imports: [
@@ -39,7 +41,16 @@ import { PostLike } from './modules/bloggers-platform/posts/domain/likes/post-li
       //username: 'nodejs',
       //password: 'nodejs',
       //database: 'BlogPlatform',
-      entities: [Session, User, Blog, Comment, CommentLike, PostLike],
+      entities: [
+        Session,
+        User,
+        Blog,
+        Post,
+        Confirmation,
+        Comment,
+        CommentLike,
+        PostLike,
+      ],
       url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
       autoLoadEntities: false,
       synchronize: false, // только для разработки!

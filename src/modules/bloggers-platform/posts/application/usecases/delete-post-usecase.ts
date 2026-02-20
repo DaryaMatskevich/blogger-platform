@@ -30,8 +30,10 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
         message: 'Blog not found',
       });
     }
-    const postExistsInBlog =
-      await this.postsQueryRepository.existsByIdAndBlogId(postId, blogId);
+    const postExistsInBlog = await this.postsQueryRepository.findPostInBlog(
+      postId,
+      blogId,
+    );
     if (!postExistsInBlog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

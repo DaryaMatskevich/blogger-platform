@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -27,7 +28,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog-usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog-usecase';
 import { CreatePostForBlogCommand } from '../../posts/application/usecases/create-post-for-blog-usecase';
-import { AdminAuthGuard } from '@src/modules/sa/guards/basic/admin-auth.guard';
+
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
@@ -36,9 +37,9 @@ import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/use
 import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { UpdatePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/update-post-usecase';
 import { DeletePostCommand } from '../../../../modules/bloggers-platform/posts/application/usecases/delete-post-usecase';
-import { SaGuard } from '@src/modules/sa/sa.guard';
+import { AdminBasicAuthGuard } from '../../../../modules/sa/guards/basic/admin-auth.guard';
 
-@UseGuards(SaGuard)
+@UseGuards(AdminBasicAuthGuard)
 @Controller('sa/blogs')
 export class SaBlogsController {
   constructor(
@@ -56,7 +57,6 @@ export class SaBlogsController {
   }
 
   @Post()
-  @UseGuards(AdminAuthGuard)
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
     const blogId = await this.commandBus.execute(new CreateBlogCommand(body));
 
@@ -65,7 +65,6 @@ export class SaBlogsController {
 
   @Put(':id')
   @HttpCode(204)
-  @UseGuards(AdminAuthGuard)
   async updateBlog(
     @Param('id') id: string,
     @Body() body: BlogInputDto,
@@ -75,7 +74,6 @@ export class SaBlogsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
-  @UseGuards(AdminAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute(new DeleteBlogCommand(id));
@@ -104,9 +102,8 @@ export class SaBlogsController {
   }
 
   @Post(':id/posts')
-  @UseGuards(AdminAuthGuard)
   async createPostForBlog(
-    @Param('id') blogId: string,
+    @Param('id', ParseIntPipe) blogId: number,
     @Body() body: PostInputDto,
   ): Promise<PostViewDto> {
     const postId = await this.commandBus.execute(
@@ -118,7 +115,6 @@ export class SaBlogsController {
 
   @Put(':blogId/posts/:postId')
   @HttpCode(204)
-  @UseGuards(AdminAuthGuard)
   async updatePostForBlog(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
@@ -129,7 +125,6 @@ export class SaBlogsController {
 
   @ApiParam({ name: ':blogId/posts/:postId' }) //для сваггера
   @Delete(':blogId/posts/:postId')
-  @UseGuards(AdminAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostForBlog(
     @Param('blogId') blogId: string,

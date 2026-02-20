@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsRepository } from './blogs/infastructure/blogs.repository';
 import { Blog } from './blogs/domain/blog.entity';
 import { BlogsController } from './blogs/api/blogs.controller';
@@ -12,12 +11,10 @@ import { PostsRepository } from './posts/infactructure/posts.repository';
 import { PostsQueryRepository } from './posts/infactructure/query/posts.query-repository';
 import { CreateBlogUseCase } from './blogs/application/usecases/create-blog-usecase';
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
-// import { CreatePostUseCase } from './posts/application/usecases/create-post-usecase';
 import { UpdatePostUseCase } from './posts/application/usecases/update-post-usecase';
 import { DeletePostUseCase } from './posts/application/usecases/delete-post-usecase';
 import { CreatePostForBlogUseCase } from './posts/application/usecases/create-post-for-blog-usecase';
 import { CqrsModule } from '@nestjs/cqrs';
-// import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment-usecase';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog-by-id.query-handler';
 import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
@@ -47,7 +44,6 @@ const useCases = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
-  //CreatePostUseCase,
   UpdatePostUseCase,
   putLikeStatusForPostUseCase,
   DeletePostUseCase,
@@ -65,14 +61,7 @@ const useCases = [
 //тут регистрируем провайдеры всех сущностей блоггерской платформы (blogs, posts, comments, etc...)
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      // Укажите ваши entities здесь
-      Blog,
-      Post,
-      PostLike,
-      Comment,
-      CommentLike,
-    ]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike, Comment, CommentLike]),
     UserAccountsModule,
     CqrsModule,
   ],
@@ -83,7 +72,6 @@ const useCases = [
     CommentsController,
   ],
   providers: [
-    BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
     BlogsExternalQueryRepository,

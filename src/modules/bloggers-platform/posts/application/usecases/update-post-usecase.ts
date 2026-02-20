@@ -32,9 +32,11 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
         message: 'Blog not found',
       });
     }
-    const isPostBelongsToBlog =
-      await this.postsQueryRepository.isPostBelongsToBlog(postId, blogId);
-    if (!isPostBelongsToBlog) {
+    const postExistsInBlog = await this.postsQueryRepository.findPostInBlog(
+      postId,
+      blogId,
+    );
+    if (!postExistsInBlog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Post not found',
@@ -42,7 +44,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
     }
 
     const result = await this.postsRepository.update(postId, command.dto);
-    if (result) {
+    if (!result) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Post not found',

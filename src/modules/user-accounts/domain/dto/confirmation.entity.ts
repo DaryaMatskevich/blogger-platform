@@ -5,12 +5,13 @@ import {
   Entity,
   JoinColumn,
   OneToOne,
+  PrimaryColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('confirmations')
 export class Confirmation {
-  @Column({ nullable: false })
+  @PrimaryColumn({ nullable: false })
   userId: number;
 
   @OneToOne(() => User, { nullable: false, onDelete: 'CASCADE' })

@@ -136,7 +136,7 @@ export class BlogsQueryRepository {
 
     return PaginatedViewDto.mapToView({
       page: query.pageNumber,
-      size: query.pageSize,
+      pageSize: query.pageSize,
       totalCount,
       items,
     });

@@ -2,12 +2,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsQueryRepository } from '../../../../../modules/bloggers-platform/blogs/infastructure/query/blogs.query-repository';
 import { PostsRepository } from '../../infactructure/posts.repository';
 import { PostInputDto } from '../../../../../modules/bloggers-platform/posts/api/input-dto/posts.input-dto';
-import { DomainException } from '@src/core/exeptions/domain-exeptions';
-import { DomainExceptionCode } from '@src/core/exeptions/domain-exeption-codes';
+import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 
 export class CreatePostForBlogCommand {
   constructor(
-    public blogId: string,
+    public blogId: number,
     public dto: PostInputDto,
   ) {}
 }
@@ -22,9 +22,7 @@ export class CreatePostForBlogUseCase
   ) {}
 
   async execute(command: CreatePostForBlogCommand): Promise<number> {
-    const blogIdNum = parseInt(command.blogId, 10);
-
-    const blog = await this.blogsQueryRepository.blogExists(blogIdNum);
+    const blog = await this.blogsQueryRepository.blogExists(command.blogId);
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
@@ -36,7 +34,7 @@ export class CreatePostForBlogUseCase
       title: command.dto.title,
       shortDescription: command.dto.shortDescription,
       content: command.dto.content,
-      blogId: blogIdNum,
+      blogId: command.blogId,
     });
 
     return result.id;

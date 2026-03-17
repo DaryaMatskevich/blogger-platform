@@ -19,6 +19,8 @@ import { GetQuestionsQueryHandler } from '../../modules/sa/sa.quiz-questions/app
 import { DeleteQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/delete-question.usecase';
 import { PublishQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/publish-question.usecase';
 import { UpdateQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/update-question.usecase';
+import { QuestionRepository } from '../../modules/sa/sa.quiz-questions/infrastructure/quiz-questions.repository';
+import { QuestionQueryRepository } from '../../modules/sa/sa.quiz-questions/infrastructure/query/question-query.repository';
 
 @Module({
   imports: [CqrsModule, UserAccountsModule],
@@ -44,6 +46,8 @@ import { UpdateQuestionUseCase } from '../../modules/sa/sa.quiz-questions/applic
     DeleteQuestionUseCase,
     PublishQuestionUseCase,
     UpdateQuestionUseCase,
+    QuestionRepository,
+    QuestionQueryRepository,
   ],
   exports: [AdminConfig],
 })

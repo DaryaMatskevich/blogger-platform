@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CommentLike } from '../../../../../modules/bloggers-platform/comments/domain/comment-like.entity';
+import { LikeStatus } from '../../../../../modules/bloggers-platform/common/enums/like-status.enum';
 
 @Injectable()
 export class CommentLikesRepository {
@@ -9,7 +10,7 @@ export class CommentLikesRepository {
   async createLike(
     userId: number,
     commentId: number,
-    status: 'Like' | 'Dislike' | 'None' = 'None',
+    status: LikeStatus,
   ): Promise<CommentLike> {
     const query = `
       INSERT INTO "commentLikes"
@@ -30,7 +31,7 @@ export class CommentLikesRepository {
   async updateLike(
     userId: number,
     commentId: number,
-    status: 'Like' | 'Dislike' | 'None',
+    status: LikeStatus,
   ): Promise<CommentLike | null> {
     const query = `
       UPDATE "commentLikes"

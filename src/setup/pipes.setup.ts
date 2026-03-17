@@ -5,11 +5,7 @@ import {
 } from '@nestjs/common';
 import { DomainExceptionCode } from '../core/exeptions/domain-exeption-codes';
 import { DomainException, Extension } from '../core/exeptions/domain-exeptions';
-import { ObjectIdValidationPipe } from '../core/pipes/object-id-validation-pipe.service';
 
-
-//функция использует рекурсию для обхода объекта children при вложенных полях при валидации
-//поставьте логи и разберитесь как она работает
 //TODO: tests
 export const errorFormatter = (
   errors: ValidationError[],
@@ -37,11 +33,9 @@ export const errorFormatter = (
   return errorsForResponse;
 };
 
-export function pipesSetup(app: INestApplication) {   
-
+export function pipesSetup(app: INestApplication) {
   //Глобальный пайп для валидации и трансформации входящих данных.
   app.useGlobalPipes(
-    
     // new ObjectIdValidationPipe(),
     new ValidationPipe({
       //class-transformer создает экземпляр dto
@@ -49,7 +43,7 @@ export function pipesSetup(app: INestApplication) {
       //и методы классов dto
       transform: true,
       whitelist: true,
-        validateCustomDecorators: true, 
+      validateCustomDecorators: true,
       //Выдавать первую ошибку для каждого поля
       stopAtFirstError: true,
       //Для преобразования ошибок класс валидатора в необходимый вид

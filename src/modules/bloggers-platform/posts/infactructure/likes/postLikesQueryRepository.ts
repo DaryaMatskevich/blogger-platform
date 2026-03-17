@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(private dataSource: DataSource) {}
+
   async getLikesCount(
     postId: number,
   ): Promise<{ likes: number; dislikes: number }> {

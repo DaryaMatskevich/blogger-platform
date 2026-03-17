@@ -38,30 +38,4 @@ export class CommentViewDto {
 
     return dto;
   }
-
-  static mapToViewWithStatus(
-    comment: any,
-    myStatus: 'None' | 'Like' | 'Dislike',
-    likesInfo?: {
-      likesCount: number;
-      dislikesCount: number;
-    },
-  ): CommentViewDto {
-    const dto = new CommentViewDto();
-
-    dto.id = comment.id.toString();
-    dto.content = comment.content;
-    dto.commentatorInfo = {
-      userId: comment.userId.toString(),
-      userLogin: comment.userLogin || '',
-    };
-    dto.createdAt = comment.createdAt;
-    dto.likesInfo = {
-      likesCount: likesInfo?.likesCount || 0,
-      dislikesCount: likesInfo?.dislikesCount || 0,
-      myStatus: myStatus,
-    };
-
-    return dto;
-  }
 }

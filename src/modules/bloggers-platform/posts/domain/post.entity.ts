@@ -46,19 +46,19 @@ export class Post {
 
   @CreateDateColumn({
     name: 'createdAt',
-    type: 'timestamp',
+    type: 'timestamptz',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updatedAt',
-    type: 'timestamp',
+    type: 'timestamptz',
   })
   updatedAt: Date;
 
   @Column({
     name: 'deletedAt',
-    type: 'timestamp',
+    type: 'timestamptz',
     nullable: true,
     default: null,
   })

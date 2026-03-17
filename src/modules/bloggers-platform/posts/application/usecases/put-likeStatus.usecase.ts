@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostLikesRepository } from '../../infactructure/likes/postLikesRepository';
-import { UsersExternalQueryRepository } from '../../../../../modules/user-accounts/infastructure/external-query/external-dto/users.external-query-repository';
 import { PostsQueryRepository } from '../../../../../modules/bloggers-platform/posts/infactructure/query/posts.query-repository';
 import { PostLikesQueryRepository } from '../../../../../modules/bloggers-platform/posts/infactructure/likes/postLikesQueryRepository';
+import { LikeStatus } from '../../../../../modules/bloggers-platform/common/enums/like-status.enum';
 
 export class PutLikeStatusForPostCommand {
   constructor(
-    public postId: string,
+    public postId: number,
     public userId: string,
-    public likeStatus: 'Like' | 'Dislike' | 'None',
+    public likeStatus: LikeStatus,
   ) {}
 }
 
@@ -19,41 +19,32 @@ export class putLikeStatusForPostUseCase
   constructor(
     private postLikesRepository: PostLikesRepository,
     private postLikesQueryRepository: PostLikesQueryRepository,
-    private usersExternalQueryRepository: UsersExternalQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
   ) {}
 
   async execute(command: PutLikeStatusForPostCommand) {
-    const postIdNum = parseInt(command.postId, 10);
-    const userIdNum = parseInt(command.userId, 10);
+    const { postId, userId, likeStatus } = command;
+    const userIdNum = parseInt(userId, 10);
 
-    await this.postsQueryRepository.getByIdOrNotFoundFail(postIdNum);
+    await this.postsQueryRepository.getByIdWhithoutStatusOrNotFoundFail(postId);
     const currentLikeStatus =
       await this.postLikesQueryRepository.getCurrentUserStatus(
         userIdNum,
-        postIdNum,
+        postId,
       );
 
-    if (currentLikeStatus === null && command.likeStatus === 'None') {
+    if (currentLikeStatus === null && likeStatus === LikeStatus.None) {
       return;
     }
 
-    if (currentLikeStatus === command.likeStatus) {
+    if (currentLikeStatus === likeStatus) {
       return;
     }
 
     if (currentLikeStatus === null) {
-      await this.postLikesRepository.createLike(
-        userIdNum,
-        postIdNum,
-        command.likeStatus,
-      );
+      await this.postLikesRepository.createLike(userIdNum, postId, likeStatus);
     } else {
-      await this.postLikesRepository.updateLike(
-        userIdNum,
-        postIdNum,
-        command.likeStatus,
-      );
+      await this.postLikesRepository.updateLike(userIdNum, postId, likeStatus);
     }
   }
 }

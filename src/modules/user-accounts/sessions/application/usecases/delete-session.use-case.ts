@@ -30,7 +30,7 @@ export class DeleteSessionUseCase
         message: 'Not found',
       });
     }
-    if (command.userId !== session.userId)
+    if (command.userId !== String(session.userId))
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: 'Forbidden',

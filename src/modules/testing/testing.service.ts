@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../user-accounts/domain/dto/user.entity';
+import { User } from '../../modules/user-accounts/users/domain/user.entity';
 import { Session } from '../user-accounts/sessions/domain/session.entity';
 import { Blog } from '../bloggers-platform/blogs/domain/blog.entity';
 import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';

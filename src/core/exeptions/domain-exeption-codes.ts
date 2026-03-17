@@ -7,7 +7,7 @@ export enum DomainExceptionCode {
   Forbidden = 4,
   ValidationError = 5,
   TooManyRequests = 6,
-  //auth
+  //users
   Unauthorized = 11,
   EmailNotConfirmed = 12,
   ConfirmationCodeExpired = 13,

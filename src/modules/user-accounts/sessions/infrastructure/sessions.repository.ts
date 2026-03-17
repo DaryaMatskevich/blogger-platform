@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Session } from '../domain/session.entity';
 import { DataSource } from 'typeorm';
+import { UpdateSessionRefreshTokenDto } from '@src/modules/user-accounts/sessions/domain/dto/update-session-refresh-token.dto';
 
 @Injectable()
 export class SessionsRepository {
@@ -71,22 +72,23 @@ export class SessionsRepository {
     return result.length > 0;
   }
   async updateSessionRefreshToken(
-    deviceId: string,
-    userId: string,
-    refreshToken: string,
-    lastActiveDate: Date,
+    dto: UpdateSessionRefreshTokenDto,
   ): Promise<boolean> {
     const query = `
     UPDATE sessions 
     SET "refreshToken" = $1, 
-        "lastActiveDate" = $2,
-        "updatedAt" = NOW()
-    WHERE "deviceId" = $3 AND "userId" = $4
+        "lastActiveDate" = $2
+            WHERE "deviceId" = $3 AND "userId" = $4
   `;
 
-    const parameters = [refreshToken, lastActiveDate, deviceId, userId];
+    const parameters = [
+      dto.refreshToken,
+      dto.lastActiveDate,
+      dto.deviceId,
+      dto.userId,
+    ];
     const result = await this.dataSource.query(query, parameters);
 
-    return result.rowCount > 0;
+    return result[1] > 0;
   }
 }

@@ -5,7 +5,7 @@ import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { UserContextDto } from '../dto/user-contex.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { ValidateUserCommand } from '../../application/auth-usecases/validate-user-usecase';
+import { ValidateUserCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/validate-user-usecase';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

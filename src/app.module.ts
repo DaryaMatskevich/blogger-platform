@@ -1,10 +1,9 @@
-// import { configModule } from './dynamic-config-module';
-import { Module } from '@nestjs/common';
+import { configModule } from './dynamic-config-module';
+import { DynamicModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserAccountsModule } from './modules/user-accounts/userAccounts.module';
 import { CoreModule } from './core/core.module';
-import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { APP_FILTER } from '@nestjs/core';
@@ -14,33 +13,29 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './modules/user-accounts/sessions/domain/session.entity';
-import { User } from './modules/user-accounts/domain/dto/user.entity';
+import { User } from './modules/user-accounts/users/domain/user.entity';
 import { TestingModule } from './modules/testing/testing.module';
-import { SaModule } from '@src/modules/sa/sa.module';
+import { SaModule } from './modules/sa/sa.module';
 import { Blog } from './modules/bloggers-platform/blogs/domain/blog.entity';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { CommentLike } from './modules/bloggers-platform/comments/domain/comment-like.entity';
 import { Comment } from './modules/bloggers-platform/comments/domain/comment.entity';
 import { PostLike } from './modules/bloggers-platform/posts/domain/likes/post-like.entity';
-import { Confirmation } from './modules/user-accounts/domain/dto/confirmation.entity';
+import { Confirmation } from './modules/user-accounts/users/domain/confirmation.entity';
 import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
+import { CoreConfig } from './core/core.config';
 
 @Module({
   imports: [
-    //configModule,
+    CoreModule,
+    configModule,
     CqrsModule,
-    ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres', // или 'mysql', 'sqlite' и т.д.
-      //host: 'localhost',
-      //port: 5432,
-      //username: 'nodejs',
-      //password: 'nodejs',
-      //database: 'BlogPlatform',
+      type: 'postgres',
       entities: [
         Session,
         User,
@@ -52,13 +47,9 @@ import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
         PostLike,
       ],
       url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
-      autoLoadEntities: false,
-      synchronize: false, // только для разработки!
+      autoLoadEntities: true,
+      synchronize: true,
     }),
-    // MongooseModule.forRoot(process.env.MONGO_URL, {
-    //   dbName: 'nest-bloggers-platform',
-    // }), //ODO: move to env. will be in the following lessons
-
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,
     SaModule,
@@ -80,7 +71,19 @@ import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
   ],
 })
 export class AppModule {
-  constructor() {
-    // Logger.log(`MongoDB URL: ${process.env.MONGO_URL}`, 'AppModule');
+  static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
+    // такой мудрёный способ мы используем, чтобы добавить к основным модулям необязательный модуль.
+    // чтобы не обращаться в декораторе к переменной окружения через process.env в декораторе, потому что
+    // запуск декораторов происходит на этапе склейки всех модулей до старта жизненного цикла самого NestJS
+    const modules: any[] = [];
+
+    if (coreConfig.includeTestingModule) {
+      modules.push(TestingModule);
+    }
+
+    return {
+      module: AppModule,
+      imports: modules, // Add dynamic modules here
+    };
   }
 }

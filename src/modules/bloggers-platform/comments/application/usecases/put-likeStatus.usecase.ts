@@ -2,12 +2,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentLikesRepository } from '../../infrastructute/likes/commentLikesRepository';
 import { CommentsQueryRepository } from '../../../../bloggers-platform/comments/infrastructute/query/comments.query-repository';
 import { CommentLikesQueryRepository } from '../../infrastructute/likes/commentLikesQueryRepository';
+import { LikeStatus } from '../../../../../modules/bloggers-platform/common/enums/like-status.enum';
 
 export class PutLikeStatusForCommentCommand {
   constructor(
-    public id: string,
+    public commentId: number,
     public userId: string,
-    public likeStatus: 'Like' | 'Dislike' | 'None',
+    public likeStatus: LikeStatus,
   ) {}
 }
 
@@ -22,29 +23,29 @@ export class PutLikeStatusForCommentUseCase
   ) {}
 
   async execute(command: PutLikeStatusForCommentCommand) {
-    const commentIdNum = parseInt(command.id, 10);
-    const userIdNum = parseInt(command.userId, 10);
+    const { commentId, userId, likeStatus } = command;
+    const userIdNum = parseInt(userId, 10);
 
-    await this.commentsQueryRepository.getByIdOrNotFoundFail(commentIdNum);
+    await this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
     const currentLikeStatus =
       await this.commentLikesQueryRepository.getCurrentUserStatus(
         userIdNum,
-        commentIdNum,
+        commentId,
       );
 
     // Статус не изменился
-    if (currentLikeStatus === command.likeStatus) {
+    if (currentLikeStatus === likeStatus) {
       return;
     }
 
     // Определяем действие
     if (currentLikeStatus === null) {
       // Нет записи
-      if (command.likeStatus !== 'None') {
+      if (likeStatus !== LikeStatus.None) {
         await this.commentLikesRepository.createLike(
           userIdNum,
-          commentIdNum,
-          command.likeStatus,
+          commentId,
+          likeStatus,
         );
       }
       // Если 'None' - ничего не делаем (не создаем запись)
@@ -52,8 +53,8 @@ export class PutLikeStatusForCommentUseCase
       // Запись есть - всегда обновляем
       await this.commentLikesRepository.updateLike(
         userIdNum,
-        commentIdNum,
-        command.likeStatus,
+        commentId,
+        likeStatus,
       );
       // Даже если command.likeStatus === 'None' - просто обновим
     }

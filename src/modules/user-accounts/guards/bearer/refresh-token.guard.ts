@@ -21,7 +21,7 @@ export class RefreshTokenGuard extends AuthGuard('refresh-jwt') {
         message,
       });
     }
-    console.log('djn ');
+
     return user;
   }
 }

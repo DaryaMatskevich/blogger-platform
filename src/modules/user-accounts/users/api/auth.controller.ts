@@ -1,0 +1,204 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Ip,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+
+import {
+  CreateUserInputDto,
+  EmailDto,
+  NewPasswordDto,
+} from './input-dto/users.input-dto';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { MeViewDto } from './view-dto/users.view-dto';
+import { LocalAuthGuard } from '../../guards/local/local-auth.guard';
+import { UserContextDto } from '../../guards/dto/user-contex.dto';
+import { ExtractUserFromRequest } from '../../guards/decorators/param/extracr-user-from-request.decorator';
+import { JwtAuthGuard } from '../../guards/bearer/jwt-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/login-usecase';
+import { ResendConfirmationEmailCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/resend-confirmation-email-usecase';
+import { SendPasswordRecoveryEmailCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/send-password-recovery-email-usecase';
+import { SetNewPasswordCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/set-new-password-usecase';
+import { RegisterUserCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/register-user-usecase';
+import { ConfirmEmailCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/confirm-email-usecase';
+import { Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { RefreshTokenGuard } from '../../guards/bearer/refresh-token.guard';
+import { ExtractUserWithDeviceId } from '../../guards/decorators/extract-deviceId-from-refreshToken.decorator';
+import { UserWithDeviceIdContextDto } from '../../guards/dto/deviceId-context.dto';
+import { RefreshTokensCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/refresh-tokens.usecase';
+import { LogOutCommand } from '../../../../modules/user-accounts/users/application/auth-usecases/logout.usecase';
+import { CreateSessionCommand } from '../../sessions/application/usecases/create-session.usecase';
+import { UsersQueryRepository } from '../../../../modules/user-accounts/users/infastructure/query/users.query-repository';
+import { DomainException } from '../../../../core/exeptions/domain-exeptions';
+import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes'; // import { ThrottlerGuard } from '@nestjs/throttler';
+
+// import { ThrottlerGuard } from '@nestjs/throttler';
+
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private usersQueryRepository: UsersQueryRepository,
+    private commandBus: CommandBus,
+  ) {}
+  @Post('registration')
+  // @UseGuards(ThrottlerGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registration(@Body() body: CreateUserInputDto): Promise<void> {
+    await this.commandBus.execute(new RegisterUserCommand(body));
+  }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard)
+  // @UseGuards(ThrottlerGuard)
+  @HttpCode(HttpStatus.OK)
+  //swagger doc
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        loginOrEmail: { type: 'string', example: 'login123' },
+        password: { type: 'string', example: 'superpassword' },
+      },
+    },
+  })
+  async login(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Headers('user-agent') userAgent: string,
+    @Ip() ip: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ accessToken: string }> {
+    const title = this.getDeviceTitle(userAgent);
+    const deviceId = uuidv4();
+
+    const result = await this.commandBus.execute(
+      new LoginCommand(user.id, deviceId),
+    );
+
+    const dto = {
+      userId: user.id,
+      ip,
+      title,
+      deviceId: deviceId,
+      refreshToken: result.refreshToken,
+    };
+
+    await this.commandBus.execute(new CreateSessionCommand(dto));
+
+    response.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return { accessToken: result.accessToken };
+  }
+
+  @Post('password-recovery')
+  // @UseGuards(ThrottlerGuard)
+  passwordRecovery(@Body() body: EmailDto): Promise<void> {
+    return this.commandBus.execute(
+      new SendPasswordRecoveryEmailCommand(body.email),
+    );
+  }
+
+  @Post('new-password')
+  // @UseGuards(ThrottlerGuard)
+  async newPassword(@Body() body: NewPasswordDto): Promise<void> {
+    await this.commandBus.execute(
+      new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
+    );
+  }
+
+  @Post('registration-confirmation')
+  // @UseGuards(ThrottlerGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  registrationConfirmation(@Body() body: { code: string }): Promise<void> {
+    return this.commandBus.execute(new ConfirmEmailCommand(body.code));
+  }
+
+  @Post('registration-email-resending')
+  // @UseGuards(ThrottlerGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationEmailResending(@Body() body: EmailDto): Promise<void> {
+    return await this.commandBus.execute(
+      new ResendConfirmationEmailCommand(body.email),
+    );
+  }
+
+  @ApiBearerAuth()
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<MeViewDto> {
+    const user = await this.usersQueryRepository.me(userContext.id);
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `User not found`,
+      });
+    }
+    return user;
+  }
+
+  @Post('refresh-token')
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  async refreshTokens(
+    @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ accessToken: string }> {
+    const refreshToken = user.refreshToken;
+    const userId = user.userId;
+    const deviceId = user.deviceId;
+    const result = await this.commandBus.execute(
+      new RefreshTokensCommand(userId, deviceId, refreshToken),
+    );
+
+    response.cookie('refreshToken', result.newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return { accessToken: result.newAccessToken };
+  }
+
+  @Post('logout')
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    const refreshToken = user.refreshToken;
+    const userId = user.userId;
+    const deviceId = user.deviceId;
+
+    await this.commandBus.execute(
+      new LogOutCommand(userId, deviceId, refreshToken),
+    );
+
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+    });
+  }
+
+  private getDeviceTitle(userAgent: string): string {
+    return userAgent?.includes('Mobile')
+      ? 'Mobile Device'
+      : userAgent?.includes('Tablet')
+        ? 'Tablet Device'
+        : userAgent?.includes('Desktop')
+          ? 'Desktop Device'
+          : 'Unknown device';
+  }
+}

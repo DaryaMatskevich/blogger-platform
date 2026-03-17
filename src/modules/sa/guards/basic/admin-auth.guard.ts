@@ -3,13 +3,14 @@ import { Reflector } from '@nestjs/core';
 import { DomainExceptionCode } from '../../../../core/exeptions/domain-exeption-codes';
 import { DomainException } from '../../../../core/exeptions/domain-exeptions';
 import { Request } from 'express';
+import { AdminConfig } from '../../../../modules/sa/admin.config';
 
 @Injectable()
 export class AdminBasicAuthGuard implements CanActivate {
-  private readonly validUsername = 'admin';
-  private readonly validPassword = 'qwerty';
-
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private adminConfig: AdminConfig,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -28,7 +29,10 @@ export class AdminBasicAuthGuard implements CanActivate {
     );
     const [username, password] = credentials.split(':');
 
-    if (username === this.validUsername && password === this.validPassword) {
+    if (
+      username === this.adminConfig.adminUserName &&
+      password === this.adminConfig.adminPassword
+    ) {
       return true;
     } else {
       throw new DomainException({

@@ -17,6 +17,7 @@ import { ExtractUserWithDeviceId } from '../../guards/decorators/extract-deviceI
 import { UserWithDeviceIdContextDto } from '../../guards/dto/deviceId-context.dto';
 import { DeleteAllSessionsExcludeCurrentCommand } from '../application/usecases/delete-all-sessions-exclude-current.use.case';
 
+@UseGuards(RefreshTokenGuard)
 @Controller('security/devices')
 export class SessionsController {
   constructor(
@@ -25,7 +26,6 @@ export class SessionsController {
   ) {}
 
   @Get()
-  @UseGuards(RefreshTokenGuard)
   async getAll(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,
   ): Promise<SessionViewDto[]> {
@@ -36,7 +36,6 @@ export class SessionsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Delete(':id')
-  @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSessionById(
     @Param('id') deviceId: string,
@@ -48,7 +47,6 @@ export class SessionsController {
   }
 
   @Delete()
-  @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllSessionsExcludeCurrent(
     @ExtractUserWithDeviceId() user: UserWithDeviceIdContextDto,

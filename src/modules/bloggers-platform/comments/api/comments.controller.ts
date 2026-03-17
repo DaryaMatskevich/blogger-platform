@@ -6,13 +6,13 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Put,
   UseGuards,
 } from '@nestjs/common';
 
 import { ApiParam } from '@nestjs/swagger';
 import { CommentViewDto } from './view-dto/comments.view.dto';
-import { CommentsQueryRepository } from '../infrastructute/query/comments.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UpdateCommentDto } from '../domain/dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
@@ -22,29 +22,21 @@ import { DeleteCommentCommand } from '../application/usecases/delete-comment-use
 import { PutLikeStatusForCommentCommand } from '../application/usecases/put-likeStatus.usecase';
 import { ExtractUserFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extracr-user-from-request.decorator';
 import { UserContextDto } from '../../../../modules/user-accounts/guards/dto/user-contex.dto';
-import { ExtractUserIfExistsFromRequest } from '../../../../modules/user-accounts/guards/decorators/param/extract-user-if-exists-from-request.decorator';
 import { GetCommentByIdQuery } from '../application/queries/get-comment-by-id.query-handler';
-import { JwtOptionalAuthGuard } from '../../../../modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private commandBus: CommandBus,
-    private commentsQueryRepository: CommentsQueryRepository,
     private queryBus: QueryBus,
   ) {}
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id')
-  @UseGuards(JwtOptionalAuthGuard)
   async getById(
-    @Param('id') id: string,
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<CommentViewDto> {
-    // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
-    // промис зарезолвится и затем NestJS вернёт результат клиенту
-    const userId = user?.id || null;
-    return this.queryBus.execute(new GetCommentByIdQuery(id, userId));
+    return this.queryBus.execute(new GetCommentByIdQuery(id));
   }
 
   @ApiParam({ name: 'id' }) //для сваггера
@@ -77,7 +69,7 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async changeLikeStatus(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() user: UserContextDto,
     @Body() body: LikeInputModel,
   ): Promise<void> {

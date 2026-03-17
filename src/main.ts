@@ -1,63 +1,39 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { appSetup } from './setup/app.setup';
-import { createWriteStream } from 'fs';
-import { get } from 'http';
 import cookieParser from 'cookie-parser';
-import { NestExpressApplication } from '@nestjs/platform-express';
-
-const port = process.env.PORT || 5005;
-const serverUrl = 'http://localhost:5005';
+import { NestFactory } from '@nestjs/core';
+import { initAppModule } from './init-app-module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CoreConfig } from './core/core.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.set('trust proxy', 'loopback');
+  const dynamicAppModule = await initAppModule();
+  // создаём на основе донастроенного модуля наше приложение
+  const app = await NestFactory.create(dynamicAppModule);
+
+  // Получаем Express instance и настраиваем
+  const expressInstance = app.getHttpAdapter().getInstance();
+
+  if (expressInstance && typeof expressInstance.set === 'function') {
+    expressInstance.set('trust proxy', 'loopback');
+  }
+
+  const coreConfig = app.get(CoreConfig);
 
   app.enableCors();
-  appSetup(app);
+  appSetup(app, coreConfig.isSwaggerEnabled);
   app.use(cookieParser());
 
-  //TODO: move to configService. will be in the following lessons
-
-  await app.listen(port, () => {
-    console.log('Server is running on port ' + port);
-  });
-
-  if (process.env.NODE_ENV === 'development') {
-    // write swagger ui files
-    get(`${serverUrl}/swagger/swagger-ui-bundle.js`, function (response) {
-      response.pipe(createWriteStream('swagger-static/swagger-ui-bundle.js'));
-      console.log(
-        `Swagger UI bundle file written to: '/swagger-static/swagger-ui-bundle.js'`,
-      );
-    });
-
-    get(`${serverUrl}/swagger/swagger-ui-init.js`, function (response) {
-      response.pipe(createWriteStream('swagger-static/swagger-ui-init.js'));
-      console.log(
-        `Swagger UI init file written to: '/swagger-static/swagger-ui-init.js'`,
-      );
-    });
-
-    get(
-      `${serverUrl}/swagger/swagger-ui-standalone-preset.js`,
-      function (response) {
-        response.pipe(
-          createWriteStream('swagger-static/swagger-ui-standalone-preset.js'),
-        );
-        console.log(
-          `Swagger UI standalone preset file written to: '/swagger-static/swagger-ui-standalone-preset.js'`,
-        );
-      },
-    );
-
-    get(`${serverUrl}/swagger/swagger-ui.css`, function (response) {
-      response.pipe(createWriteStream('swagger-static/swagger-ui.css'));
-      console.log(
-        `Swagger UI css file written to: '/swagger-static/swagger-ui.css'`,
-      );
-    });
+  if (coreConfig.isSwaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('it-incubator Configuration example')
+      .setDescription('The API description')
+      .setVersion('1.0')
+      .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, documentFactory);
   }
-}
 
+  await app.listen(coreConfig.port);
+  console.log('Server is running on port ' + coreConfig.port);
+}
 bootstrap();

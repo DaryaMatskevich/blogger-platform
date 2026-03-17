@@ -7,10 +7,8 @@ import {
 
 import { Request, Response } from 'express';
 
-
 import { DomainException } from '../domain-exeptions';
 import { DomainExceptionCode } from '../domain-exeption-codes';
-import { ErrorResponseBody } from './error-response-body.type';
 
 //https://docs.nestjs.com/exception-filters#exception-filters-1
 //Ошибки класса DomainException (instanceof DomainException)
@@ -48,9 +46,9 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     }
   }
 
-  private buildResponseBody(
-    exception: DomainException,): 
-   { errorsMessages: Array<{ message: string; field: string }> } {
+  private buildResponseBody(exception: DomainException): {
+    errorsMessages: Array<{ message: string; field: string }>;
+  } {
     if (exception.extensions && exception.extensions.length > 0) {
       return {
         errorsMessages: exception.extensions.map((ext) => ({
@@ -59,7 +57,7 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
         })),
       };
     }
-return {
+    return {
       errorsMessages: [
         {
           message: exception.message,
@@ -69,7 +67,7 @@ return {
     };
   }
 
-private getFieldByExceptionCode(code: DomainExceptionCode): string {
+  private getFieldByExceptionCode(code: DomainExceptionCode): string {
     switch (code) {
       case DomainExceptionCode.BadRequest:
         return 'email'; // Для BadRequest используем 'email' по умолчанию
@@ -79,6 +77,3 @@ private getFieldByExceptionCode(code: DomainExceptionCode): string {
     }
   }
 }
-
-
-  

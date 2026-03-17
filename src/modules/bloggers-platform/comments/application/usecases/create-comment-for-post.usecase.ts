@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateCommentInputDto } from '../../api/input-dto/comment.input-dto';
 import { CommentsRepository } from '../../infrastructute/comments.repository';
-import { UsersExternalQueryRepository } from '../.../../../../../../modules/user-accounts/infastructure/external-query/external-dto/users.external-query-repository';
+
 import { DomainException } from '../../../../../core/exeptions/domain-exeptions';
 import { DomainExceptionCode } from '../../../../../core/exeptions/domain-exeption-codes';
 import { PostsQueryRepository } from '../../../../../modules/bloggers-platform/posts/infactructure/query/posts.query-repository';
+import { UsersExternalQueryRepository } from '../../../../../modules/user-accounts/users/infastructure/external-query/external-dto/users.external-query-repository';
 
 export class CreateCommentForPostCommand {
   constructor(

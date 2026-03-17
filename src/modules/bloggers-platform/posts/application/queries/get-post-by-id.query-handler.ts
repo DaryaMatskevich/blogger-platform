@@ -4,10 +4,7 @@ import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../infactructure/query/posts.query-repository';
 
 export class GetPostByIdQuery {
-  constructor(
-    public id: string,
-    public userId: string | null,
-  ) {}
+  constructor(public postId: number) {}
 }
 
 @QueryHandler(GetPostByIdQuery)
@@ -20,16 +17,8 @@ export class GetPostByIdQueryHandler
   ) {}
 
   async execute(query: GetPostByIdQuery): Promise<PostViewDto> {
-    // console.log(query.userId);
-    const postIdNum = parseInt(query.id, 10);
-    if (query.userId) {
-      const userIdNum = parseInt(query.userId, 10);
-      return this.postsQueryRepository.getByIdWithStatusOrNotFoundFail(
-        postIdNum,
-        userIdNum,
-      );
-    } else {
-      return this.postsQueryRepository.getByIdOrNotFoundFail(postIdNum);
-    }
+    return this.postsQueryRepository.getByIdWhithoutStatusOrNotFoundFail(
+      query.postId,
+    );
   }
 }

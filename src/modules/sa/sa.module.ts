@@ -21,9 +21,15 @@ import { PublishQuestionUseCase } from '../../modules/sa/sa.quiz-questions/appli
 import { UpdateQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/update-question.usecase';
 import { QuestionRepository } from '../../modules/sa/sa.quiz-questions/infrastructure/quiz-questions.repository';
 import { QuestionQueryRepository } from '../../modules/sa/sa.quiz-questions/infrastructure/query/question-query.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Question } from '../../modules/sa/sa.quiz-questions/domain/question.entity';
 
 @Module({
-  imports: [CqrsModule, UserAccountsModule],
+  imports: [
+    CqrsModule,
+    UserAccountsModule,
+    TypeOrmModule.forFeature([Question]),
+  ],
   controllers: [
     SaUsersController,
     SaBlogsController,

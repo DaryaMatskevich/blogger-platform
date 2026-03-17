@@ -5,7 +5,7 @@ export class QuestionViewDto {
   correctAnswers: string[];
   published: boolean;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
 
   constructor(question: any) {
     this.id = question.id;

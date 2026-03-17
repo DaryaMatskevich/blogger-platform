@@ -27,7 +27,7 @@ export class QuestionRepository extends Repository<Question> {
   }
 
   async publishQuestion(id: number, published: boolean): Promise<boolean> {
-    const result = await this.update(id, { published });
+    const result = await this.update(id, { published, updatedAt: new Date() });
     return result.affected === 1;
   }
   async updateQuestion(
@@ -42,6 +42,9 @@ export class QuestionRepository extends Repository<Question> {
     if (dto.correctAnswers !== undefined)
       question.correctAnswers = dto.correctAnswers;
     if (dto.published !== undefined) question.published = dto.published;
+
+    question.updatedAt = new Date();
+
     return this.save(question);
   }
 }

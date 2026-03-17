@@ -14,10 +14,19 @@ import { PostsQueryRepository } from '../../modules/bloggers-platform/posts/infa
 import { GetBlogsQueryHandler } from '../../modules/bloggers-platform/blogs/application/queries/get-blogs.query-handler';
 import { GetPostsForBlogQueryHandler } from '../../modules/bloggers-platform/posts/application/queries/get-posts-for-blog.query-handler';
 import { BlogsRepository } from '../../modules/bloggers-platform/blogs/infastructure/blogs.repository';
+import { SaQuizQuestionsController } from '../../modules/sa/sa.quiz-questions/api/sa.quiz-questions.controller';
+import { GetQuestionsQueryHandler } from '../../modules/sa/sa.quiz-questions/application/queries/get-questions.query-handler';
+import { DeleteQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/delete-question.usecase';
+import { PublishQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/publish-question.usecase';
+import { UpdateQuestionUseCase } from '../../modules/sa/sa.quiz-questions/application/usecaces/update-question.usecase';
 
 @Module({
   imports: [CqrsModule, UserAccountsModule],
-  controllers: [SaUsersController, SaBlogsController],
+  controllers: [
+    SaUsersController,
+    SaBlogsController,
+    SaQuizQuestionsController,
+  ],
   providers: [
     AdminBasicAuthGuard,
     SaUsersService,
@@ -31,6 +40,10 @@ import { BlogsRepository } from '../../modules/bloggers-platform/blogs/infastruc
     BlogsRepository,
     GetBlogsQueryHandler,
     GetPostsForBlogQueryHandler,
+    GetQuestionsQueryHandler,
+    DeleteQuestionUseCase,
+    PublishQuestionUseCase,
+    UpdateQuestionUseCase,
   ],
   exports: [AdminConfig],
 })

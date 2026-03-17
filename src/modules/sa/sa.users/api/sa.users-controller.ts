@@ -19,7 +19,7 @@ import { SaUsersService } from '../application/sa.users-service';
 import { AdminBasicAuthGuard } from '../../guards/basic/admin-auth.guard';
 import { UserViewDto } from '../../../user-accounts/users/api/view-dto/users.view-dto';
 import { UsersQueryRepository } from '../../../user-accounts/users/infastructure/query/users.query-repository';
-import { DeleteUserCommand } from '@src/modules/sa/sa.users/application/sa-usecases/delete-user-usecase';
+import { DeleteUserCommand } from '../application/sa-usecases/delete-user-usecase';
 import { CreateUserInputDto } from '../../../user-accounts/users/api/input-dto/users.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view.dto';
 import { GetUsersQueryParams } from '../../../user-accounts/users/api/input-dto/get-users-query-params.input-dto';

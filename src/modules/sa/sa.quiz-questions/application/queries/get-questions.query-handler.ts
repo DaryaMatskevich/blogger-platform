@@ -10,7 +10,7 @@ export class GetQuestionsQuery {
 }
 
 @QueryHandler(GetQuestionsQuery)
-export class GetBlogsQueryHandler
+export class GetQuestionsQueryHandler
   implements
     IQueryHandler<GetQuestionsQuery, PaginatedViewDto<QuestionViewDto[]>>
 {

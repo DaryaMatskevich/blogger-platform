@@ -23,6 +23,7 @@ import { QuestionRepository } from '../../modules/sa/sa.quiz-questions/infrastru
 import { QuestionQueryRepository } from '../../modules/sa/sa.quiz-questions/infrastructure/query/question-query.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from '../../modules/sa/sa.quiz-questions/domain/question.entity';
+import { SaQuizQuestionService } from '../../modules/sa/sa.quiz-questions/application/sa.quiz-questions.service';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { Question } from '../../modules/sa/sa.quiz-questions/domain/question.ent
     UpdateQuestionUseCase,
     QuestionRepository,
     QuestionQueryRepository,
+    SaQuizQuestionService,
   ],
   exports: [AdminConfig],
 })

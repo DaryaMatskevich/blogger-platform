@@ -9,6 +9,7 @@ import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';
 import { Comment } from '../../modules/bloggers-platform/comments/domain/comment.entity';
 import { CommentLike } from '../../modules/bloggers-platform/comments/domain/comment-like.entity';
 import { PostLike } from '../../modules/bloggers-platform/posts/domain/likes/post-like.entity';
+import { Question } from '../../modules/sa/sa.quiz-questions/domain/question.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PostLike } from '../../modules/bloggers-platform/posts/domain/likes/pos
       Comment,
       CommentLike,
       PostLike,
+      Question,
     ]),
   ],
   controllers: [TestingController],

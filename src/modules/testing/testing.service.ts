@@ -9,6 +9,7 @@ import { Post } from '../../modules/bloggers-platform/posts/domain/post.entity';
 import { Comment } from '../../modules/bloggers-platform/comments/domain/comment.entity';
 import { CommentLike } from '../../modules/bloggers-platform/comments/domain/comment-like.entity';
 import { PostLike } from '../../modules/bloggers-platform/posts/domain/likes/post-like.entity';
+import { Question } from '../../modules/sa/sa.quiz-questions/domain/question.entity';
 
 // Импортируйте другие сущности
 
@@ -29,6 +30,8 @@ export class TestingService {
     private readonly commentLikesRepository: Repository<CommentLike>,
     @InjectRepository(PostLike)
     private readonly postLikesRepository: Repository<PostLike>,
+    @InjectRepository(Question)
+    private readonly questionRepository: Repository<Question>,
     // Добавьте другие репозитории
   ) {}
 
@@ -55,6 +58,9 @@ export class TestingService {
       );
       await this.postLikesRepository.query(
         'TRUNCATE TABLE "postLikes" RESTART IDENTITY CASCADE',
+      );
+      await this.questionRepository.query(
+        'TRUNCATE TABLE "questions" RESTART IDENTITY CASCADE',
       );
     } catch (error) {
       console.error('Error clearing database:', error);

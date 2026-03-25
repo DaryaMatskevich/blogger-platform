@@ -8,7 +8,7 @@ export class QuestionViewDto {
   updatedAt: Date | null;
 
   constructor(question: any) {
-    this.id = question.id;
+    this.id = question.id.toString();
     this.body = question.body;
     this.correctAnswers = question.correctAnswers;
     this.published = question.published;

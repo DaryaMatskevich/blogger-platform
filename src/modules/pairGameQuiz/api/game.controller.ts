@@ -1,4 +1,11 @@
-import { Controller, NotFoundException, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GameViewDto } from './dto/game-view.dto';
 import { JwtAuthGuard } from '../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
@@ -6,6 +13,7 @@ import { ExtractUserFromRequest } from '../../../modules/user-accounts/guards/de
 import { ConnectToGameCommand } from '../../../modules/pairGameQuiz/application/usecases/connect-to-game.usecase';
 import { UserContextDto } from '../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { GameQueryRepository } from '../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
+import { GetGameByIdQuery } from '../../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -23,13 +31,13 @@ export class GameController {
   //   return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
   // }
 
-  // @Get(':id')
-  // async getGameById(
-  //   @Param('id') id: string,
-  //   @ExtractUserFromRequest() userContext: UserContextDto,
-  // ): Promise<GameViewDto> {
-  //   return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
-  // }
+  @Get(':id')
+  async getGameById(
+    @Param('id') id: string,
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
+  }
 
   @Post('connection')
   async connectToGame(

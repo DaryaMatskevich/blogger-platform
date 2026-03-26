@@ -21,7 +21,7 @@ export class PlayerProgress {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'playerAccountId' })
-  playerAccount: User;
+  player: User;
 
   @Column({ default: 0 })
   score: number;

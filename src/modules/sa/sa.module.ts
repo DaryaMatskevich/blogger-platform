@@ -57,6 +57,6 @@ import { SaQuizQuestionService } from '../../modules/sa/sa.quiz-questions/applic
     QuestionQueryRepository,
     SaQuizQuestionService,
   ],
-  exports: [AdminConfig],
+  exports: [AdminConfig, QuestionQueryRepository],
 })
 export class SaModule {}

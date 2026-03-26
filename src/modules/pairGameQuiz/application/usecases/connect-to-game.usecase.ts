@@ -1,86 +1,61 @@
-import { PairGameRepository } from '../../../../modules/pairGameQuiz/infrastructure/pair-game.repository';
-import { GameViewDto } from '../../../../modules/pairGameQuiz/api/dto/game-view.dto';
-import { Game } from '../../../../modules/pairGameQuiz/domain/game.entity';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PlayerProgress } from '../../../../modules/pairGameQuiz/domain/player-progress.entity';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { GameRepository } from '../../infrastructure/game.repository';
+import { PlayerProgressRepository } from '../../infrastructure/player-progress.repository';
+import { GameQuestionsRepository } from '../../infrastructure/game-questions.repository';
+import { QuestionQueryRepository } from '../../../../modules/sa/sa.quiz-questions/infrastructure/query/question-query.repository';
 
 @Injectable()
-export class ConnectToGameUseCase {
-  constructor(private readonly pairGameRepository: PairGameRepository) {}
+export class ConnectToGameCommand {
+  constructor(public readonly userId: string) {}
+}
 
-  async execute(userId: number): Promise<GameViewDto> {
-    // Проверка на уже активное участие
+@CommandHandler(ConnectToGameCommand)
+export class ConnectToGameUseCase
+  implements ICommandHandler<ConnectToGameCommand, string>
+{
+  constructor(
+    private readonly gameRepository: GameRepository,
+    private readonly playerProgressRepository: PlayerProgressRepository,
+    private readonly questionQueryRepository: QuestionQueryRepository,
+    private readonly gameQuestionsRepository: GameQuestionsRepository,
+  ) {}
+
+  async execute(command: ConnectToGameCommand): Promise<string> {
+    const { userId } = command;
+    const userIdNumber = Number(userId);
+
     const existingActiveGame =
-      await this.pairGameRepository.findActiveGameByUserId(userId);
+      await this.gameRepository.findActiveGameByUserId(userIdNumber);
     if (existingActiveGame) {
       throw new ForbiddenException(
         'User is already participating in an active pair',
       );
     }
 
-    let game: Game;
-
-    const pendingGame = await this.pairGameRepository.findPendingGame();
+    const pendingGame = await this.gameRepository.findPendingGame();
 
     if (pendingGame) {
-      // Подключаем второго игрока
+      // Репозиторий создаёт и сохраняет прогресс
       const secondProgress =
-        await this.pairGameRepository.createPlayerProgress(userId);
-      game = await this.pairGameRepository.addSecondPlayerAndStart(
+        await this.playerProgressRepository.createPlayerProgress(userIdNumber);
+
+      const game = await this.gameRepository.addSecondPlayerAndStart(
         pendingGame,
         secondProgress,
       );
 
-      const questions = await this.pairGameRepository.getRandomQuestions(5);
-      await this.pairGameRepository.createGameQuestions(game, questions);
+      const questions =
+        await this.questionQueryRepository.getRandomQuestions(5);
+      await this.gameQuestionsRepository.createGameQuestions(game, questions);
+
+      return game.id;
     } else {
-      // Создаём новую игру с первым игроком
       const firstProgress =
-        await this.pairGameRepository.createPlayerProgress(userId);
-      game = await this.pairGameRepository.createGame(firstProgress);
+        await this.playerProgressRepository.createPlayerProgress(userIdNumber);
+      const game = await this.gameRepository.createGame(firstProgress);
+
+      return game.id;
     }
-
-    const loadedGame = await this.pairGameRepository.findGameWithRelations(
-      game.id,
-    );
-    if (!loadedGame) {
-      throw new Error('Game not found after creation');
-    }
-
-    return this.mapToViewModel(loadedGame);
-  }
-
-  private mapToViewModel(game: Game): GameViewDto {
-    return {
-      id: game.id.toString(),
-      firstPlayerProgress: this.mapPlayerProgress(game.firstPlayerProgress),
-      secondPlayerProgress: game.secondPlayerProgress
-        ? this.mapPlayerProgress(game.secondPlayerProgress)
-        : null,
-      questions: game.questions.map((gq) => ({
-        id: gq.question.id.toString(),
-        body: gq.question.body,
-      })),
-      status: game.status,
-      pairCreatedDate: game.createdAt.toISOString(),
-      startGameDate: game.startGameDate?.toISOString() || null,
-      finishGameDate: game.finishGameDate?.toISOString() || null,
-    };
-  }
-
-  private mapPlayerProgress(progress: PlayerProgress) {
-    return {
-      answers:
-        progress.answers?.map((a) => ({
-          questionId: a.question.id.toString(),
-          answerStatus: a.answerStatus,
-          addedAt: a.addedAt.toISOString(),
-        })) || [],
-      player: {
-        id: progress.playerAccount.id.toString(),
-        login: progress.playerAccount.login,
-      },
-      score: progress.score,
-    };
   }
 }

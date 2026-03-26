@@ -24,6 +24,7 @@ import { PostLike } from './modules/bloggers-platform/posts/domain/likes/post-li
 import { Confirmation } from './modules/user-accounts/users/domain/confirmation.entity';
 import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
 import { CoreConfig } from './core/core.config';
+import { GameQuizModule } from './modules/pairGameQuiz/game.quiz.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { CoreConfig } from './core/core.config';
     BloggersPlatformModule,
     CoreModule,
     NotificationsModule,
+    GameQuizModule,
   ],
   controllers: [AppController],
   providers: [

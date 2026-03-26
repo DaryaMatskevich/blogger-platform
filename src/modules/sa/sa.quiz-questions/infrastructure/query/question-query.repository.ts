@@ -60,4 +60,12 @@ export class QuestionQueryRepository {
       items: questionViewItems,
     });
   }
+  async getRandomQuestions(count: number): Promise<Question[]> {
+    return this.dataSource
+      .createQueryBuilder(Question, 'q')
+      .where('q.published = :published', { published: true })
+      .orderBy('RANDOM()')
+      .limit(count)
+      .getMany();
+  }
 }

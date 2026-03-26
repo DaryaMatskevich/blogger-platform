@@ -16,6 +16,7 @@ import { PlayerProgressRepository } from '../../modules/pairGameQuiz/infrastruct
 import { AnswerRepository } from '../../modules/pairGameQuiz/infrastructure/answers.repository';
 import { SaModule } from '../../modules/sa/sa.module';
 import { GetGameByIdHandler } from '../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
+import { GetCurrentUserGameQuery } from '../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { GetGameByIdHandler } from '../../modules/pairGameQuiz/application/queri
     PlayerProgressRepository,
     AnswerRepository,
     GetGameByIdHandler,
+    GetCurrentUserGameQuery,
   ],
   exports: [],
 })

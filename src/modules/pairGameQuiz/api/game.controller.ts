@@ -14,6 +14,7 @@ import { ConnectToGameCommand } from '../../../modules/pairGameQuiz/application/
 import { UserContextDto } from '../../../modules/user-accounts/guards/dto/user-contex.dto';
 import { GameQueryRepository } from '../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
 import { GetGameByIdQuery } from '../../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
+import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -24,12 +25,12 @@ export class GameController {
     private gameQueryRepository: GameQueryRepository,
   ) {}
 
-  // @Get('my-current')
-  // async getMyCurrentGame(
-  //   @ExtractUserFromRequest() userContext: UserContextDto,
-  // ): Promise<GameViewDto> {
-  //   return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
-  // }
+  @Get('my-current')
+  async getMyCurrentGame(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
+  }
 
   @Get(':id')
   async getGameById(

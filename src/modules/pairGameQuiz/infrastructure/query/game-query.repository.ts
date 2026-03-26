@@ -122,4 +122,30 @@ export class GameQueryRepository {
       finishGameDate: game.finishGameDate?.toISOString() || null,
     };
   }
+
+  async findActiveGameByUserId(userId: number): Promise<GameViewDto | null> {
+    const game = await this.dataSource
+      .createQueryBuilder(Game, 'g')
+      .leftJoinAndSelect('g.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('firstProgress.player', 'firstPlayer')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstGameQuestion')
+      .leftJoinAndSelect('firstGameQuestion.question', 'firstQuestion')
+      .leftJoinAndSelect('g.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.player', 'secondPlayer')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
+      .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondGameQuestion')
+      .leftJoinAndSelect('secondGameQuestion.question', 'secondQuestion')
+      .leftJoinAndSelect('g.questions', 'gameQuestions')
+      .leftJoinAndSelect('gameQuestions.question', 'question')
+      .where('g.status IN (:...statuses)', {
+        statuses: [GameStatus.PendingSecondPlayer, GameStatus.Active],
+      })
+      .andWhere('(firstPlayer.id = :userId OR secondPlayer.id = :userId)', {
+        userId,
+      })
+      .getOne();
+
+    return game ? this.mapToGameViewDto(game) : null;
+  }
 }

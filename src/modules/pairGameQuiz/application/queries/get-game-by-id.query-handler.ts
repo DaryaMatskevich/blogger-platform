@@ -1,8 +1,12 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { GameQueryRepository } from '../../infrastructure/query/game-query.repository'; // предположим
-import { GameViewDto } from '@src/modules/pairGameQuiz/api/dto/game-view.dto';
+import { GameViewDto } from '../../../pairGameQuiz/api/dto/game-view.dto';
 
 export class GetGameByIdQuery {
   constructor(
@@ -29,10 +33,13 @@ export class GetGameByIdHandler
       id,
       userIdNumber,
     );
-    if (!game) {
-      throw new NotFoundException('Game not found');
-    }
+    if (game) return game;
 
-    return game;
+    const existingGame = await this.gameQueryRepository.findGameById(id);
+    if (!existingGame) {
+      throw new NotFoundException(`Game with id ${id} not found`);
+    }
+    // Игра существует, но пользователь не участник
+    throw new ForbiddenException('You are not a participant of this game');
   }
 }

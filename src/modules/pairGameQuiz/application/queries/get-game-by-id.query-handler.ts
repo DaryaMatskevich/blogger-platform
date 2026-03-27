@@ -34,9 +34,6 @@ export class GetGameByIdHandler
       userIdNumber,
     );
     if (game) return game;
-    if (!game) {
-      throw new NotFoundException(`Game with id ${id} not found`);
-    }
 
     const existingGame = await this.gameQueryRepository.findGameById(id);
     if (!existingGame) {

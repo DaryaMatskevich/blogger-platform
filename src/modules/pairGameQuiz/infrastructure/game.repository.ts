@@ -52,4 +52,18 @@ export class GameRepository {
     game.startGameDate = new Date();
     return this.repository.save(game);
   }
+  async findUnfinishedGameByUserId(userId: number): Promise<Game | null> {
+    return this.repository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .where(
+        '(firstProgress.playerAccountId = :userId OR secondProgress.playerAccountId = :userId) AND game.status IN (:...statuses)',
+        {
+          userId,
+          statuses: [GameStatus.PendingSecondPlayer, GameStatus.Active],
+        },
+      )
+      .getOne();
+  }
 }

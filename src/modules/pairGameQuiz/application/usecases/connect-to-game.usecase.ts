@@ -25,11 +25,11 @@ export class ConnectToGameUseCase
     const { userId } = command;
     const userIdNumber = Number(userId);
 
-    const existingActiveGame =
-      await this.gameRepository.findActiveGameByUserId(userIdNumber);
-    if (existingActiveGame) {
+    const existingUnfinishedGame =
+      await this.gameRepository.findUnfinishedGameByUserId(userIdNumber);
+    if (existingUnfinishedGame) {
       throw new ForbiddenException(
-        'User is already participating in an active pair',
+        'User is already participating in an active or pending pair',
       );
     }
 

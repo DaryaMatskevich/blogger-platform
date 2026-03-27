@@ -64,7 +64,7 @@ export class SendAnswerUseCase
     );
 
     if (!nextGameQuestion) {
-      throw new BadRequestException('All questions have already been answered');
+      throw new ForbiddenException('User has already answered all questions');
     }
 
     // 5. Проверить правильность ответа

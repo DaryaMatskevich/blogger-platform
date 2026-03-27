@@ -1,10 +1,6 @@
 // application/use-cases/send-answer.usecase.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { GameRepository } from '../../infrastructure/game.repository';
 import { AnswerResponseDto } from '../../api/dto/answer-response.dto';
 import { GameStatus } from '../../domain/game.entity';
@@ -38,7 +34,7 @@ export class SendAnswerUseCase
     const game =
       await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
     if (!game) {
-      throw new NotFoundException('No active game for current user');
+      throw new ForbiddenException('User is not inside an active game');
     }
 
     // 2. Определить прогресс игрока

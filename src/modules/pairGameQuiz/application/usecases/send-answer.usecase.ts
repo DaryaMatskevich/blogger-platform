@@ -101,8 +101,44 @@ export class SendAnswerUseCase
       firstProgressAnswersCount === totalQuestions &&
       secondProgressAnswersCount === totalQuestions;
     if (bothFinished) {
+      if (!game.firstPlayerProgress || !game.secondPlayerProgress) {
+        // Этого не должно случиться, но на всякий случай
+        throw new Error(
+          'Both players must have progress when game is finished',
+        );
+      }
       game.status = GameStatus.Finished;
       game.finishGameDate = new Date();
+
+      const firstProgress = game.firstPlayerProgress;
+      const secondProgress = game.secondPlayerProgress;
+      const getLastAnswerTime = (progress) => {
+        if (!progress.answers || progress.answers.length === 0) return null;
+        // сортируем ответы по дате добавления (от старых к новым) и берём последний
+        const sorted = [...progress.answers].sort(
+          (a, b) => a.addedAt.getTime() - b.addedAt.getTime(),
+        );
+        return sorted[sorted.length - 1].addedAt;
+      };
+
+      const firstFinishedAt = getLastAnswerTime(firstProgress);
+      const secondFinishedAt = getLastAnswerTime(secondProgress);
+
+      if (firstFinishedAt && secondFinishedAt) {
+        if (firstFinishedAt < secondFinishedAt && firstProgress.score > 0) {
+          firstProgress.score += 1;
+          await this.playerProgressRepository.savePlayerProgress(firstProgress);
+        } else if (
+          secondFinishedAt < firstFinishedAt &&
+          secondProgress.score > 0
+        ) {
+          secondProgress.score += 1;
+          await this.playerProgressRepository.savePlayerProgress(
+            secondProgress,
+          );
+        }
+        // если времена равны – бонус не начисляем
+      }
       await this.gameRepository.saveGame(game);
     }
 

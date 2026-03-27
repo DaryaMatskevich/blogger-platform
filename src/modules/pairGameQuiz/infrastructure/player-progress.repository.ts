@@ -23,4 +23,7 @@ export class PlayerProgressRepository {
     // Сохраняем
     return this.repository.save(progress);
   }
+  async savePlayerProgress(progress: PlayerProgress): Promise<PlayerProgress> {
+    return this.repository.save(progress);
+  }
 }

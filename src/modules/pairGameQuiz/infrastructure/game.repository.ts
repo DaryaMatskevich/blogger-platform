@@ -29,4 +29,8 @@ export class GameRepository {
     game.startGameDate = new Date();
     return this.repository.save(game);
   }
+
+  async saveGame(game: Game): Promise<Game> {
+    return this.repository.save(game);
+  }
 }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -15,6 +16,9 @@ import { UserContextDto } from '../../../modules/user-accounts/guards/dto/user-c
 import { GameQueryRepository } from '../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
 import { GetGameByIdQuery } from '../../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
 import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
+import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
+import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
+import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -54,13 +58,13 @@ export class GameController {
     return game;
   }
 
-  // @Post('my-current/answers')
-  // async sendAnswer(
-  //   @Body() answerDto: AnswerDto,
-  //   @ExtractUserFromRequest() userContext: UserContextDto,
-  // ): Promise<AnswerResponseDto> {
-  //   return this.commandBus.execute(
-  //     new SendAnswerCommand(userContext.id, answerDto),
-  //   );
-  // }
+  @Post('my-current/answers')
+  async sendAnswer(
+    @Body() answerDto: AnswerDto,
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<AnswerResponseDto> {
+    return this.commandBus.execute(
+      new SendAnswerCommand(userContext.id, answerDto.answer),
+    );
+  }
 }

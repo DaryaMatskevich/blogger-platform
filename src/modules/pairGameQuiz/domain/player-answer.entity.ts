@@ -8,10 +8,15 @@ import {
 import { PlayerProgress } from './player-progress.entity';
 import { GameQuestion } from './game-question.entity'; // предполагаемая сущность, связывающая вопрос с игрой
 
+export enum AnswerStatus {
+  Correct = 'Correct',
+  Incorrect = 'Incorrect',
+}
+
 @Entity()
 export class PlayerAnswer {
-  @PrimaryGeneratedColumn('increment')
-  public id: number;
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
 
   // Связь с прогрессом игрока (чей это ответ)
   @ManyToOne(() => PlayerProgress, (progress) => progress.answers, {
@@ -25,11 +30,13 @@ export class PlayerAnswer {
   @JoinColumn()
   public gameQuestion: GameQuestion;
 
-  // Флаг правильности ответа (вычисляется при сохранении)
-  @Column({ default: false })
-  public isCorrect: boolean;
+  // Статус ответа (Correct / Incorrect)
+  @Column({ type: 'enum', enum: AnswerStatus, default: AnswerStatus.Incorrect })
+  answerStatus: AnswerStatus;
 
-  // Время, когда игрок дал ответ
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  public answeredAt: Date;
+  addedAt: Date;
+
+  @Column({ type: 'int', nullable: true })
+  questionIndex?: number;
 }

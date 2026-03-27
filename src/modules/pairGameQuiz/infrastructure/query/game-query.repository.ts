@@ -5,7 +5,6 @@ import {
   Game,
   GameStatus,
 } from '../../../../modules/pairGameQuiz/domain/game.entity';
-import { AnswerStatus } from '../../../../modules/pairGameQuiz/domain/answer.entity';
 
 @Injectable()
 export class GameQueryRepository {
@@ -73,7 +72,7 @@ export class GameQueryRepository {
     return this.mapToGameViewDto(game);
   }
 
-  async findActiveGameByUserId(userId: number): Promise<GameViewDto | null> {
+  async findActiveGameByUserId(userId: number): Promise<Game | null> {
     const game = await this.dataSource
       .createQueryBuilder(Game, 'g')
       .leftJoinAndSelect('g.firstPlayerProgress', 'firstProgress')
@@ -88,15 +87,14 @@ export class GameQueryRepository {
       .leftJoinAndSelect('secondGameQuestion.question', 'secondQuestion')
       .leftJoinAndSelect('g.questions', 'gameQuestions')
       .leftJoinAndSelect('gameQuestions.question', 'question')
-      .where('g.status IN (:...statuses)', {
-        statuses: [GameStatus.PendingSecondPlayer, GameStatus.Active],
+      .where('g.status = :status', {
+        status: GameStatus.Active,
       })
       .andWhere('(firstPlayer.id = :userId OR secondPlayer.id = :userId)', {
         userId,
       })
       .getOne();
-
-    return game ? this.mapToGameViewDto(game) : null;
+    return game;
   }
 
   async findUnfinishedGameByUserId(userId: number): Promise<Game | null> {
@@ -113,16 +111,15 @@ export class GameQueryRepository {
       )
       .getOne();
   }
+
   private mapToGameViewDto(game: Game): GameViewDto {
     // Формируем объект для первого игрока
     const firstPlayerProgress = game.firstPlayerProgress
       ? {
           answers: game.firstPlayerProgress.answers.map((answer) => ({
             questionId: answer.gameQuestion.question.id.toString(),
-            answerStatus: answer.isCorrect
-              ? AnswerStatus.Correct
-              : AnswerStatus.Incorrect,
-            addedAt: answer.answeredAt.toISOString(),
+            answerStatus: answer.answerStatus,
+            addedAt: answer.addedAt.toISOString(),
           })),
           player: {
             id: game.firstPlayerProgress.player.id.toString(),
@@ -137,10 +134,8 @@ export class GameQueryRepository {
       ? {
           answers: game.secondPlayerProgress.answers.map((answer) => ({
             questionId: answer.gameQuestion.question.id.toString(),
-            answerStatus: answer.isCorrect
-              ? AnswerStatus.Correct
-              : AnswerStatus.Incorrect,
-            addedAt: answer.answeredAt.toISOString(),
+            answerStatus: answer.answerStatus,
+            addedAt: answer.addedAt.toISOString(),
           })),
           player: {
             id: game.secondPlayerProgress.player.id.toString(),

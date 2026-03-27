@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { UserAccountsModule } from '../user-accounts/userAccounts.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Answer } from '../../modules/pairGameQuiz/domain/answer.entity';
 import { Game } from '../../modules/pairGameQuiz/domain/game.entity';
 import { GameQuestion } from '../../modules/pairGameQuiz/domain/game-question.entity';
 import { PlayerAnswer } from '../../modules/pairGameQuiz/domain/player-answer.entity';
@@ -16,9 +15,8 @@ import { PlayerProgressRepository } from '../../modules/pairGameQuiz/infrastruct
 import { AnswerRepository } from '../../modules/pairGameQuiz/infrastructure/answers.repository';
 import { SaModule } from '../../modules/sa/sa.module';
 import { GetGameByIdHandler } from '../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
-import {
-  GetCurrentUserGameQuery
-} from '../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
+import { GetCurrentUserGameHandler } from '../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
+import { SendAnswerUseCase } from '../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
 
 @Module({
   imports: [
@@ -26,7 +24,6 @@ import {
     UserAccountsModule,
     SaModule,
     TypeOrmModule.forFeature([
-      Answer,
       Game,
       GameQuestion,
       PlayerAnswer,
@@ -42,7 +39,8 @@ import {
     PlayerProgressRepository,
     AnswerRepository,
     GetGameByIdHandler,
-    GetCurrentUserGameQuery,
+    GetCurrentUserGameHandler,
+    SendAnswerUseCase,
   ],
   exports: [],
 })

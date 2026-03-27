@@ -1,6 +1,5 @@
 export class AnswerResponseDto {
-  isCorrect: boolean;
   questionId: string;
-  answer: string;
-  createdAt: Date;
+  answerStatus: 'Correct' | 'Incorrect';
+  addedAt: string;
 }

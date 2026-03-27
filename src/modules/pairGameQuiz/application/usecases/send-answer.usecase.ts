@@ -83,7 +83,7 @@ export class SendAnswerUseCase
     playerAnswer.addedAt = new Date();
 
     await this.answerRepository.saveAnswer(playerAnswer);
-
+    playerProgress.answers.push(playerAnswer);
     // 7. Обновить счёт игрока, если ответ правильный
     if (isCorrect) {
       playerProgress.score += 1;

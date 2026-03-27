@@ -11,6 +11,17 @@ import { AnswerStatus } from '../../../../modules/pairGameQuiz/domain/answer.ent
 export class GameQueryRepository {
   constructor(private readonly dataSource: DataSource) {}
 
+  async findPendingGame(): Promise<Game | null> {
+    return this.dataSource
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .where('game.status = :status', {
+        status: GameStatus.PendingSecondPlayer,
+      })
+      .getOne();
+  }
+
   async findGameById(id: string): Promise<GameViewDto | null> {
     const game = await this.dataSource
       .createQueryBuilder(Game, 'g')
@@ -61,6 +72,7 @@ export class GameQueryRepository {
     if (!game) return null;
     return this.mapToGameViewDto(game);
   }
+
   async findActiveGameByUserId(userId: number): Promise<GameViewDto | null> {
     const game = await this.dataSource
       .createQueryBuilder(Game, 'g')
@@ -85,6 +97,21 @@ export class GameQueryRepository {
       .getOne();
 
     return game ? this.mapToGameViewDto(game) : null;
+  }
+
+  async findUnfinishedGameByUserId(userId: number): Promise<Game | null> {
+    return this.dataSource
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .where(
+        '(firstProgress.playerAccountId = :userId OR secondProgress.playerAccountId = :userId) AND game.status IN (:...statuses)',
+        {
+          userId,
+          statuses: [GameStatus.PendingSecondPlayer, GameStatus.Active],
+        },
+      )
+      .getOne();
   }
   private mapToGameViewDto(game: Game): GameViewDto {
     // Формируем объект для первого игрока

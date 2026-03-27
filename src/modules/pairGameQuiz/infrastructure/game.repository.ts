@@ -11,29 +11,6 @@ export class GameRepository {
     this.repository = dataSource.getRepository(Game);
   }
 
-  async findActiveGameByUserId(userId: number): Promise<Game | null> {
-    return this.repository
-      .createQueryBuilder('game')
-      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
-      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
-      .where(
-        '(firstProgress.playerAccountId = :userId OR secondProgress.playerAccountId = :userId) AND game.status = :status',
-        { userId, status: GameStatus.Active },
-      )
-      .getOne();
-  }
-
-  async findPendingGame(): Promise<Game | null> {
-    return this.repository
-      .createQueryBuilder('game')
-      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
-      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
-      .where('game.status = :status', {
-        status: GameStatus.PendingSecondPlayer,
-      })
-      .getOne();
-  }
-
   async createGame(firstProgress: PlayerProgress): Promise<Game> {
     const game = this.repository.create({
       firstPlayerProgress: firstProgress,
@@ -51,19 +28,5 @@ export class GameRepository {
     game.status = GameStatus.Active;
     game.startGameDate = new Date();
     return this.repository.save(game);
-  }
-  async findUnfinishedGameByUserId(userId: number): Promise<Game | null> {
-    return this.repository
-      .createQueryBuilder('game')
-      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
-      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
-      .where(
-        '(firstProgress.playerAccountId = :userId OR secondProgress.playerAccountId = :userId) AND game.status IN (:...statuses)',
-        {
-          userId,
-          statuses: [GameStatus.PendingSecondPlayer, GameStatus.Active],
-        },
-      )
-      .getOne();
   }
 }

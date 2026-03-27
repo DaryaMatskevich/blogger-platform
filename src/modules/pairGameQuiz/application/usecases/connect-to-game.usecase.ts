@@ -4,6 +4,7 @@ import { GameRepository } from '../../infrastructure/game.repository';
 import { PlayerProgressRepository } from '../../infrastructure/player-progress.repository';
 import { GameQuestionsRepository } from '../../infrastructure/game-questions.repository';
 import { QuestionQueryRepository } from '../../../../modules/sa/sa.quiz-questions/infrastructure/query/question-query.repository';
+import { GameQueryRepository } from '../../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
 
 @Injectable()
 export class ConnectToGameCommand {
@@ -16,6 +17,7 @@ export class ConnectToGameUseCase
 {
   constructor(
     private readonly gameRepository: GameRepository,
+    private readonly gameQueryRepository: GameQueryRepository,
     private readonly playerProgressRepository: PlayerProgressRepository,
     private readonly questionQueryRepository: QuestionQueryRepository,
     private readonly gameQuestionsRepository: GameQuestionsRepository,
@@ -26,14 +28,14 @@ export class ConnectToGameUseCase
     const userIdNumber = Number(userId);
 
     const existingUnfinishedGame =
-      await this.gameRepository.findUnfinishedGameByUserId(userIdNumber);
+      await this.gameQueryRepository.findUnfinishedGameByUserId(userIdNumber);
     if (existingUnfinishedGame) {
       throw new ForbiddenException(
         'User is already participating in an active or pending pair',
       );
     }
 
-    const pendingGame = await this.gameRepository.findPendingGame();
+    const pendingGame = await this.gameQueryRepository.findPendingGame();
 
     if (pendingGame) {
       // Репозиторий создаёт и сохраняет прогресс

@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -38,7 +39,7 @@ export class GameController {
 
   @Get(':id')
   async getGameById(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));

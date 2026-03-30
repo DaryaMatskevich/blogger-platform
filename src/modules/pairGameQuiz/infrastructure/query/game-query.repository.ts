@@ -99,9 +99,19 @@ export class GameQueryRepository {
 
   async findUnfinishedGameByUserId(userId: number): Promise<Game | null> {
     return this.dataSource
-      .createQueryBuilder(Game, 'game')
-      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
-      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .createQueryBuilder(Game, 'g')
+      .leftJoinAndSelect('g.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('g.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstGameQuestion')
+      .leftJoinAndSelect('firstGameQuestion.question', 'firstQuestion')
+      .leftJoinAndSelect('g.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.player', 'secondPlayer')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
+      .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondGameQuestion')
+      .leftJoinAndSelect('secondGameQuestion.question', 'secondQuestion')
+      .leftJoinAndSelect('g.questions', 'gameQuestions')
+      .leftJoinAndSelect('gameQuestions.question', 'question')
       .where(
         '(firstProgress.playerAccountId = :userId OR secondProgress.playerAccountId = :userId) AND game.status IN (:...statuses)',
         {

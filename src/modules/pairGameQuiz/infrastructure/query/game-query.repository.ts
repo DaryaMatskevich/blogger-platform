@@ -147,10 +147,12 @@ export class GameQueryRepository {
 
     const questions =
       game.status === GameStatus.Active
-        ? game.questions.map((gameQuestion) => ({
-            id: gameQuestion.question.id.toString(),
-            body: gameQuestion.question.body,
-          }))
+        ? game.questions
+            .sort((a, b) => a.order - b.order)
+            .map((gameQuestion) => ({
+              id: gameQuestion.question.id.toString(),
+              body: gameQuestion.question.body,
+            }))
         : null;
 
     return {

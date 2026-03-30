@@ -156,7 +156,7 @@ export class GameQueryRepository {
       : null;
 
     const questions =
-      game.status === GameStatus.Active
+      game.status !== GameStatus.PendingSecondPlayer
         ? game.questions
             .sort((a, b) => a.order - b.order)
             .map((gameQuestion) => ({

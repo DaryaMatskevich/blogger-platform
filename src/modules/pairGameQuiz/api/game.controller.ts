@@ -47,6 +47,7 @@ export class GameController {
   }
 
   @Post('connection')
+  @HttpCode(200)
   async connectToGame(
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
@@ -61,7 +62,6 @@ export class GameController {
   }
 
   @Post('my-current/answers')
-  @HttpCode(200)
   async sendAnswer(
     @Body() answerDto: AnswerDto,
     @ExtractUserFromRequest() userContext: UserContextDto,

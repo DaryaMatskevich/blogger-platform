@@ -116,11 +116,16 @@ export class GameQueryRepository {
     // Формируем объект для первого игрока
     const firstPlayerProgress = game.firstPlayerProgress
       ? {
-          answers: game.firstPlayerProgress.answers.map((answer) => ({
-            questionId: answer.gameQuestion.question.id.toString(),
-            answerStatus: answer.answerStatus,
-            addedAt: answer.addedAt.toISOString(),
-          })),
+          answers: game.firstPlayerProgress.answers
+            .sort(
+              (a, b) =>
+                new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
+            )
+            .map((answer) => ({
+              questionId: answer.gameQuestion.question.id.toString(),
+              answerStatus: answer.answerStatus,
+              addedAt: answer.addedAt.toISOString(),
+            })),
           player: {
             id: game.firstPlayerProgress.player.id.toString(),
             login: game.firstPlayerProgress.player.login,
@@ -132,11 +137,16 @@ export class GameQueryRepository {
     // Формируем объект для второго игрока
     const secondPlayerProgress = game.secondPlayerProgress
       ? {
-          answers: game.secondPlayerProgress.answers.map((answer) => ({
-            questionId: answer.gameQuestion.question.id.toString(),
-            answerStatus: answer.answerStatus,
-            addedAt: answer.addedAt.toISOString(),
-          })),
+          answers: game.secondPlayerProgress.answers
+            .sort(
+              (a, b) =>
+                new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
+            )
+            .map((answer) => ({
+              questionId: answer.gameQuestion.question.id.toString(),
+              answerStatus: answer.answerStatus,
+              addedAt: answer.addedAt.toISOString(),
+            })),
           player: {
             id: game.secondPlayerProgress.player.id.toString(),
             login: game.secondPlayerProgress.player.login,

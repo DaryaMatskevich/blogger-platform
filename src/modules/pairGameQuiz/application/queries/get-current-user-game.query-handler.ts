@@ -18,8 +18,13 @@ export class GetCurrentUserGameHandler
   async execute(query: GetCurrentUserGameQuery): Promise<GameViewDto> {
     const { userId } = query;
     const userIdNumber = parseInt(userId, 10);
-    const unfinishedGame =
+    const unfinishedGameResult =
       await this.gameQueryRepository.findUnfinishedGameByUserId(userIdNumber);
+
+    const unfinishedGame = Array.isArray(unfinishedGameResult)
+      ? (unfinishedGameResult[0] ?? null)
+      : unfinishedGameResult;
+
     if (!unfinishedGame) {
       throw new NotFoundException('Active game not found');
     }

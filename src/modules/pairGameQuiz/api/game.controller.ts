@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   NotFoundException,
   Param,
   ParseUUIDPipe,
@@ -47,7 +46,6 @@ export class GameController {
   }
 
   @Post('connection')
-  @HttpCode(200)
   async connectToGame(
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {

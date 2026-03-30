@@ -29,16 +29,17 @@ export class GetGameByIdHandler
     const { id, userId } = query;
     const userIdNumber = Number(userId);
 
+    const existingGame = await this.gameQueryRepository.findGameById(id);
+    if (!existingGame) {
+      throw new NotFoundException(`Game with id ${id} not found`);
+    }
+
     const game = await this.gameQueryRepository.findGameByIdAndUserId(
       id,
       userIdNumber,
     );
     if (game) return game;
 
-    const existingGame = await this.gameQueryRepository.findGameById(id);
-    if (!existingGame) {
-      throw new NotFoundException(`Game with id ${id} not found`);
-    }
     // Игра существует, но пользователь не участник
     throw new ForbiddenException('You are not a participant of this game');
   }

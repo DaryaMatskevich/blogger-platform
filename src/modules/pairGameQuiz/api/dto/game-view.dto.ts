@@ -1,3 +1,5 @@
+import { GameStatus } from '../../../../modules/pairGameQuiz/domain/game.entity';
+
 export class GameViewDto {
   id: string;
   firstPlayerProgress: {
@@ -11,8 +13,8 @@ export class GameViewDto {
     score: number;
   } | null;
   questions: { id: string; body: string }[] | null;
-  status: 'Pending' | 'Active' | 'Finished';
-  pairCreateDate: string;
+  status: GameStatus;
+  pairCreatedDate: string;
   startGameDate: string | null;
   finishGameDate: string | null;
 }

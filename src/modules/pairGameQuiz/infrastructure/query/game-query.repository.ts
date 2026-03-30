@@ -145,25 +145,21 @@ export class GameQueryRepository {
         }
       : null;
 
-    const questions = game.questions.map((gameQuestion) => ({
-      id: gameQuestion.question.id.toString(),
-      body: gameQuestion.question.body,
-    }));
-
-    // Преобразование статуса
-    let status: 'Pending' | 'Active' | 'Finished';
-    if (game.status === GameStatus.PendingSecondPlayer) status = 'Pending';
-    else if (game.status === GameStatus.Active) status = 'Active';
-    else if (game.status === GameStatus.Finished) status = 'Finished';
-    else status = 'Pending';
+    const questions =
+      game.status === GameStatus.Active
+        ? game.questions.map((gameQuestion) => ({
+            id: gameQuestion.question.id.toString(),
+            body: gameQuestion.question.body,
+          }))
+        : null;
 
     return {
       id: game.id,
       firstPlayerProgress,
       secondPlayerProgress,
       questions,
-      status,
-      pairCreateDate: game.pairCreatedDate.toISOString(), // обратите внимание на название поля
+      status: game.status,
+      pairCreatedDate: game.pairCreatedDate.toISOString(), // обратите внимание на название поля
       startGameDate: game.startGameDate?.toISOString() || null,
       finishGameDate: game.finishGameDate?.toISOString() || null,
     };

@@ -31,21 +31,6 @@ export class GameController {
     private gameQueryRepository: GameQueryRepository,
   ) {}
 
-  @Get('my-current')
-  async getMyCurrentGame(
-    @ExtractUserFromRequest() userContext: UserContextDto,
-  ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
-  }
-
-  @Get(':id')
-  async getGameById(
-    @Param('id', ParseUUIDPipe) id: string,
-    @ExtractUserFromRequest() userContext: UserContextDto,
-  ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
-  }
-
   @Post('connection')
   @HttpCode(200)
   async connectToGame(
@@ -70,5 +55,20 @@ export class GameController {
     return this.commandBus.execute(
       new SendAnswerCommand(userContext.id, answerDto.answer),
     );
+  }
+
+  @Get('my-current')
+  async getMyCurrentGame(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
+  }
+
+  @Get(':id')
+  async getGameById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
   }
 }

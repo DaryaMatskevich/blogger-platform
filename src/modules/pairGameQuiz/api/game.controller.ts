@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -71,7 +70,7 @@ export class GameController {
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
     if (!isUUID(id)) {
-      throw new BadRequestException('Game not exist');
+      throw new NotFoundException('Game not exist');
     }
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
   }

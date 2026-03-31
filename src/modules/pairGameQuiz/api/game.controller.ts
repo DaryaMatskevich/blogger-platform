@@ -46,6 +46,13 @@ export class GameController {
     return game;
   }
 
+  @Get('my-current')
+  async getMyCurrentGame(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
+  }
+
   @Post('my-current/answers')
   @HttpCode(200)
   async sendAnswer(
@@ -55,13 +62,6 @@ export class GameController {
     return this.commandBus.execute(
       new SendAnswerCommand(userContext.id, answerDto.answer),
     );
-  }
-
-  @Get('my-current')
-  async getMyCurrentGame(
-    @ExtractUserFromRequest() userContext: UserContextDto,
-  ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetCurrentUserGameQuery(userContext.id));
   }
 
   @Get(':id')

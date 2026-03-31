@@ -5,6 +5,7 @@ import {
   HttpCode,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -20,7 +21,6 @@ import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/applicati
 import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
 import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
 import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
-import { isUUID } from 'class-validator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -66,12 +66,9 @@ export class GameController {
 
   @Get(':id')
   async getGameById(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
-    if (!isUUID(id)) {
-      throw new NotFoundException('Game not exist');
-    }
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
   }
 }

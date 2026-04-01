@@ -17,7 +17,7 @@ export class UuidValidationPipe implements PipeTransform {
   transform(value: any): string {
     if (typeof value !== 'string') {
       throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
+        code: DomainExceptionCode.NotFound,
         message: `Invalid UUID: expected string, got ${typeof value}`,
       });
     }

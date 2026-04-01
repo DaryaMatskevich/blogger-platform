@@ -21,7 +21,7 @@ export class GameQueryRepository {
       .getOne();
   }
 
-  async findGameById(id: string): Promise<GameViewDto | null> {
+  async findGameById(id: number): Promise<GameViewDto | null> {
     const game = await this.dataSource
       .createQueryBuilder(Game, 'g')
       .leftJoinAndSelect('g.firstPlayerProgress', 'firstProgress')
@@ -45,7 +45,7 @@ export class GameQueryRepository {
   }
 
   async findGameByIdAndUserId(
-    gameId: string,
+    gameId: number,
     userId: number,
   ): Promise<GameViewDto | null> {
     const game = await this.dataSource
@@ -166,7 +166,7 @@ export class GameQueryRepository {
         : null;
 
     return {
-      id: game.id,
+      id: game.id.toString(),
       firstPlayerProgress,
       secondPlayerProgress,
       questions,

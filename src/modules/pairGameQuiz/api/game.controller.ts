@@ -5,6 +5,7 @@ import {
   HttpCode,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -35,7 +36,7 @@ export class GameController {
   async connectToGame(
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
-    const gameId = await this.commandBus.execute(
+    const gameId: number = await this.commandBus.execute(
       new ConnectToGameCommand(userContext.id),
     );
     const game = await this.gameQueryRepository.findGameById(gameId);
@@ -65,7 +66,7 @@ export class GameController {
 
   @Get(':id')
   async getGameById(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));

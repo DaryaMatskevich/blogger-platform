@@ -19,8 +19,8 @@ export enum GameStatus {
 
 @Entity('games')
 export class Game {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @OneToOne(() => PlayerProgress, { cascade: true })
   @JoinColumn()

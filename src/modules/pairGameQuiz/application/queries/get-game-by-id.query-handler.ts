@@ -10,7 +10,7 @@ import { GameViewDto } from '../../../pairGameQuiz/api/dto/game-view.dto';
 
 export class GetGameByIdQuery {
   constructor(
-    public readonly id: string,
+    public readonly gameId: number,
     public readonly userId: string,
   ) {}
 }
@@ -26,16 +26,16 @@ export class GetGameByIdHandler
   ) {}
 
   async execute(query: GetGameByIdQuery): Promise<GameViewDto> {
-    const { id, userId } = query;
+    const { gameId, userId } = query;
     const userIdNumber = Number(userId);
 
-    const existingGame = await this.gameQueryRepository.findGameById(id);
+    const existingGame = await this.gameQueryRepository.findGameById(gameId);
     if (!existingGame) {
-      throw new NotFoundException(`Game with id ${id} not found`);
+      throw new NotFoundException(`Game with id ${gameId} not found`);
     }
 
     const game = await this.gameQueryRepository.findGameByIdAndUserId(
-      id,
+      gameId,
       userIdNumber,
     );
     if (game) return game;

@@ -13,7 +13,7 @@ export class ConnectToGameCommand {
 
 @CommandHandler(ConnectToGameCommand)
 export class ConnectToGameUseCase
-  implements ICommandHandler<ConnectToGameCommand, string>
+  implements ICommandHandler<ConnectToGameCommand, number>
 {
   constructor(
     private readonly gameRepository: GameRepository,
@@ -23,7 +23,7 @@ export class ConnectToGameUseCase
     private readonly gameQuestionsRepository: GameQuestionsRepository,
   ) {}
 
-  async execute(command: ConnectToGameCommand): Promise<string> {
+  async execute(command: ConnectToGameCommand): Promise<number> {
     const { userId } = command;
     const userIdNumber = Number(userId);
 

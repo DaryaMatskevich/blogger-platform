@@ -20,7 +20,6 @@ import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/applicati
 import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
 import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
 import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
-import { UuidValidationPipe } from '../../../core/pipes/object-id-validation-pipe.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -66,7 +65,7 @@ export class GameController {
 
   @Get(':id')
   async getGameById(
-    @Param('id', new UuidValidationPipe('id')) id: string,
+    @Param('id') id: string,
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));

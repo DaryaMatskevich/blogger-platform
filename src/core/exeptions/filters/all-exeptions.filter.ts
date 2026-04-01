@@ -11,7 +11,6 @@ import { DomainExceptionCode } from '../domain-exeption-codes';
 import { ErrorResponseBody } from './error-response-body.type';
 import { ThrottlerException } from '@nestjs/throttler';
 
-
 //https://docs.nestjs.com/exception-filters#exception-filters-1
 //Все ошибки
 @Catch()
@@ -27,7 +26,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let code = DomainExceptionCode.InternalServerError;
 
-if (exception instanceof ThrottlerException) {
+    if (exception instanceof ThrottlerException) {
       status = HttpStatus.TOO_MANY_REQUESTS; // 429
       message = exception.message || 'Too many requests';
       code = DomainExceptionCode.TooManyRequests; // Используем новый код
@@ -38,8 +37,8 @@ if (exception instanceof ThrottlerException) {
         status === HttpStatus.UNAUTHORIZED
           ? DomainExceptionCode.Unauthorized
           : status === HttpStatus.BAD_REQUEST
-          ? DomainExceptionCode.BadRequest
-          : code;
+            ? DomainExceptionCode.BadRequest
+            : code;
     }
 
     const responseBody = this.buildResponseBody(request.url, message, code);
@@ -59,9 +58,12 @@ if (exception instanceof ThrottlerException) {
       return {
         timestamp: new Date().toISOString(),
         path: null,
-        message: code === DomainExceptionCode.TooManyRequests ? 'Too many requests' : 'Some error occurred',
+        message:
+          code === DomainExceptionCode.TooManyRequests
+            ? 'Too many requests'
+            : 'Some error occurred',
         extensions: [],
-        code
+        code,
       };
     }
 
@@ -70,7 +72,7 @@ if (exception instanceof ThrottlerException) {
       path: requestUrl,
       message,
       extensions: [],
-      code
+      code,
     };
   }
 }

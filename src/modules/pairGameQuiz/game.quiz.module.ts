@@ -17,6 +17,7 @@ import { SaModule } from '../../modules/sa/sa.module';
 import { GetGameByIdHandler } from '../../modules/pairGameQuiz/application/queries/get-game-by-id.query-handler';
 import { GetCurrentUserGameHandler } from '../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
 import { SendAnswerUseCase } from '../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
+import { CoreModule } from '../../core/core.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SendAnswerUseCase } from '../../modules/pairGameQuiz/application/usecas
       GameQuestion,
       PlayerAnswer,
       PlayerProgress,
+      CoreModule,
     ]),
   ],
   controllers: [GameController],

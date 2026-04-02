@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -21,8 +22,10 @@ import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/applicati
 import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
 import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
 import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
+import { UsersTopQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-query-params.dto';
+import { GetUsersTopQuery } from '../../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
+import { UsersTopViewDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-view-dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
 export class GameController {
   constructor(
@@ -33,6 +36,7 @@ export class GameController {
 
   @Post('connection')
   @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
   async connectToGame(
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
@@ -47,6 +51,7 @@ export class GameController {
   }
 
   @Get('my-current')
+  @UseGuards(JwtAuthGuard)
   async getMyCurrentGame(
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
@@ -55,6 +60,7 @@ export class GameController {
 
   @Post('my-current/answers')
   @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
   async sendAnswer(
     @Body() answerDto: AnswerDto,
     @ExtractUserFromRequest() userContext: UserContextDto,
@@ -65,10 +71,18 @@ export class GameController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async getGameById(
     @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() userContext: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
+  }
+
+  @Get('top')
+  async getUsersTop(
+    @Query() queryParams: UsersTopQueryParamsDto,
+  ): Promise<UsersTopViewDto> {
+    return this.queryBus.execute(new GetUsersTopQuery(queryParams));
   }
 }

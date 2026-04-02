@@ -18,6 +18,7 @@ import { GetGameByIdHandler } from '../../modules/pairGameQuiz/application/queri
 import { GetCurrentUserGameHandler } from '../../modules/pairGameQuiz/application/queries/get-current-user-game.query-handler';
 import { SendAnswerUseCase } from '../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
 import { CoreModule } from '../../core/core.module';
+import { GetUsersTopQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CoreModule } from '../../core/core.module';
     AnswerRepository,
     GetGameByIdHandler,
     GetCurrentUserGameHandler,
+    GetUsersTopQueryHandler,
     SendAnswerUseCase,
   ],
   exports: [],

@@ -1,7 +1,7 @@
 // get-users-top.query-handler.ts
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UsersTopQueryParamsDto } from '../../api/dto/users.top/users-top-query-params.dto';
-import { UserStatisticsQueryRepository } from '../../../../modules/pairGameQuiz/infrastructure/query/users-statistics.query.repository';
+import { UsersStatisticsQueryRepository } from '../../../../modules/pairGameQuiz/infrastructure/query/users-statistics.query.repository';
 import {
   UsersTopViewDto,
   UserTopItemDto,
@@ -16,7 +16,7 @@ export class GetUsersTopQueryHandler
   implements IQueryHandler<GetUsersTopQuery, UsersTopViewDto>
 {
   constructor(
-    private readonly userStatisticsQueryRepository: UserStatisticsQueryRepository,
+    private readonly userStatisticsQueryRepository: UsersStatisticsQueryRepository,
   ) {}
 
   async execute(query: GetUsersTopQuery): Promise<UsersTopViewDto> {

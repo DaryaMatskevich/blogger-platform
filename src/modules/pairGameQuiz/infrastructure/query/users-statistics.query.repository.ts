@@ -29,10 +29,10 @@ export interface LeaderboardResult {
 }
 
 @Injectable()
-export class UserStatisticsQueryRepository {
+export class UsersStatisticsQueryRepository {
   constructor(
     @InjectRepository(UserStatistics)
-    private readonly usersStatisticsQueryRepository: Repository<UserStatistics>,
+    private usersStatisticsQueryRepository: Repository<UserStatistics>,
   ) {}
 
   async getLeaderboard(

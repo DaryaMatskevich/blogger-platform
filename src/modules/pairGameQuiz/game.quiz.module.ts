@@ -21,6 +21,7 @@ import { CoreModule } from '../../core/core.module';
 import { GetUsersTopQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
 import { UsersStatisticsRepository } from '../../modules/pairGameQuiz/infrastructure/users-statistics.repository';
 import { GetMyGamesQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
+import { UsersStatisticsQueryRepository } from '../../modules/pairGameQuiz/infrastructure/query/users-statistics.query.repository';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { GetMyGamesQueryHandler } from '../../modules/pairGameQuiz/application/q
     SendAnswerUseCase,
     UsersStatisticsRepository,
     GetMyGamesQueryHandler,
+    UsersStatisticsQueryRepository,
   ],
   exports: [],
 })

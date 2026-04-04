@@ -16,7 +16,7 @@ export class GetUsersTopQueryHandler
   implements IQueryHandler<GetUsersTopQuery, UsersTopViewDto>
 {
   constructor(
-    private readonly userStatisticsQueryRepository: UsersStatisticsQueryRepository,
+    private readonly usersStatisticsQueryRepository: UsersStatisticsQueryRepository,
   ) {}
 
   async execute(query: GetUsersTopQuery): Promise<UsersTopViewDto> {
@@ -39,7 +39,7 @@ export class GetUsersTopQueryHandler
     const skip = (pageNumber - 1) * pageSize;
 
     const { items: rawItems, totalCount } =
-      await this.userStatisticsQueryRepository.getLeaderboard({
+      await this.usersStatisticsQueryRepository.getLeaderboard({
         sort: sortOptions,
         skip,
         take: pageSize,

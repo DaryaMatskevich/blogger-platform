@@ -1,11 +1,19 @@
-// dto/users-top-query-params.dto.ts
+// users-top-query-params.dto.ts
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class UsersTopQueryParamsDto {
   @IsOptional()
+  @Transform(({ value }) => {
+    // Если передан один параметр как строка → оборачиваем в массив
+    if (typeof value === 'string') return [value];
+    // Если массив — оставляем как есть
+    if (Array.isArray(value)) return value;
+    // Если ничего не передано — используем значение по умолчанию
+    return ['avgScores desc', 'sumScore desc'];
+  })
   @IsString({ each: true })
-  sort?: string[] = ['avgScores desc', 'sumScore desc'];
+  sort: string[] = ['avgScores desc', 'sumScore desc'];
 
   @IsOptional()
   @Type(() => Number)

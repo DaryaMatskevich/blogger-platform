@@ -8,6 +8,7 @@ import { AnswerStatus, PlayerAnswer } from '../../domain/player-answer.entity';
 import { GameQueryRepository } from '../../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
 import { AnswerRepository } from '../../../../modules/pairGameQuiz/infrastructure/answers.repository';
 import { PlayerProgressRepository } from '../../../../modules/pairGameQuiz/infrastructure/player-progress.repository';
+import { UsersStatisticsRepository } from '../../../../modules/pairGameQuiz/infrastructure/users-statistics.repository';
 
 export class SendAnswerCommand {
   constructor(
@@ -25,6 +26,7 @@ export class SendAnswerUseCase
     private readonly gameQueryRepository: GameQueryRepository,
     private readonly answerRepository: AnswerRepository,
     private readonly playerProgressRepository: PlayerProgressRepository,
+    private readonly usersStatisticsRepository: UsersStatisticsRepository,
   ) {}
 
   async execute(command: SendAnswerCommand): Promise<AnswerResponseDto> {
@@ -139,6 +141,30 @@ export class SendAnswerUseCase
         }
         // если времена равны – бонус не начисляем
       }
+      // Определение результатов для статистики (на основе финальных очков)
+      let firstResult: 'win' | 'loss' | 'draw' = 'draw';
+      let secondResult: 'win' | 'loss' | 'draw' = 'draw';
+
+      if (firstProgress.score > secondProgress.score) {
+        firstResult = 'win';
+        secondResult = 'loss';
+      } else if (firstProgress.score < secondProgress.score) {
+        firstResult = 'loss';
+        secondResult = 'win';
+      }
+
+      // Обновляем статистику обоих игроков
+      await this.usersStatisticsRepository.updateAfterGame(
+        firstProgress.player.id,
+        firstProgress.score,
+        firstResult,
+      );
+      await this.usersStatisticsRepository.updateAfterGame(
+        secondProgress.player.id,
+        secondProgress.score,
+        secondResult,
+      );
+
       await this.gameRepository.saveGame(game);
     }
 

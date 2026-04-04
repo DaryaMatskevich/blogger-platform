@@ -18,3 +18,11 @@ export class GameViewDto {
   startGameDate: string | null;
   finishGameDate: string | null;
 }
+
+export class MyGamesViewDto {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: GameViewDto[];
+}

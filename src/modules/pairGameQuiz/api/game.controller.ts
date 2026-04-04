@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GameViewDto } from './dto/game-view.dto';
+import { GameViewDto, MyGamesViewDto } from './dto/game-view.dto';
 import { JwtAuthGuard } from '../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../modules/user-accounts/guards/decorators/param/extract-user-from-request.decorator';
 import { ConnectToGameCommand } from '../../../modules/pairGameQuiz/application/usecases/connect-to-game.usecase';
@@ -25,6 +25,8 @@ import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/use
 import { UsersTopQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-query-params.dto';
 import { GetUsersTopQuery } from '../../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
 import { UsersTopViewDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-view-dto';
+import { MyGamesQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/my-games-query-params.dto';
+import { GetMyGamesQuery } from '../../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
 
 @Controller('pair-game-quiz/pairs')
 export class GameController {
@@ -84,5 +86,16 @@ export class GameController {
     @Query() queryParams: UsersTopQueryParamsDto,
   ): Promise<UsersTopViewDto> {
     return this.queryBus.execute(new GetUsersTopQuery(queryParams));
+  }
+
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  async getMyGames(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+    @Query() queryParams: MyGamesQueryParamsDto,
+  ): Promise<MyGamesViewDto> {
+    return this.queryBus.execute(
+      new GetMyGamesQuery(userContext.id, queryParams),
+    );
   }
 }

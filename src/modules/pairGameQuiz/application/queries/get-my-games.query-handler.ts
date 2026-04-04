@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GameQueryRepository } from '../../infrastructure/query/game-query.repository';
 import { GameViewDto, MyGamesViewDto } from '../../api/dto/game-view.dto';
 import { Injectable } from '@nestjs/common';
-import { MyGamesQueryParamsDto } from '@src/modules/pairGameQuiz/api/dto/my-games-query-params.dto';
+import { MyGamesQueryParamsDto } from '../../../../modules/pairGameQuiz/api/dto/my-games-query-params.dto';
 
 export class GetMyGamesQuery {
   constructor(

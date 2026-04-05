@@ -22,6 +22,9 @@ import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/applicati
 import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
 import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
 import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
+import { UsersTopQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-query-params.dto';
+import { GetUsersTopQuery } from '../../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
+import { UsersTopViewDto } from '../../../modules/pairGameQuiz/api/dto/users.top/users-top-view-dto';
 import { MyGamesQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/my-games-query-params.dto';
 import { GetMyGamesQuery } from '../../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
 
@@ -78,7 +81,24 @@ export class GameController {
     return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
   }
 
+  @Get('top')
+  async getUsersTop(
+    @Query() queryParams: UsersTopQueryParamsDto,
+  ): Promise<UsersTopViewDto> {
+    return this.queryBus.execute(new GetUsersTopQuery(queryParams));
+  }
+
   @Get('my')
+  @UseGuards(JwtAuthGuard)
+  async getMyGames(
+    @ExtractUserFromRequest() userContext: UserContextDto,
+    @Query() queryParams: MyGamesQueryParamsDto,
+  ): Promise<MyGamesViewDto> {
+    return this.queryBus.execute(
+      new GetMyGamesQuery(userContext.id, queryParams),
+    );
+  }
+  @Get('my-statistic')
   @UseGuards(JwtAuthGuard)
   async getMyGames(
     @ExtractUserFromRequest() userContext: UserContextDto,

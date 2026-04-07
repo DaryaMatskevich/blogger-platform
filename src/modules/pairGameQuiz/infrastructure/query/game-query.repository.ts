@@ -146,6 +146,7 @@ export class GameQueryRepository {
       'pairCreatedDate',
       'startGameDate',
       'finishGameDate',
+      'status',
     ];
     if (allowedSortFields.includes(sortBy)) {
       qb.orderBy(

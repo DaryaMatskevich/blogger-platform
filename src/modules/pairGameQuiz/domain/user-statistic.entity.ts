@@ -1,15 +1,20 @@
-// src/modules/pairGameQuiz/domain/user-statistics.entity.ts
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from '../../../modules/user-accounts/users/domain/user.entity';
 
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-
-@Entity('user_statistics')
-@Unique(['userId'])
-export class UserStatistics {
+@Entity('user_statistic')
+export class UserStatistic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
-  userId: number;
+  @OneToOne(() => User, { onDelete: 'CASCADE' }) // при удалении пользователя удалится и статистика
+  @JoinColumn({ name: 'userId' }) // внешний ключ будет в колонке 'userId' таблицы user_statistics
+  user: User;
 
   @Column({ type: 'int', default: 0 })
   sumScore: number;

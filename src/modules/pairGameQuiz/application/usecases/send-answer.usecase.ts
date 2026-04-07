@@ -35,7 +35,7 @@ export class SendAnswerUseCase
     // 1. Найти активную игру пользователя со всеми связями
     const game =
       await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
-    if (!game) {
+    if (!game || game.status !== GameStatus.Active) {
       throw new ForbiddenException('User is not inside an active game');
     }
 

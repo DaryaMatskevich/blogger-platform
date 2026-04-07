@@ -22,7 +22,9 @@ import { GetUsersTopQueryHandler } from '../../modules/pairGameQuiz/application/
 import { UsersStatisticsRepository } from '../../modules/pairGameQuiz/infrastructure/users-statistics.repository';
 import { GetMyGamesQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
 import { UsersStatisticsQueryRepository } from '../../modules/pairGameQuiz/infrastructure/query/users-statistics.query.repository';
-import { UserStatistics } from '../../modules/pairGameQuiz/domain/user-statistics.entity';
+import { UserStatistic } from './domain/user-statistic.entity';
+import { UsersStatisticsController } from './api/users.statistics.controller';
+import { GetMyStatisticQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-my-statistic.query-handler';
 
 @Module({
   imports: [
@@ -35,10 +37,10 @@ import { UserStatistics } from '../../modules/pairGameQuiz/domain/user-statistic
       PlayerAnswer,
       PlayerProgress,
       CoreModule,
-      UserStatistics,
+      UserStatistic,
     ]),
   ],
-  controllers: [GameController],
+  controllers: [GameController, UsersStatisticsController],
   providers: [
     ConnectToGameUseCase,
     GameRepository,
@@ -52,6 +54,7 @@ import { UserStatistics } from '../../modules/pairGameQuiz/domain/user-statistic
     SendAnswerUseCase,
     UsersStatisticsRepository,
     GetMyGamesQueryHandler,
+    GetMyStatisticQueryHandler,
     UsersStatisticsQueryRepository,
   ],
 

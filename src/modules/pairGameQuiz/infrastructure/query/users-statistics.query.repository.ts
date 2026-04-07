@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserStatistics } from '../../domain/user-statistics.entity';
+import { UserStatistic } from '../../domain/user-statistic.entity';
 import { User } from '../../../../modules/user-accounts/users/domain/user.entity';
+import { MyStatisticViewDto } from '@src/modules/pairGameQuiz/api/dto/statistic/my-statistic-view.dto';
 
 export interface LeaderboardQueryParams {
   sort: Array<{ field: string; order: 'ASC' | 'DESC' }>; // переименовано с sortBy
@@ -31,8 +32,8 @@ export interface LeaderboardResult {
 @Injectable()
 export class UsersStatisticsQueryRepository {
   constructor(
-    @InjectRepository(UserStatistics)
-    private usersStatisticsQueryRepository: Repository<UserStatistics>,
+    @InjectRepository(UserStatistic)
+    private usersStatisticsQueryRepository: Repository<UserStatistic>,
   ) {}
 
   async getLeaderboard(
@@ -99,7 +100,35 @@ export class UsersStatisticsQueryRepository {
 
     return { items, totalCount };
   }
-  async findByUserId(userId: number): Promise<UserStatistics | null> {
-    return this.usersStatisticsQueryRepository.findOne({ where: { userId } });
+
+  async findByUserId(userId: number): Promise<UserStatistic | null> {
+    return this.usersStatisticsQueryRepository.findOne({
+      where: { user: { id: userId } },
+    });
+  }
+  async getMyStatistic(userId: number): Promise<MyStatisticViewDto> {
+    const stats = await this.usersStatisticsQueryRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!stats) {
+      return {
+        sumScore: 0,
+        avgScores: 0,
+        gamesCount: 0,
+        winsCount: 0,
+        lossesCount: 0,
+        drawsCount: 0,
+      };
+    }
+
+    return {
+      sumScore: stats.sumScore,
+      avgScores: stats.avgScores,
+      gamesCount: stats.gamesCount,
+      winsCount: stats.winsCount,
+      lossesCount: stats.lossesCount,
+      drawsCount: stats.drawsCount,
+    };
   }
 }

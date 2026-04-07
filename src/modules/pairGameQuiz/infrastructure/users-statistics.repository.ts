@@ -1,31 +1,39 @@
-// infrastructure/user-statistics.repository.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserStatistics } from '../domain/user-statistics.entity';
+import { UserStatistic } from '../domain/user-statistic.entity';
 
 @Injectable()
 export class UsersStatisticsRepository {
   constructor(
-    @InjectRepository(UserStatistics)
-    private readonly usersStatisticsRepo: Repository<UserStatistics>,
+    @InjectRepository(UserStatistic)
+    private readonly usersStatisticsRepository: Repository<UserStatistic>,
   ) {}
 
-  /**
-   * Обновляет статистику пользователя после завершения игры
-   * @param userId - ID пользователя
-   * @param gameScore - количество очков, набранных в этой игре
-   * @param result - результат игры: 'win', 'loss', 'draw'
-   */
+  async save(userStatistic: UserStatistic): Promise<UserStatistic> {
+    return this.usersStatisticsRepository.save(userStatistic);
+  }
   async updateAfterGame(
     userId: number,
     gameScore: number,
     result: 'win' | 'loss' | 'draw',
   ): Promise<void> {
-    // Находим существующую запись или создаём новую
-    let stats = await this.usersStatisticsRepo.findOne({ where: { userId } });
+    // Находим существующую запись через связь user
+    let stats = await this.usersStatisticsRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
     if (!stats) {
-      stats = this.usersStatisticsRepo.create({ userId });
+      // Создаём новую статистику, привязывая пользователя
+      stats = this.usersStatisticsRepository.create({
+        user: { id: userId }, // TypeORM поймёт, что нужно установить userId внешним ключом
+        gamesCount: 0,
+        sumScore: 0,
+        avgScores: 0,
+        winsCount: 0,
+        lossesCount: 0,
+        drawsCount: 0,
+      });
     }
 
     // Обновляем поля
@@ -33,18 +41,10 @@ export class UsersStatisticsRepository {
     stats.sumScore += gameScore;
     stats.avgScores = stats.sumScore / stats.gamesCount;
 
-    if (result === 'win') {
-      stats.winsCount += 1;
-    } else if (result === 'loss') {
-      stats.lossesCount += 1;
-    } else if (result === 'draw') {
-      stats.drawsCount += 1;
-    }
+    if (result === 'win') stats.winsCount += 1;
+    else if (result === 'loss') stats.lossesCount += 1;
+    else if (result === 'draw') stats.drawsCount += 1;
 
-    await this.usersStatisticsRepo.save(stats);
+    await this.usersStatisticsRepository.save(stats);
   }
-
-  /**
-   * Получить статистику пользователя
-   */
 }

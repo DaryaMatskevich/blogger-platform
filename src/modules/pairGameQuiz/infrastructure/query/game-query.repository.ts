@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { GameViewDto } from '../../api/dto/game-view.dto';
+import { GameViewDto, UserGamesViewDto } from '../../api/dto/game-view.dto';
 import {
   Game,
   GameStatus,
 } from '../../../../modules/pairGameQuiz/domain/game.entity';
 
-export interface GetMyGamesParams {
+interface GetUserGamesParams {
   userId: number;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
   skip: number;
   take: number;
 }
+
 @Injectable()
 export class GameQueryRepository {
   constructor(private readonly dataSource: DataSource) {}
@@ -120,7 +121,7 @@ export class GameQueryRepository {
   }
 
   async getMyGames(
-    params: GetMyGamesParams,
+    params: GetUserGamesParams,
   ): Promise<{ items: Game[]; totalCount: number }> {
     const { userId, sortBy, sortDirection, skip, take } = params;
 
@@ -157,12 +158,42 @@ export class GameQueryRepository {
       qb.orderBy('game.pairCreatedDate', 'DESC');
     }
 
-    // Пагинация
     qb.skip(skip).take(take);
-
     const [items, totalCount] = await qb.getManyAndCount();
-
     return { items, totalCount };
+  }
+
+  // Новый метод – возвращает готовый DTO для ответа
+  async getMyGamesView(
+    userId: number,
+    params: {
+      sortBy: string;
+      sortDirection: 'asc' | 'desc';
+      pageNumber: number;
+      pageSize: number;
+    },
+  ): Promise<UserGamesViewDto> {
+    const { sortBy, sortDirection, pageNumber, pageSize } = params;
+    const skip = (pageNumber - 1) * pageSize;
+
+    const { items: rawItems, totalCount } = await this.getMyGames({
+      userId,
+      sortBy,
+      sortDirection,
+      skip,
+      take: pageSize,
+    });
+
+    const items = rawItems.map((game) => this.mapToGameViewDto(game));
+    const pagesCount = Math.ceil(totalCount / pageSize);
+
+    return {
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items,
+    };
   }
 
   private mapToGameViewDto(game: Game): GameViewDto {

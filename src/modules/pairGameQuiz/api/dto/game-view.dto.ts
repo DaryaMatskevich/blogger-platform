@@ -19,7 +19,7 @@ export class GameViewDto {
   finishGameDate: string | null;
 }
 
-export class MyGamesViewDto {
+export class UserGamesViewDto {
   pagesCount: number;
   page: number;
   pageSize: number;

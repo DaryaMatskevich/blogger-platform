@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GameViewDto, MyGamesViewDto } from './dto/game-view.dto';
+import { GameViewDto, UserGamesViewDto } from './dto/game-view.dto';
 import { JwtAuthGuard } from '../../../modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../modules/user-accounts/guards/decorators/param/extract-user-from-request.decorator';
 import { ConnectToGameCommand } from '../../../modules/pairGameQuiz/application/usecases/connect-to-game.usecase';
@@ -83,7 +83,7 @@ export class GameController {
   async getMyGames(
     @ExtractUserFromRequest() userContext: UserContextDto,
     @Query() queryParams: UserGamesQueryParamsDto,
-  ): Promise<MyGamesViewDto> {
+  ): Promise<UserGamesViewDto> {
     return this.queryBus.execute(
       new GetUserGamesQuery(userContext.id, queryParams),
     );

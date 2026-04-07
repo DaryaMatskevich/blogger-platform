@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export enum SortDirection {
@@ -9,12 +9,12 @@ export enum SortDirection {
 export class UserGamesQueryParamsDto {
   @IsOptional()
   @Transform(({ value }) => value?.toLowerCase())
-  @IsEnum(['pairCreatedDate', 'startGameDate', 'finishGameDate', 'status'])
+  //@IsEnum(['pairCreatedDate', 'startGameDate', 'finishGameDate', 'status'])
   sortBy: string = 'pairCreatedDate';
 
   @IsOptional()
   @Transform(({ value }) => value?.toLowerCase())
-  @IsEnum(SortDirection)
+  //@IsEnum(SortDirection)
   sortDirection: SortDirection = SortDirection.DESC;
 
   @IsOptional()

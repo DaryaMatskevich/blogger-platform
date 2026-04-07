@@ -19,7 +19,16 @@ export class UserStatistic {
   @Column({ type: 'int', default: 0 })
   sumScore: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: {
+      from: (value: string): number => parseFloat(value),
+      to: (value: number): number => value,
+    },
+  })
   avgScores: number;
 
   @Column({ type: 'int', default: 0 })

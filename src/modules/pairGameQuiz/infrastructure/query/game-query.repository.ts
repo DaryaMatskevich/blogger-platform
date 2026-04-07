@@ -8,7 +8,7 @@ import {
 
 export interface GetMyGamesParams {
   userId: number;
-  sort: string;
+  sortBy: string;
   sortDirection: 'asc' | 'desc';
   skip: number;
   take: number;
@@ -122,7 +122,7 @@ export class GameQueryRepository {
   async getMyGames(
     params: GetMyGamesParams,
   ): Promise<{ items: Game[]; totalCount: number }> {
-    const { userId, sort, sortDirection, skip, take } = params;
+    const { userId, sortBy, sortDirection, skip, take } = params;
 
     const qb = this.dataSource
       .createQueryBuilder(Game, 'game')
@@ -147,8 +147,11 @@ export class GameQueryRepository {
       'startGameDate',
       'finishGameDate',
     ];
-    if (allowedSortFields.includes(sort)) {
-      qb.orderBy(`game.${sort}`, sortDirection.toUpperCase() as 'ASC' | 'DESC');
+    if (allowedSortFields.includes(sortBy)) {
+      qb.orderBy(
+        `game.${sortBy}`,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      );
     } else {
       qb.orderBy('game.pairCreatedDate', 'DESC');
     }

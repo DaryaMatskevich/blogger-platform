@@ -10,7 +10,7 @@ export enum SortDirection {
 export class MyGamesQueryParamsDto {
   @IsOptional()
   @IsEnum(['pairCreatedDate', 'startGameDate', 'finishGameDate'])
-  sort: string = 'pairCreatedDate';
+  sortBy: string = 'pairCreatedDate';
 
   @IsOptional()
   @IsEnum(SortDirection)

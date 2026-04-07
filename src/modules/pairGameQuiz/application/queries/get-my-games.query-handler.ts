@@ -22,13 +22,13 @@ export class GetMyGamesQueryHandler
     const { userId, params } = query;
     const userIdNum = parseInt(userId, 10);
 
-    const { sort, sortDirection, pageNumber, pageSize } = params;
+    const { sortBy, sortDirection, pageNumber, pageSize } = params;
     const skip = (pageNumber - 1) * pageSize;
 
     const { items: rawItems, totalCount } =
       await this.gameQueryRepository.getMyGames({
         userId: userIdNum,
-        sort,
+        sortBy,
         sortDirection,
         skip,
         take: pageSize,

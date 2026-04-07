@@ -2,23 +2,23 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GameQueryRepository } from '../../infrastructure/query/game-query.repository';
 import { GameViewDto, MyGamesViewDto } from '../../api/dto/game-view.dto';
 import { Injectable } from '@nestjs/common';
-import { MyGamesQueryParamsDto } from '../../../../modules/pairGameQuiz/api/dto/my-games-query-params.dto';
+import { UserGamesQueryParamsDto } from '../../api/dto/user-games-query-params.dto';
 
-export class GetMyGamesQuery {
+export class GetUserGamesQuery {
   constructor(
     public readonly userId: string,
-    public readonly params: MyGamesQueryParamsDto,
+    public readonly params: UserGamesQueryParamsDto,
   ) {}
 }
 
 @Injectable()
-@QueryHandler(GetMyGamesQuery)
-export class GetMyGamesQueryHandler
-  implements IQueryHandler<GetMyGamesQuery, MyGamesViewDto>
+@QueryHandler(GetUserGamesQuery)
+export class GetUserGamesQueryHandler
+  implements IQueryHandler<GetUserGamesQuery, MyGamesViewDto>
 {
   constructor(private readonly gameQueryRepository: GameQueryRepository) {}
 
-  async execute(query: GetMyGamesQuery): Promise<MyGamesViewDto> {
+  async execute(query: GetUserGamesQuery): Promise<MyGamesViewDto> {
     const { userId, params } = query;
     const userIdNum = parseInt(userId, 10);
 

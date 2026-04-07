@@ -22,8 +22,8 @@ import { GetCurrentUserGameQuery } from '../../../modules/pairGameQuiz/applicati
 import { AnswerDto } from '../../../modules/pairGameQuiz/api/dto/answer.dto';
 import { AnswerResponseDto } from '../../../modules/pairGameQuiz/api/dto/answer-response.dto';
 import { SendAnswerCommand } from '../../../modules/pairGameQuiz/application/usecases/send-answer.usecase';
-import { MyGamesQueryParamsDto } from '../../../modules/pairGameQuiz/api/dto/my-games-query-params.dto';
-import { GetMyGamesQuery } from '../../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
+import { UserGamesQueryParamsDto } from './dto/user-games-query-params.dto';
+import { GetUserGamesQuery } from '../application/queries/get-user-games.query-handler';
 
 @Controller('pair-game-quiz/pairs')
 export class GameController {
@@ -82,10 +82,10 @@ export class GameController {
   @UseGuards(JwtAuthGuard)
   async getMyGames(
     @ExtractUserFromRequest() userContext: UserContextDto,
-    @Query() queryParams: MyGamesQueryParamsDto,
+    @Query() queryParams: UserGamesQueryParamsDto,
   ): Promise<MyGamesViewDto> {
     return this.queryBus.execute(
-      new GetMyGamesQuery(userContext.id, queryParams),
+      new GetUserGamesQuery(userContext.id, queryParams),
     );
   }
 }

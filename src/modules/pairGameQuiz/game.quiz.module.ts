@@ -20,7 +20,7 @@ import { SendAnswerUseCase } from '../../modules/pairGameQuiz/application/usecas
 import { CoreModule } from '../../core/core.module';
 import { GetUsersTopQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-users-top.query-handler';
 import { UsersStatisticsRepository } from '../../modules/pairGameQuiz/infrastructure/users-statistics.repository';
-import { GetMyGamesQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-my-games.query-handler';
+import { GetMyGamesQueryHandler } from './application/queries/get-user-games.query-handler';
 import { UsersStatisticsQueryRepository } from '../../modules/pairGameQuiz/infrastructure/query/users-statistics.query.repository';
 import { UserStatistic } from './domain/user-statistic.entity';
 import { UsersStatisticsController } from './api/users.statistics.controller';

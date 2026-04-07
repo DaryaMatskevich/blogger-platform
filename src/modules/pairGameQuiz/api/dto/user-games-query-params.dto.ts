@@ -1,18 +1,19 @@
-// api/dto/my-games-query-params.dto.ts
 import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export enum SortDirection {
   ASC = 'asc',
   DESC = 'desc',
 }
 
-export class MyGamesQueryParamsDto {
+export class UserGamesQueryParamsDto {
   @IsOptional()
+  @Transform(({ value }) => value?.toLowerCase())
   @IsEnum(['pairCreatedDate', 'startGameDate', 'finishGameDate', 'status'])
   sortBy: string = 'pairCreatedDate';
 
   @IsOptional()
+  @Transform(({ value }) => value?.toLowerCase())
   @IsEnum(SortDirection)
   sortDirection: SortDirection = SortDirection.DESC;
 

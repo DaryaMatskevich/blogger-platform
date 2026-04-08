@@ -69,15 +69,6 @@ export class GameController {
     );
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async getGameById(
-    @Param('id', ParseIntPipe) id: number,
-    @ExtractUserFromRequest() userContext: UserContextDto,
-  ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
-  }
-
   @Get('my')
   @UseGuards(JwtAuthGuard)
   async getMyGames(
@@ -87,5 +78,14 @@ export class GameController {
     return this.queryBus.execute(
       new GetUserGamesQuery(userContext.id, queryParams),
     );
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getGameById(
+    @Param('id', ParseIntPipe) id: number,
+    @ExtractUserFromRequest() userContext: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetGameByIdQuery(id, userContext.id));
   }
 }

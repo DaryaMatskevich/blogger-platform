@@ -1,5 +1,5 @@
-import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export enum SortDirection {
   ASC = 'asc',
@@ -18,14 +18,18 @@ export class UserGamesQueryParamsDto {
   sortDirection: SortDirection = SortDirection.DESC;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return 1;
+    const num = Number(value);
+    return isNaN(num) ? 1 : num;
+  })
   pageNumber: number = 1;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return 10;
+    const num = Number(value);
+    return isNaN(num) ? 10 : num;
+  })
   pageSize: number = 10;
 }

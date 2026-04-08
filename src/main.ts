@@ -4,7 +4,6 @@ import { NestFactory } from '@nestjs/core';
 import { initAppModule } from './init-app-module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CoreConfig } from './core/core.config';
-import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const dynamicAppModule = await initAppModule();
@@ -22,7 +21,7 @@ async function bootstrap() {
 
   app.enableCors();
   appSetup(app, coreConfig.isSwaggerEnabled);
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  // app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.use(cookieParser());
 
   if (coreConfig.isSwaggerEnabled) {

@@ -84,6 +84,7 @@ export class GameController {
     @ExtractUserFromRequest() userContext: UserContextDto,
     @Query() queryParams: UserGamesQueryParamsDto,
   ): Promise<UserGamesViewDto> {
+    console.log(queryParams);
     return this.queryBus.execute(
       new GetUserGamesQuery(userContext.id, queryParams),
     );

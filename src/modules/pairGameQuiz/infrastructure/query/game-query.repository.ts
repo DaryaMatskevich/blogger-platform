@@ -5,6 +5,7 @@ import {
   Game,
   GameStatus,
 } from '../../../../modules/pairGameQuiz/domain/game.entity';
+import { PlayerProgress } from '../../../../modules/pairGameQuiz/domain/player-progress.entity';
 
 interface GetUserGamesParams {
   userId: number;
@@ -135,8 +136,16 @@ export class GameQueryRepository {
       .leftJoinAndSelect('gameQuestion.question', 'question')
       .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
       .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstAnswerQuestion')
+      .leftJoinAndSelect(
+        'firstAnswerQuestion.question',
+        'firstAnswerQuestionQuestion',
+      ) // ✅ добавлено
       .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
       .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondAnswerQuestion')
+      .leftJoinAndSelect(
+        'secondAnswerQuestion.question',
+        'secondAnswerQuestionQuestion',
+      ) // ✅ добавлено
       .where(
         'firstProgress.player.id = :userId OR secondProgress.player.id = :userId',
         { userId },
@@ -195,21 +204,27 @@ export class GameQueryRepository {
       items,
     };
   }
-
   private mapToGameViewDto(game: Game): GameViewDto {
-    // Формируем объект для первого игрока
+    // Безопасное получение answers с проверкой на undefined
+    const getAnswersArray = (progress: PlayerProgress | null | undefined) => {
+      if (!progress?.answers) return [];
+      return [...progress.answers].sort(
+        (a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
+      );
+    };
+
+    const firstAnswers = getAnswersArray(game.firstPlayerProgress);
+    const secondAnswers = getAnswersArray(game.secondPlayerProgress);
+
     const firstPlayerProgress = game.firstPlayerProgress
       ? {
-          answers: game.firstPlayerProgress.answers
-            .sort(
-              (a, b) =>
-                new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
-            )
-            .map((answer) => ({
-              questionId: answer.gameQuestion.question.id.toString(),
-              answerStatus: answer.answerStatus,
-              addedAt: answer.addedAt.toISOString(),
-            })),
+          answers: firstAnswers.map((answer) => ({
+            // ✅ безопасный доступ через optional chaining
+            questionId:
+              answer.gameQuestion?.question?.id?.toString() ?? 'unknown',
+            answerStatus: answer.answerStatus,
+            addedAt: answer.addedAt.toISOString(),
+          })),
           player: {
             id: game.firstPlayerProgress.player.id.toString(),
             login: game.firstPlayerProgress.player.login,
@@ -218,19 +233,14 @@ export class GameQueryRepository {
         }
       : null;
 
-    // Формируем объект для второго игрока
     const secondPlayerProgress = game.secondPlayerProgress
       ? {
-          answers: game.secondPlayerProgress.answers
-            .sort(
-              (a, b) =>
-                new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
-            )
-            .map((answer) => ({
-              questionId: answer.gameQuestion.question.id.toString(),
-              answerStatus: answer.answerStatus,
-              addedAt: answer.addedAt.toISOString(),
-            })),
+          answers: secondAnswers.map((answer) => ({
+            questionId:
+              answer.gameQuestion?.question?.id?.toString() ?? 'unknown',
+            answerStatus: answer.answerStatus,
+            addedAt: answer.addedAt.toISOString(),
+          })),
           player: {
             id: game.secondPlayerProgress.player.id.toString(),
             login: game.secondPlayerProgress.player.login,
@@ -239,15 +249,25 @@ export class GameQueryRepository {
         }
       : null;
 
+    // Безопасная обработка вопросов игры
     const questions =
       game.status !== GameStatus.PendingSecondPlayer
-        ? game.questions
+        ? (game.questions || [])
             .sort((a, b) => a.order - b.order)
             .map((gameQuestion) => ({
-              id: gameQuestion.question.id.toString(),
-              body: gameQuestion.question.body,
+              id: gameQuestion.question?.id?.toString() ?? 'unknown',
+              body: gameQuestion.question?.body ?? 'No body',
             }))
         : null;
+
+    // 🔧 Исправление имени поля: если в сущности поле createdAt, используем его
+    // Предположим, что в Game есть поле createdAt (или pairCreatedDate)
+    const pairCreatedDate =
+      (game as any).pairCreatedDate ?? (game as any).createdAt;
+    if (!pairCreatedDate) {
+      // fallback на текущую дату (логируем ошибку)
+      console.error(`Game ${game.id} has no creation date`);
+    }
 
     return {
       id: game.id.toString(),
@@ -255,9 +275,74 @@ export class GameQueryRepository {
       secondPlayerProgress,
       questions,
       status: game.status,
-      pairCreatedDate: game.pairCreatedDate.toISOString(), // обратите внимание на название поля
-      startGameDate: game.startGameDate?.toISOString() || null,
-      finishGameDate: game.finishGameDate?.toISOString() || null,
+      pairCreatedDate:
+        pairCreatedDate?.toISOString() ?? new Date().toISOString(),
+      startGameDate: game.startGameDate?.toISOString() ?? null,
+      finishGameDate: game.finishGameDate?.toISOString() ?? null,
     };
   }
 }
+// private mapToGameViewDto(game: Game): GameViewDto {
+//   // Формируем объект для первого игрока
+//   const firstPlayerProgress = game.firstPlayerProgress
+//     ? {
+//         answers: game.firstPlayerProgress.answers
+//           .sort(
+//             (a, b) =>
+//               new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
+//           )
+//           .map((answer) => ({
+//             questionId: answer.gameQuestion.question.id.toString(),
+//             answerStatus: answer.answerStatus,
+//             addedAt: answer.addedAt.toISOString(),
+//           })),
+//         player: {
+//           id: game.firstPlayerProgress.player.id.toString(),
+//           login: game.firstPlayerProgress.player.login,
+//         },
+//         score: game.firstPlayerProgress.score,
+//       }
+//     : null;
+//
+//   // Формируем объект для второго игрока
+//   const secondPlayerProgress = game.secondPlayerProgress
+//     ? {
+//         answers: game.secondPlayerProgress.answers
+//           .sort(
+//             (a, b) =>
+//               new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
+//           )
+//           .map((answer) => ({
+//             questionId: answer.gameQuestion.question.id.toString(),
+//             answerStatus: answer.answerStatus,
+//             addedAt: answer.addedAt.toISOString(),
+//           })),
+//         player: {
+//           id: game.secondPlayerProgress.player.id.toString(),
+//           login: game.secondPlayerProgress.player.login,
+//         },
+//         score: game.secondPlayerProgress.score,
+//       }
+//     : null;
+//
+//   const questions =
+//     game.status !== GameStatus.PendingSecondPlayer
+//       ? game.questions
+//           .sort((a, b) => a.order - b.order)
+//           .map((gameQuestion) => ({
+//             id: gameQuestion.question.id.toString(),
+//             body: gameQuestion.question.body,
+//           }))
+//       : null;
+//
+//   return {
+//     id: game.id.toString(),
+//     firstPlayerProgress,
+//     secondPlayerProgress,
+//     questions,
+//     status: game.status,
+//     pairCreatedDate: game.pairCreatedDate.toISOString(), // обратите внимание на название поля
+//     startGameDate: game.startGameDate?.toISOString() || null,
+//     finishGameDate: game.finishGameDate?.toISOString() || null,
+//   };
+// }

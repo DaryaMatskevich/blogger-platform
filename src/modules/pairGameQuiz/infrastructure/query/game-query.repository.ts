@@ -151,24 +151,26 @@ export class GameQueryRepository {
         { userId },
       );
 
+    // ✅ Исправленная сортировка
+    const orderBy: Record<string, 'ASC' | 'DESC'> = {};
     const allowedSortFields = [
       'pairCreatedDate',
       'startGameDate',
       'finishGameDate',
       'status',
     ];
-    if (allowedSortFields.includes(sortBy)) {
-      qb.orderBy(
-        `game.${sortBy}`,
-        sortDirection.toUpperCase() as 'ASC' | 'DESC',
-      );
-    } else {
-      qb.orderBy('game.pairCreatedDate', 'DESC');
-    }
-    // Вторичная сортировка для стабильности (новые игры первыми при одинаковом статусе)
-    qb.addOrderBy('game.pairCreatedDate', 'DESC');
 
+    if (allowedSortFields.includes(sortBy)) {
+      orderBy[`game.${sortBy}`] = sortDirection.toUpperCase() as 'ASC' | 'DESC';
+    } else {
+      orderBy['game.pairCreatedDate'] = 'DESC';
+    }
+    // Всегда сортируем по дате создания внутри группы
+    orderBy['game.pairCreatedDate'] = 'DESC';
+
+    qb.orderBy(orderBy);
     qb.skip(skip).take(take);
+
     const [items, totalCount] = await qb.getManyAndCount();
     return { items, totalCount };
   }
@@ -252,7 +254,7 @@ export class GameQueryRepository {
 
     // Безопасная обработка вопросов игры
     const questions =
-      game.status === GameStatus.Active
+      game.status !== GameStatus.PendingSecondPlayer
         ? (game.questions || [])
             .sort((a, b) => a.order - b.order)
             .map((gameQuestion) => ({

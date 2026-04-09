@@ -48,4 +48,10 @@ export class Game {
 
   @Column({ type: 'timestamptz', nullable: true })
   finishGameDate: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  firstPlayerFinishedAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  secondPlayerFinishedAt: Date | null;
 }

@@ -207,6 +207,24 @@ export class GameQueryRepository {
       items,
     };
   }
+  async findExpiredActiveGames(timeoutMs: number): Promise<Game[]> {
+    const timeoutDate = new Date(Date.now() - timeoutMs);
+    return this.dataSource
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('questions.question', 'question')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
+      .where('game.status = :status', { status: GameStatus.Active })
+      .andWhere(
+        '(game.firstPlayerFinishedAt IS NOT NULL AND game.secondPlayerFinishedAt IS NULL AND game.firstPlayerFinishedAt <= :timeout) OR ' +
+          '(game.secondPlayerFinishedAt IS NOT NULL AND game.firstPlayerFinishedAt IS NULL AND game.secondPlayerFinishedAt <= :timeout)',
+        { timeout: timeoutDate },
+      )
+      .getMany();
+  }
   private mapToGameViewDto(game: Game): GameViewDto {
     // Безопасное получение answers с проверкой на undefined
     const getAnswersArray = (progress: PlayerProgress | null | undefined) => {

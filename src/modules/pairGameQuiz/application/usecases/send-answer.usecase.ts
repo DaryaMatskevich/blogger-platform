@@ -5,10 +5,11 @@ import { GameRepository } from '../../infrastructure/game.repository';
 import { AnswerResponseDto } from '../../api/dto/answer-response.dto';
 import { GameStatus } from '../../domain/game.entity';
 import { AnswerStatus, PlayerAnswer } from '../../domain/player-answer.entity';
-import { GameQueryRepository } from '../../../../modules/pairGameQuiz/infrastructure/query/game-query.repository';
-import { AnswerRepository } from '../../../../modules/pairGameQuiz/infrastructure/answers.repository';
-import { PlayerProgressRepository } from '../../../../modules/pairGameQuiz/infrastructure/player-progress.repository';
-import { UsersStatisticsRepository } from '../../../../modules/pairGameQuiz/infrastructure/users-statistics.repository';
+import { GameQueryRepository } from '../../infrastructure/query/game-query.repository';
+import { AnswerRepository } from '../../infrastructure/answers.repository';
+import { PlayerProgressRepository } from '../../infrastructure/player-progress.repository';
+import { UsersStatisticsRepository } from '../../infrastructure/users-statistics.repository';
+import { FinishGameService } from '../services/finish-game.service'; // добавляем
 
 export class SendAnswerCommand {
   constructor(
@@ -27,19 +28,31 @@ export class SendAnswerUseCase
     private readonly answerRepository: AnswerRepository,
     private readonly playerProgressRepository: PlayerProgressRepository,
     private readonly usersStatisticsRepository: UsersStatisticsRepository,
+    private readonly finishGameService: FinishGameService, // внедряем
   ) {}
 
   async execute(command: SendAnswerCommand): Promise<AnswerResponseDto> {
     const { userId, answer } = command;
     const userIdNum = parseInt(userId, 10);
-    // 1. Найти активную игру пользователя со всеми связями
-    const game =
-      await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
+
+    // 1. Найти активную игру
+    let game = await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
     if (!game || game.status !== GameStatus.Active) {
       throw new ForbiddenException('User is not inside an active game');
     }
 
-    // 2. Определить прогресс игрока
+    const totalQuestions = game.questions.length;
+
+    // 2. Проверить, не истекло ли время ожидания для оппонента
+    await this.checkGameTimeout(game);
+
+    // Обновляем игру (если checkGameTimeout мог её завершить, нужно получить свежие данные)
+    game = await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
+    if (!game || game.status !== GameStatus.Active) {
+      throw new ForbiddenException('Game is already finished');
+    }
+
+    // 3. Определить прогресс игрока
     const playerProgress =
       game.firstPlayerProgress?.player.id === userIdNum
         ? game.firstPlayerProgress
@@ -51,13 +64,13 @@ export class SendAnswerUseCase
       throw new ForbiddenException('User is not a player in this game');
     }
 
-    // 3. Получить все вопросы игры, отсортированные по order
-    const gameQuestions = game.questions.sort((a, b) => a.order - b.order);
+    // 4. Получить все вопросы игры, отсортированные по order
+    const gameQuestions = [...game.questions].sort((a, b) => a.order - b.order);
     if (!gameQuestions.length) {
       throw new BadRequestException('No questions found for this game');
     }
 
-    // 4. Найти следующий неотвеченный вопрос
+    // 5. Найти следующий неотвеченный вопрос
     const answeredQuestionIds = playerProgress.answers.map(
       (a) => a.gameQuestion.id,
     );
@@ -69,13 +82,13 @@ export class SendAnswerUseCase
       throw new ForbiddenException('User has already answered all questions');
     }
 
-    // 5. Проверить правильность ответа
-    const correctAnswers = nextGameQuestion.question.correctAnswers || []; // предполагаем, что у Question есть поле correctAnswers: string[]
+    // 6. Проверить правильность ответа
+    const correctAnswers = nextGameQuestion.question.correctAnswers || [];
     const isCorrect = correctAnswers.some(
       (correct) => correct.toLowerCase() === answer.trim().toLowerCase(),
     );
 
-    // 6. Создать PlayerAnswer
+    // 7. Создать PlayerAnswer
     const playerAnswer = new PlayerAnswer();
     playerAnswer.playerProgress = playerProgress;
     playerAnswer.gameQuestion = nextGameQuestion;
@@ -86,93 +99,90 @@ export class SendAnswerUseCase
 
     await this.answerRepository.saveAnswer(playerAnswer);
     playerProgress.answers.push(playerAnswer);
-    // 7. Обновить счёт игрока, если ответ правильный
+
+    // 8. Обновить счёт, если ответ правильный
     if (isCorrect) {
       playerProgress.score += 1;
       await this.playerProgressRepository.savePlayerProgress(playerProgress);
     }
 
-    // 8. Проверить, закончили ли оба игрока
+    // 9. Проверить, закончил ли текущий игрок все вопросы
+    const currentAnswersCount = playerProgress.answers.length;
+    const isCurrentFinished = currentAnswersCount === totalQuestions;
+
+    if (isCurrentFinished) {
+      // Запоминаем время завершения текущего игрока
+      const isFirst = game.firstPlayerProgress?.player.id === userIdNum;
+      if (isFirst) {
+        game.firstPlayerFinishedAt = new Date();
+      } else {
+        game.secondPlayerFinishedAt = new Date();
+      }
+      await this.gameRepository.saveGame(game);
+
+      // Если другой игрок уже закончил раньше – завершаем игру немедленно
+      const otherFinished = isFirst
+        ? game.secondPlayerFinishedAt !== null
+        : game.firstPlayerFinishedAt !== null;
+
+      if (otherFinished) {
+        await this.finishGameService.finishGame(game, totalQuestions);
+      }
+      // Иначе – ждём cron (он дооформит игру через 10 секунд)
+    }
+
+    // 10. Проверить, не закончили ли оба только что (случай, когда второй отвечает последний вопрос до истечения таймера)
     const firstProgressAnswersCount =
       game.firstPlayerProgress?.answers?.length || 0;
     const secondProgressAnswersCount =
       game.secondPlayerProgress?.answers?.length || 0;
-    const totalQuestions = gameQuestions.length;
-
-    const bothFinished =
+    const bothFinishedNow =
       firstProgressAnswersCount === totalQuestions &&
       secondProgressAnswersCount === totalQuestions;
-    if (bothFinished) {
-      if (!game.firstPlayerProgress || !game.secondPlayerProgress) {
-        // Этого не должно случиться, но на всякий случай
-        throw new Error(
-          'Both players must have progress when game is finished',
-        );
-      }
-      game.status = GameStatus.Finished;
-      game.finishGameDate = new Date();
 
-      const firstProgress = game.firstPlayerProgress;
-      const secondProgress = game.secondPlayerProgress;
-      const getLastAnswerTime = (progress) => {
-        if (!progress.answers || progress.answers.length === 0) return null;
-        // сортируем ответы по дате добавления (от старых к новым) и берём последний
-        const sorted = [...progress.answers].sort(
-          (a, b) => a.addedAt.getTime() - b.addedAt.getTime(),
-        );
-        return sorted[sorted.length - 1].addedAt;
-      };
-
-      const firstFinishedAt = getLastAnswerTime(firstProgress);
-      const secondFinishedAt = getLastAnswerTime(secondProgress);
-
-      if (firstFinishedAt && secondFinishedAt) {
-        if (firstFinishedAt < secondFinishedAt && firstProgress.score > 0) {
-          firstProgress.score += 1;
-          await this.playerProgressRepository.savePlayerProgress(firstProgress);
-        } else if (
-          secondFinishedAt < firstFinishedAt &&
-          secondProgress.score > 0
-        ) {
-          secondProgress.score += 1;
-          await this.playerProgressRepository.savePlayerProgress(
-            secondProgress,
-          );
-        }
-        // если времена равны – бонус не начисляем
-      }
-      // Определение результатов для статистики (на основе финальных очков)
-      let firstResult: 'win' | 'loss' | 'draw' = 'draw';
-      let secondResult: 'win' | 'loss' | 'draw' = 'draw';
-
-      if (firstProgress.score > secondProgress.score) {
-        firstResult = 'win';
-        secondResult = 'loss';
-      } else if (firstProgress.score < secondProgress.score) {
-        firstResult = 'loss';
-        secondResult = 'win';
-      }
-
-      // Обновляем статистику обоих игроков
-      await this.usersStatisticsRepository.updateAfterGame(
-        firstProgress.player.id,
-        firstProgress.score,
-        firstResult,
-      );
-      await this.usersStatisticsRepository.updateAfterGame(
-        secondProgress.player.id,
-        secondProgress.score,
-        secondResult,
-      );
-
-      await this.gameRepository.saveGame(game);
+    if (bothFinishedNow && !game.finishGameDate) {
+      await this.finishGameService.finishGame(game, totalQuestions);
     }
 
-    // 9. Вернуть DTO
+    // 11. Вернуть DTO
     return {
       questionId: nextGameQuestion.question.id.toString(),
       answerStatus: isCorrect ? AnswerStatus.Correct : AnswerStatus.Incorrect,
       addedAt: playerAnswer.addedAt.toISOString(),
     };
+  }
+
+  /**
+   * Проверяет, не истекло ли время ожидания для игры,
+   * где один игрок уже завершил, а второй ещё нет.
+   */
+  private async checkGameTimeout(game: any): Promise<void> {
+    const totalQuestions = game.questions.length;
+    const {
+      firstPlayerFinishedAt,
+      secondPlayerFinishedAt,
+      firstPlayerProgress,
+      secondPlayerProgress,
+    } = game;
+
+    const finishedAt = firstPlayerFinishedAt || secondPlayerFinishedAt;
+    if (!finishedAt) return;
+
+    // Определяем прогресс другого игрока
+    const otherProgress = firstPlayerFinishedAt
+      ? secondPlayerProgress
+      : firstPlayerProgress;
+
+    // Если другой игрок уже тоже закончил – таймаут не нужен
+    const otherFinished = otherProgress.answers.length === totalQuestions;
+    if (otherFinished) return;
+
+    const elapsed = Date.now() - finishedAt.getTime();
+    if (elapsed > 10000) {
+      await this.finishGameService.finishGame(game, totalQuestions);
+      throw new ForbiddenException(
+        'Game finished: opponent did not answer in time',
+      );
+    }
   }
 }

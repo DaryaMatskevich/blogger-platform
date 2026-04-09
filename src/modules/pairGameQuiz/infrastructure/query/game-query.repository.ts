@@ -139,19 +139,18 @@ export class GameQueryRepository {
       .leftJoinAndSelect(
         'firstAnswerQuestion.question',
         'firstAnswerQuestionQuestion',
-      ) // ✅ добавлено
+      )
       .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
       .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondAnswerQuestion')
       .leftJoinAndSelect(
         'secondAnswerQuestion.question',
         'secondAnswerQuestionQuestion',
-      ) // ✅ добавлено
+      )
       .where(
         'firstProgress.player.id = :userId OR secondProgress.player.id = :userId',
         { userId },
       );
 
-    // Сортировка
     const allowedSortFields = [
       'pairCreatedDate',
       'startGameDate',
@@ -166,6 +165,8 @@ export class GameQueryRepository {
     } else {
       qb.orderBy('game.pairCreatedDate', 'DESC');
     }
+    // Вторичная сортировка для стабильности (новые игры первыми при одинаковом статусе)
+    qb.addOrderBy('game.pairCreatedDate', 'DESC');
 
     qb.skip(skip).take(take);
     const [items, totalCount] = await qb.getManyAndCount();
@@ -251,12 +252,12 @@ export class GameQueryRepository {
 
     // Безопасная обработка вопросов игры
     const questions =
-      game.status !== GameStatus.PendingSecondPlayer
+      game.status === GameStatus.Active
         ? (game.questions || [])
             .sort((a, b) => a.order - b.order)
             .map((gameQuestion) => ({
-              id: gameQuestion.question?.id?.toString() ?? 'unknown',
-              body: gameQuestion.question?.body ?? 'No body',
+              id: gameQuestion.question.id.toString(),
+              body: gameQuestion.question.body,
             }))
         : null;
 
@@ -282,67 +283,3 @@ export class GameQueryRepository {
     };
   }
 }
-// private mapToGameViewDto(game: Game): GameViewDto {
-//   // Формируем объект для первого игрока
-//   const firstPlayerProgress = game.firstPlayerProgress
-//     ? {
-//         answers: game.firstPlayerProgress.answers
-//           .sort(
-//             (a, b) =>
-//               new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
-//           )
-//           .map((answer) => ({
-//             questionId: answer.gameQuestion.question.id.toString(),
-//             answerStatus: answer.answerStatus,
-//             addedAt: answer.addedAt.toISOString(),
-//           })),
-//         player: {
-//           id: game.firstPlayerProgress.player.id.toString(),
-//           login: game.firstPlayerProgress.player.login,
-//         },
-//         score: game.firstPlayerProgress.score,
-//       }
-//     : null;
-//
-//   // Формируем объект для второго игрока
-//   const secondPlayerProgress = game.secondPlayerProgress
-//     ? {
-//         answers: game.secondPlayerProgress.answers
-//           .sort(
-//             (a, b) =>
-//               new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime(),
-//           )
-//           .map((answer) => ({
-//             questionId: answer.gameQuestion.question.id.toString(),
-//             answerStatus: answer.answerStatus,
-//             addedAt: answer.addedAt.toISOString(),
-//           })),
-//         player: {
-//           id: game.secondPlayerProgress.player.id.toString(),
-//           login: game.secondPlayerProgress.player.login,
-//         },
-//         score: game.secondPlayerProgress.score,
-//       }
-//     : null;
-//
-//   const questions =
-//     game.status !== GameStatus.PendingSecondPlayer
-//       ? game.questions
-//           .sort((a, b) => a.order - b.order)
-//           .map((gameQuestion) => ({
-//             id: gameQuestion.question.id.toString(),
-//             body: gameQuestion.question.body,
-//           }))
-//       : null;
-//
-//   return {
-//     id: game.id.toString(),
-//     firstPlayerProgress,
-//     secondPlayerProgress,
-//     questions,
-//     status: game.status,
-//     pairCreatedDate: game.pairCreatedDate.toISOString(), // обратите внимание на название поля
-//     startGameDate: game.startGameDate?.toISOString() || null,
-//     finishGameDate: game.finishGameDate?.toISOString() || null,
-//   };
-// }

@@ -207,16 +207,21 @@ export class GameQueryRepository {
       items,
     };
   }
+  // infrastructure/query/game-query.repository.ts
   async findExpiredActiveGames(timeoutMs: number): Promise<Game[]> {
     const timeoutDate = new Date(Date.now() - timeoutMs);
     return this.dataSource
       .createQueryBuilder(Game, 'game')
       .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstGameQuestion')
+      .leftJoinAndSelect('firstGameQuestion.question', 'firstQuestion')
       .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
+      .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondGameQuestion')
+      .leftJoinAndSelect('secondGameQuestion.question', 'secondQuestion')
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('questions.question', 'question')
-      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
-      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
       .where('game.status = :status', { status: GameStatus.Active })
       .andWhere(
         '(game.firstPlayerFinishedAt IS NOT NULL AND game.secondPlayerFinishedAt IS NULL AND game.firstPlayerFinishedAt <= :timeout) OR ' +

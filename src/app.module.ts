@@ -25,11 +25,9 @@ import { Confirmation } from './modules/user-accounts/users/domain/confirmation.
 import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
 import { CoreConfig } from './core/core.config';
 import { GameQuizModule } from './modules/pairGameQuiz/game.quiz.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     CoreModule,
     configModule,
     CqrsModule,

@@ -27,9 +27,11 @@ import { UsersStatisticsController } from './api/users.statistics.controller';
 import { GetMyStatisticQueryHandler } from '../../modules/pairGameQuiz/application/queries/get-my-statistic.query-handler';
 import { FinishGameService } from '../../modules/pairGameQuiz/application/services/finish-game.service';
 import { GameTimeoutScheduler } from '../../modules/pairGameQuiz/application/scheduler/game-timeout.scheduler';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     CqrsModule,
     UserAccountsModule,
     SaModule,

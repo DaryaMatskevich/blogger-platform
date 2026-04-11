@@ -19,20 +19,19 @@ export class FinishGameService {
   ) {}
 
   async finishGame(game: Game, totalQuestions: number): Promise<void> {
-    // Не завершаем повторно
+    // Не завершаем повторно, если игра уже завершена
     if (game.status !== GameStatus.Active) return;
 
     const firstProgress = game.firstPlayerProgress;
     const secondProgress = game.secondPlayerProgress;
-    if (!firstProgress || !secondProgress) return; // на всякий случай
+    if (!firstProgress || !secondProgress) return;
 
-    // Безопасное получение количества отвеченных вопросов
     const firstAnswersCount = firstProgress.answers?.length ?? 0;
     const secondAnswersCount = secondProgress.answers?.length ?? 0;
     const isFirstFinished = firstAnswersCount === totalQuestions;
     const isSecondFinished = secondAnswersCount === totalQuestions;
 
-    // 1. Добавляем неправильные ответы за пропущенные вопросы (только тем, кто не закончил)
+    // 1. Добавляем неправильные ответы за пропущенные вопросы (тем, кто не успел)
     if (!isFirstFinished) {
       await this.addMissingAnswers(firstProgress, game.questions ?? []);
     }
@@ -40,34 +39,27 @@ export class FinishGameService {
       await this.addMissingAnswers(secondProgress, game.questions ?? []);
     }
 
-    // 2. Бонус за скорость (по времени завершения)
+    // 2. Бонус за скорость (по времени завершения) – теперь без проверки score > 0
     const firstFinishedAt = game.firstPlayerFinishedAt;
     const secondFinishedAt = game.secondPlayerFinishedAt;
 
     if (firstFinishedAt && secondFinishedAt) {
       // оба закончили – бонус тому, кто раньше
-      if (firstFinishedAt < secondFinishedAt && firstProgress.score > 0) {
+      if (firstFinishedAt < secondFinishedAt) {
         firstProgress.score += 1;
         await this.playerProgressRepository.savePlayerProgress(firstProgress);
-      } else if (
-        secondFinishedAt < firstFinishedAt &&
-        secondProgress.score > 0
-      ) {
+      } else if (secondFinishedAt < firstFinishedAt) {
         secondProgress.score += 1;
         await this.playerProgressRepository.savePlayerProgress(secondProgress);
       }
     } else if (firstFinishedAt && !secondFinishedAt) {
       // закончил только первый – бонус ему
-      if (firstProgress.score > 0) {
-        firstProgress.score += 1;
-        await this.playerProgressRepository.savePlayerProgress(firstProgress);
-      }
+      firstProgress.score += 1;
+      await this.playerProgressRepository.savePlayerProgress(firstProgress);
     } else if (!firstFinishedAt && secondFinishedAt) {
       // закончил только второй – бонус ему
-      if (secondProgress.score > 0) {
-        secondProgress.score += 1;
-        await this.playerProgressRepository.savePlayerProgress(secondProgress);
-      }
+      secondProgress.score += 1;
+      await this.playerProgressRepository.savePlayerProgress(secondProgress);
     }
 
     // 3. Обновляем статистику игроков (win/loss/draw)
@@ -105,19 +97,16 @@ export class FinishGameService {
     playerProgress: PlayerProgress,
     gameQuestions: GameQuestion[],
   ): Promise<void> {
-    // ID уже отвеченных вопросов
     const answeredIds = new Set(
       (playerProgress.answers ?? []).map((a) => a.gameQuestion.id),
     );
 
-    // Вопросы, на которые игрок не ответил
     const missingGameQuestions = gameQuestions.filter(
       (q) => !answeredIds.has(q.id),
     );
 
     if (missingGameQuestions.length === 0) return;
 
-    // Создаём неправильные ответы
     const wrongAnswers = missingGameQuestions.map((gameQuestion) => {
       const wrongAnswer = new PlayerAnswer();
       wrongAnswer.playerProgress = playerProgress;
@@ -127,16 +116,14 @@ export class FinishGameService {
       return wrongAnswer;
     });
 
-    // Сохраняем все ответы (можно по одному, если нет batch-репозитория)
+    // Сохраняем все неправильные ответы (можно заменить на batch-сохранение, если репозиторий поддерживает)
     for (const answer of wrongAnswers) {
       await this.answerRepository.saveAnswer(answer);
     }
 
-    // Добавляем в массив прогресса (если он null, создаём новый)
     if (!playerProgress.answers) playerProgress.answers = [];
     playerProgress.answers.push(...wrongAnswers);
 
-    // Сохраняем прогресс
     await this.playerProgressRepository.savePlayerProgress(playerProgress);
   }
 }

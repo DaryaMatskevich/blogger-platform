@@ -1,4 +1,5 @@
 // application/use-cases/send-answer.usecase.ts
+// application/use-cases/send-answer.usecase.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { GameRepository } from '../../infrastructure/game.repository';
@@ -120,11 +121,15 @@ export class SendAnswerUseCase
         await this.finishGameService.finishGame(game, totalQuestions);
       } else {
         // Запускаем таймер на 10 секунд
+        const gameId = game.id;
+        const total = totalQuestions;
+        const finishService = this.finishGameService;
+        const queryRepo = this.gameQueryRepository;
+
         setTimeout(() => {
           void (async () => {
             try {
-              const freshGame =
-                await this.gameQueryRepository.findGameEntityById(game.id);
+              const freshGame = await queryRepo.findGameEntityById(gameId);
               if (freshGame && freshGame.status === GameStatus.Active) {
                 const firstFinished = freshGame.firstPlayerFinishedAt !== null;
                 const secondFinished =
@@ -133,10 +138,7 @@ export class SendAnswerUseCase
                   (firstFinished && !secondFinished) ||
                   (!firstFinished && secondFinished)
                 ) {
-                  await this.finishGameService.finishGame(
-                    freshGame,
-                    totalQuestions,
-                  );
+                  await finishService.finishGame(freshGame, total);
                 }
               }
             } catch (error) {

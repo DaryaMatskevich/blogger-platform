@@ -123,7 +123,6 @@ export class SendAnswerUseCase
         setTimeout(() => {
           void (async () => {
             try {
-              // Перезагружаем игру из БД (предполагаем, что в GameRepository есть метод findGameById)
               const freshGame =
                 await this.gameQueryRepository.findGameEntityById(game.id);
               if (freshGame && freshGame.status === GameStatus.Active) {
@@ -161,7 +160,6 @@ export class SendAnswerUseCase
       await this.finishGameService.finishGame(game, totalQuestions);
     }
 
-    // 10. Вернуть DTO
     return {
       questionId: nextGameQuestion.question.id.toString(),
       answerStatus: isCorrect ? AnswerStatus.Correct : AnswerStatus.Incorrect,

@@ -52,6 +52,22 @@ export class GameQueryRepository {
 
     return this.mapToGameViewDto(game);
   }
+  async findGameEntityById(id: number): Promise<Game | null> {
+    return this.dataSource
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers')
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstGameQuestion')
+      .leftJoinAndSelect('firstGameQuestion.question', 'firstQuestion')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers')
+      .leftJoinAndSelect('secondAnswers.gameQuestion', 'secondGameQuestion')
+      .leftJoinAndSelect('secondGameQuestion.question', 'secondQuestion')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('questions.question', 'question')
+      .where('game.id = :id', { id })
+      .getOne();
+  }
 
   async findGameByIdAndUserId(
     gameId: number,

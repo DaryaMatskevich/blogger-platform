@@ -111,7 +111,6 @@ export class SendAnswerUseCase
       }
       await this.gameRepository.saveGame(game);
 
-      // Проверим, закончил ли другой игрок
       const otherFinished = isFirst
         ? game.secondPlayerFinishedAt !== null
         : game.firstPlayerFinishedAt !== null;
@@ -120,10 +119,11 @@ export class SendAnswerUseCase
         // Оба закончили – завершаем немедленно
         await this.finishGameService.finishGame(game, totalQuestions);
       } else {
-        // Запускаем таймер на 10 секунд для второго игрока
+        // Запускаем таймер на 10 секунд
         setTimeout(() => {
           void (async () => {
             try {
+              // Перезагружаем игру из БД (предполагаем, что в GameRepository есть метод findGameById)
               const freshGame =
                 await this.gameQueryRepository.findGameEntityById(game.id);
               if (freshGame && freshGame.status === GameStatus.Active) {
@@ -148,7 +148,7 @@ export class SendAnswerUseCase
       }
     }
 
-    // 9. Проверить, не закончили ли оба только что (случай, когда второй отвечает последний вопрос до истечения таймера)
+    // 9. Проверить, не закончили ли оба только что
     const firstProgressAnswersCount =
       game.firstPlayerProgress?.answers?.length || 0;
     const secondProgressAnswersCount =

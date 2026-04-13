@@ -12,7 +12,7 @@ export class GameTimeoutScheduler {
     private readonly finishGameService: FinishGameService,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_SECOND)
   async handleGameTimeouts() {
     // Находим игры, где один игрок закончил >= 10 секунд назад, а второй ещё нет
     const expiredGames =

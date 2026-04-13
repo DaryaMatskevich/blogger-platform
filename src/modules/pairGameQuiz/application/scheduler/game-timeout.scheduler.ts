@@ -16,7 +16,7 @@ export class GameTimeoutScheduler {
   async handleGameTimeouts() {
     // Находим игры, где один игрок закончил >= 10 секунд назад, а второй ещё нет
     const expiredGames =
-      await this.gameQueryRepository.findActiveGamesWithOneFinishedTimeout(9);
+      await this.gameQueryRepository.findActiveGamesWithOneFinishedTimeout(8);
 
     for (const game of expiredGames) {
       // Перед завершением убедимся, что игра всё ещё активна (на всякий случай)

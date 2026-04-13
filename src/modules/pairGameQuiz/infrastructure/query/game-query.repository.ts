@@ -62,14 +62,24 @@ export class GameQueryRepository {
     return this.dataSource
       .createQueryBuilder(Game, 'game')
       .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('firstProgress.player', 'firstPlayer') // ✅
       .leftJoinAndSelect('firstProgress.answers', 'firstAnswers') // ✅
-      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstAnswerGameQuestion') // ✅
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstAnswerGameQuestion')
+      .leftJoinAndSelect(
+        'firstAnswerGameQuestion.question',
+        'firstAnswerQuestion',
+      )
       .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.player', 'secondPlayer') // ✅
       .leftJoinAndSelect('secondProgress.answers', 'secondAnswers') // ✅
       .leftJoinAndSelect(
         'secondAnswers.gameQuestion',
         'secondAnswerGameQuestion',
-      ) // ✅
+      )
+      .leftJoinAndSelect(
+        'secondAnswerGameQuestion.question',
+        'secondAnswerQuestion',
+      )
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('questions.question', 'question')
       .where('game.status = :status', { status: GameStatus.Active })

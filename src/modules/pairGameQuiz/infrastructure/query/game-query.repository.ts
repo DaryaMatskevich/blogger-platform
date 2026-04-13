@@ -62,16 +62,23 @@ export class GameQueryRepository {
     return this.dataSource
       .createQueryBuilder(Game, 'game')
       .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('firstProgress.answers', 'firstAnswers') // ✅
+      .leftJoinAndSelect('firstAnswers.gameQuestion', 'firstAnswerGameQuestion') // ✅
       .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('secondProgress.answers', 'secondAnswers') // ✅
+      .leftJoinAndSelect(
+        'secondAnswers.gameQuestion',
+        'secondAnswerGameQuestion',
+      ) // ✅
       .leftJoinAndSelect('game.questions', 'questions')
       .leftJoinAndSelect('questions.question', 'question')
       .where('game.status = :status', { status: GameStatus.Active })
       .andWhere(
         `(game.firstPlayerFinishedAt IS NOT NULL AND game.secondPlayerFinishedAt IS NULL 
-          AND game.firstPlayerFinishedAt <= :timeoutDate)
-         OR
-         (game.firstPlayerFinishedAt IS NULL AND game.secondPlayerFinishedAt IS NOT NULL 
-          AND game.secondPlayerFinishedAt <= :timeoutDate)`,
+        AND game.firstPlayerFinishedAt <= :timeoutDate)
+       OR
+       (game.firstPlayerFinishedAt IS NULL AND game.secondPlayerFinishedAt IS NOT NULL 
+        AND game.secondPlayerFinishedAt <= :timeoutDate)`,
         { timeoutDate },
       )
       .getMany();

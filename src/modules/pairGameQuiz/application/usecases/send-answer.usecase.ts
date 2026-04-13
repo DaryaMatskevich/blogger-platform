@@ -1,5 +1,4 @@
 // application/use-cases/send-answer.usecase.ts
-// application/use-cases/send-answer.usecase.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { GameRepository } from '../../infrastructure/game.repository';
@@ -111,45 +110,9 @@ export class SendAnswerUseCase
         game.secondPlayerFinishedAt = new Date();
       }
       await this.gameRepository.saveGame(game);
-
-      const otherFinished = isFirst
-        ? game.secondPlayerFinishedAt !== null
-        : game.firstPlayerFinishedAt !== null;
-
-      if (otherFinished) {
-        // Оба закончили – завершаем немедленно
-        await this.finishGameService.finishGame(game, totalQuestions);
-      } else {
-        // Запускаем таймер на 10 секунд
-        const gameId = game.id;
-        const total = totalQuestions;
-        const finishService = this.finishGameService;
-        const queryRepo = this.gameQueryRepository;
-
-        setTimeout(() => {
-          void (async () => {
-            try {
-              const freshGame = await queryRepo.findGameEntityById(gameId);
-              if (freshGame && freshGame.status === GameStatus.Active) {
-                const firstFinished = freshGame.firstPlayerFinishedAt !== null;
-                const secondFinished =
-                  freshGame.secondPlayerFinishedAt !== null;
-                if (
-                  (firstFinished && !secondFinished) ||
-                  (!firstFinished && secondFinished)
-                ) {
-                  await finishService.finishGame(freshGame, total);
-                }
-              }
-            } catch (error) {
-              console.error('Error in game timeout callback:', error);
-            }
-          })();
-        }, 10000);
-      }
     }
 
-    // 9. Проверить, не закончили ли оба только что
+    // 9. Проверить, не закончили ли оба только что (возможно, второй закончил этим же ответом)
     const firstProgressAnswersCount =
       game.firstPlayerProgress?.answers?.length || 0;
     const secondProgressAnswersCount =

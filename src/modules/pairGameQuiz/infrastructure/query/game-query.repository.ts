@@ -52,6 +52,31 @@ export class GameQueryRepository {
 
     return this.mapToGameViewDto(game);
   }
+
+  async findActiveGamesWithOneFinishedTimeout(
+    timeoutSeconds: number,
+  ): Promise<Game[]> {
+    const now = new Date();
+    const timeoutDate = new Date(now.getTime() - timeoutSeconds * 1000);
+
+    return this.dataSource
+      .createQueryBuilder(Game, 'game')
+      .leftJoinAndSelect('game.firstPlayerProgress', 'firstProgress')
+      .leftJoinAndSelect('game.secondPlayerProgress', 'secondProgress')
+      .leftJoinAndSelect('game.questions', 'questions')
+      .leftJoinAndSelect('questions.question', 'question')
+      .where('game.status = :status', { status: GameStatus.Active })
+      .andWhere(
+        `(game.firstPlayerFinishedAt IS NOT NULL AND game.secondPlayerFinishedAt IS NULL 
+          AND game.firstPlayerFinishedAt <= :timeoutDate)
+         OR
+         (game.firstPlayerFinishedAt IS NULL AND game.secondPlayerFinishedAt IS NOT NULL 
+          AND game.secondPlayerFinishedAt <= :timeoutDate)`,
+        { timeoutDate },
+      )
+      .getMany();
+  }
+
   async findGameEntityById(id: number): Promise<Game | null> {
     return this.dataSource
       .createQueryBuilder(Game, 'game')

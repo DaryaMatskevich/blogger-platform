@@ -33,5 +33,8 @@ export class AnswerRepository {
   async find(options?: FindManyOptions<PlayerAnswer>): Promise<PlayerAnswer[]> {
     return this.repo.find(options);
   }
+  async count(options?: FindManyOptions<PlayerAnswer>): Promise<number> {
+    return this.repo.count(options);
+  }
   // другие методы по необходимости
 }

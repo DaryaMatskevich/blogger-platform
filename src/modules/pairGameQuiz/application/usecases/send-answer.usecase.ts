@@ -107,10 +107,16 @@ export class SendAnswerUseCase
       await this.gameRepository.saveGame(game);
     }
 
-    const firstProgressAnswersCount =
-      game.firstPlayerProgress?.answers?.length || 0;
-    const secondProgressAnswersCount =
-      game.secondPlayerProgress?.answers?.length || 0;
+    if (!game.firstPlayerProgress || !game.secondPlayerProgress) {
+      throw new ForbiddenException('Game is missing player progress data');
+    }
+    const firstProgressAnswersCount = await this.answerRepository.count({
+      where: { playerProgress: { id: game.firstPlayerProgress.id } },
+    });
+    const secondProgressAnswersCount = await this.answerRepository.count({
+      where: { playerProgress: { id: game.secondPlayerProgress.id } },
+    });
+
     const bothFinishedNow =
       firstProgressAnswersCount === totalQuestions &&
       secondProgressAnswersCount === totalQuestions;

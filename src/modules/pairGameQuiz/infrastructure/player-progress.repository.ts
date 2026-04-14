@@ -26,4 +26,7 @@ export class PlayerProgressRepository {
   async savePlayerProgress(progress: PlayerProgress): Promise<PlayerProgress> {
     return this.repository.save(progress);
   }
+  async updateScore(progressId: number, newScore: number): Promise<void> {
+    await this.repository.update(progressId, { score: newScore });
+  }
 }

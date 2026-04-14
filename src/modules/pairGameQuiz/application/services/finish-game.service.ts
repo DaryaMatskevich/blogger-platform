@@ -18,7 +18,7 @@ export class FinishGameService {
     private readonly usersStatisticsRepository: UsersStatisticsRepository,
   ) {}
 
-  async finishGame(game: Game, totalQuestions: number): Promise<void> {
+  async finishGame(game: Game): Promise<void> {
     // Не завершаем повторно, если игра уже завершена
     if (game.status !== GameStatus.Active) return;
 
@@ -26,10 +26,9 @@ export class FinishGameService {
     const secondProgress = game.secondPlayerProgress;
     if (!firstProgress || !secondProgress) return;
 
-    const firstAnswersCount = firstProgress.answers?.length ?? 0;
-    const secondAnswersCount = secondProgress.answers?.length ?? 0;
-    const isFirstFinished = firstAnswersCount === totalQuestions;
-    const isSecondFinished = secondAnswersCount === totalQuestions;
+    // Флаги завершения (кто нажал последний ответ)
+    const isFirstFinished = !!game.firstPlayerFinishedAt;
+    const isSecondFinished = !!game.secondPlayerFinishedAt;
 
     // 1. Добавляем неправильные ответы за пропущенные вопросы (тем, кто не успел)
     if (!isFirstFinished) {
@@ -39,32 +38,42 @@ export class FinishGameService {
       await this.addMissingAnswers(secondProgress, game.questions ?? []);
     }
 
-    // 2. Бонус за скорость (по времени завершения) – теперь без проверки score > 0
+    // 2. Бонус за скорость (по времени нажатия последнего ответа)
     const firstFinishedAt = game.firstPlayerFinishedAt;
     const secondFinishedAt = game.secondPlayerFinishedAt;
 
     if (firstFinishedAt && secondFinishedAt) {
-      // оба закончили – бонус тому, кто раньше
       if (firstFinishedAt < secondFinishedAt) {
         firstProgress.score += 1;
-        await this.playerProgressRepository.savePlayerProgress(firstProgress);
+        await this.playerProgressRepository.updateScore(
+          firstProgress.id,
+          firstProgress.score,
+        );
       } else if (secondFinishedAt < firstFinishedAt) {
         secondProgress.score += 1;
-        await this.playerProgressRepository.savePlayerProgress(secondProgress);
+        await this.playerProgressRepository.updateScore(
+          secondProgress.id,
+          secondProgress.score,
+        );
       }
     } else if (firstFinishedAt && !secondFinishedAt) {
-      // закончил только первый – бонус ему
       firstProgress.score += 1;
-      await this.playerProgressRepository.savePlayerProgress(firstProgress);
+      await this.playerProgressRepository.updateScore(
+        firstProgress.id,
+        firstProgress.score,
+      );
     } else if (!firstFinishedAt && secondFinishedAt) {
-      // закончил только второй – бонус ему
       secondProgress.score += 1;
-      await this.playerProgressRepository.savePlayerProgress(secondProgress);
+      await this.playerProgressRepository.updateScore(
+        secondProgress.id,
+        secondProgress.score,
+      );
     }
 
     // 3. Обновляем статистику игроков (win/loss/draw)
     let firstResult: 'win' | 'loss' | 'draw' = 'draw';
     let secondResult: 'win' | 'loss' | 'draw' = 'draw';
+
     if (firstProgress.score > secondProgress.score) {
       firstResult = 'win';
       secondResult = 'loss';
@@ -97,16 +106,20 @@ export class FinishGameService {
     playerProgress: PlayerProgress,
     gameQuestions: GameQuestion[],
   ): Promise<void> {
-    const answeredIds = new Set(
-      (playerProgress.answers ?? []).map((a) => a.gameQuestion.id),
-    );
+    // Получаем уже отвеченные вопросы через AnswerRepository
+    const existingAnswers = await this.answerRepository.find({
+      where: { playerProgress: { id: playerProgress.id } },
+      relations: ['gameQuestion'],
+    });
 
+    const answeredIds = new Set(existingAnswers.map((a) => a.gameQuestion.id));
     const missingGameQuestions = gameQuestions.filter(
       (q) => !answeredIds.has(q.id),
     );
 
     if (missingGameQuestions.length === 0) return;
 
+    // Создаём записи неправильных ответов
     const wrongAnswers = missingGameQuestions.map((gameQuestion) => {
       const wrongAnswer = new PlayerAnswer();
       wrongAnswer.playerProgress = playerProgress;
@@ -116,14 +129,9 @@ export class FinishGameService {
       return wrongAnswer;
     });
 
-    // Сохраняем все неправильные ответы (можно заменить на batch-сохранение, если репозиторий поддерживает)
+    // Сохраняем каждый ответ (можно пакетно, если доработать репозиторий)
     for (const answer of wrongAnswers) {
       await this.answerRepository.saveAnswer(answer);
     }
-
-    if (!playerProgress.answers) playerProgress.answers = [];
-    playerProgress.answers.push(...wrongAnswers);
-
-    await this.playerProgressRepository.savePlayerProgress(playerProgress);
   }
 }

@@ -18,33 +18,31 @@ export class UsersStatisticsRepository {
     gameScore: number,
     result: 'win' | 'loss' | 'draw',
   ): Promise<void> {
-    // Находим существующую запись через связь user
-    let stats = await this.usersStatisticsRepository.findOne({
+    // Получаем текущую статистику, если есть
+    const existing = await this.usersStatisticsRepository.findOne({
       where: { user: { id: userId } },
     });
 
-    if (!stats) {
-      // Создаём новую статистику, привязывая пользователя
-      stats = this.usersStatisticsRepository.create({
-        user: { id: userId }, // TypeORM поймёт, что нужно установить userId внешним ключом
-        gamesCount: 0,
-        sumScore: 0,
-        avgScores: 0,
-        winsCount: 0,
-        lossesCount: 0,
-        drawsCount: 0,
-      });
-    }
+    const newGamesCount = (existing?.gamesCount || 0) + 1;
+    const newSumScore = (existing?.sumScore || 0) + gameScore;
+    const newAvgScores = newSumScore / newGamesCount;
+    const newWins = (existing?.winsCount || 0) + (result === 'win' ? 1 : 0);
+    const newLosses =
+      (existing?.lossesCount || 0) + (result === 'loss' ? 1 : 0);
+    const newDraws = (existing?.drawsCount || 0) + (result === 'draw' ? 1 : 0);
 
-    // Обновляем поля
-    stats.gamesCount += 1;
-    stats.sumScore += gameScore;
-    stats.avgScores = stats.sumScore / stats.gamesCount;
-
-    if (result === 'win') stats.winsCount += 1;
-    else if (result === 'loss') stats.lossesCount += 1;
-    else if (result === 'draw') stats.drawsCount += 1;
-
-    await this.usersStatisticsRepository.save(stats);
+    // Атомарная вставка или обновление (без race condition)
+    await this.usersStatisticsRepository.upsert(
+      {
+        user: { id: userId },
+        gamesCount: newGamesCount,
+        sumScore: newSumScore,
+        avgScores: newAvgScores,
+        winsCount: newWins,
+        lossesCount: newLosses,
+        drawsCount: newDraws,
+      },
+      ['user'], // уникальное поле – связь с пользователем
+    );
   }
 }

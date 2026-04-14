@@ -1,4 +1,3 @@
-// application/use-cases/send-answer.usecase.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { GameRepository } from '../../infrastructure/game.repository';
@@ -35,7 +34,6 @@ export class SendAnswerUseCase
     const { userId, answer } = command;
     const userIdNum = parseInt(userId, 10);
 
-    // 1. Найти активную игру
     const game =
       await this.gameQueryRepository.findActiveGameByUserId(userIdNum);
     if (!game || game.status !== GameStatus.Active) {
@@ -44,7 +42,6 @@ export class SendAnswerUseCase
 
     const totalQuestions = game.questions.length;
 
-    // 2. Определить прогресс игрока
     const playerProgress =
       game.firstPlayerProgress?.player.id === userIdNum
         ? game.firstPlayerProgress
@@ -56,13 +53,11 @@ export class SendAnswerUseCase
       throw new ForbiddenException('User is not a player in this game');
     }
 
-    // 3. Получить все вопросы игры, отсортированные по order
     const gameQuestions = [...game.questions].sort((a, b) => a.order - b.order);
     if (!gameQuestions.length) {
       throw new BadRequestException('No questions found for this game');
     }
 
-    // 4. Найти следующий неотвеченный вопрос
     const answeredQuestionIds = playerProgress.answers.map(
       (a) => a.gameQuestion.id,
     );
@@ -74,13 +69,11 @@ export class SendAnswerUseCase
       throw new ForbiddenException('User has already answered all questions');
     }
 
-    // 5. Проверить правильность ответа
     const correctAnswers = nextGameQuestion.question.correctAnswers || [];
     const isCorrect = correctAnswers.some(
       (correct) => correct.toLowerCase() === answer.trim().toLowerCase(),
     );
 
-    // 6. Создать PlayerAnswer
     const playerAnswer = new PlayerAnswer();
     playerAnswer.playerProgress = playerProgress;
     playerAnswer.gameQuestion = nextGameQuestion;
@@ -92,13 +85,15 @@ export class SendAnswerUseCase
     await this.answerRepository.saveAnswer(playerAnswer);
     playerProgress.answers.push(playerAnswer);
 
-    // 7. Обновить счёт, если ответ правильный
     if (isCorrect) {
       playerProgress.score += 1;
-      await this.playerProgressRepository.savePlayerProgress(playerProgress);
+      // Используем updateScore вместо savePlayerProgress
+      await this.playerProgressRepository.updateScore(
+        playerProgress.id,
+        playerProgress.score,
+      );
     }
 
-    // 8. Проверить, закончил ли текущий игрок все вопросы
     const currentAnswersCount = playerProgress.answers.length;
     const isCurrentFinished = currentAnswersCount === totalQuestions;
 
@@ -112,7 +107,6 @@ export class SendAnswerUseCase
       await this.gameRepository.saveGame(game);
     }
 
-    // 9. Проверить, не закончили ли оба только что (возможно, второй закончил этим же ответом)
     const firstProgressAnswersCount =
       game.firstPlayerProgress?.answers?.length || 0;
     const secondProgressAnswersCount =
@@ -122,7 +116,8 @@ export class SendAnswerUseCase
       secondProgressAnswersCount === totalQuestions;
 
     if (bothFinishedNow && !game.finishGameDate) {
-      await this.finishGameService.finishGame(game, totalQuestions);
+      // Убираем totalQuestions
+      await this.finishGameService.finishGame(game);
     }
 
     return {

@@ -22,8 +22,7 @@ export class GameTimeoutScheduler {
       // Перед завершением убедимся, что игра всё ещё активна (на всякий случай)
       if (game.status !== GameStatus.Active) continue;
 
-      const totalQuestions = game.questions?.length ?? 0;
-      await this.finishGameService.finishGame(game, totalQuestions);
+      await this.finishGameService.finishGame(game);
     }
   }
 }

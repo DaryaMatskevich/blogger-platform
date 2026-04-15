@@ -7,7 +7,7 @@ import { UsersStatisticsRepository } from '../../infrastructure/users-statistics
 import { Game, GameStatus } from '../../domain/game.entity';
 import { PlayerProgress } from '../../domain/player-progress.entity';
 import { GameQuestion } from '../../domain/game-question.entity';
-import { AnswerStatus, PlayerAnswer } from '../../domain/player-answer.entity';
+import { AnswerStatus } from '../../../../modules/pairGameQuiz/domain/player-answer.entity';
 
 @Injectable()
 export class FinishGameService {
@@ -22,15 +22,25 @@ export class FinishGameService {
     // Не завершаем повторно, если игра уже завершена
     if (game.status !== GameStatus.Active) return;
 
-    const firstProgress = game.firstPlayerProgress;
-    const secondProgress = game.secondPlayerProgress;
+    // Проверяем, что оба прогресса существуют
+    if (!game.firstPlayerProgress || !game.secondPlayerProgress) return;
+
+    // Перезагружаем прогрессы, чтобы получить полноценные сущности с id и player
+    const firstProgress = await this.playerProgressRepository.findOne({
+      where: { id: game.firstPlayerProgress.id },
+      relations: ['player'],
+    });
+    const secondProgress = await this.playerProgressRepository.findOne({
+      where: { id: game.secondPlayerProgress.id },
+      relations: ['player'],
+    });
+
     if (!firstProgress || !secondProgress) return;
 
-    // Флаги завершения (кто нажал последний ответ)
     const isFirstFinished = !!game.firstPlayerFinishedAt;
     const isSecondFinished = !!game.secondPlayerFinishedAt;
 
-    // 1. Добавляем неправильные ответы за пропущенные вопросы (тем, кто не успел)
+    // 1. Добавляем неправильные ответы за пропущенные вопросы
     if (!isFirstFinished) {
       await this.addMissingAnswers(firstProgress, game.questions ?? []);
     }
@@ -38,7 +48,7 @@ export class FinishGameService {
       await this.addMissingAnswers(secondProgress, game.questions ?? []);
     }
 
-    // 2. Бонус за скорость (по времени нажатия последнего ответа)
+    // 2. Бонус за скорость
     const firstFinishedAt = game.firstPlayerFinishedAt;
     const secondFinishedAt = game.secondPlayerFinishedAt;
 
@@ -70,7 +80,7 @@ export class FinishGameService {
       );
     }
 
-    // 3. Обновляем статистику игроков (win/loss/draw)
+    // 3. Обновляем статистику игроков
     let firstResult: 'win' | 'loss' | 'draw' = 'draw';
     let secondResult: 'win' | 'loss' | 'draw' = 'draw';
 
@@ -99,39 +109,27 @@ export class FinishGameService {
     await this.gameRepository.saveGame(game);
   }
 
-  /**
-   * Добавляет неправильные ответы за все вопросы, на которые игрок не ответил.
-   */
   private async addMissingAnswers(
     playerProgress: PlayerProgress,
     gameQuestions: GameQuestion[],
   ): Promise<void> {
-    // Получаем уже отвеченные вопросы через AnswerRepository
+    if (!playerProgress.id) return;
+
     const existingAnswers = await this.answerRepository.find({
       where: { playerProgress: { id: playerProgress.id } },
       relations: ['gameQuestion'],
     });
 
     const answeredIds = new Set(existingAnswers.map((a) => a.gameQuestion.id));
-    const missingGameQuestions = gameQuestions.filter(
-      (q) => !answeredIds.has(q.id),
-    );
+    const missing = gameQuestions.filter((q) => !answeredIds.has(q.id));
 
-    if (missingGameQuestions.length === 0) return;
-
-    // Создаём записи неправильных ответов
-    const wrongAnswers = missingGameQuestions.map((gameQuestion) => {
-      const wrongAnswer = new PlayerAnswer();
-      wrongAnswer.playerProgress = playerProgress;
-      wrongAnswer.gameQuestion = gameQuestion;
-      wrongAnswer.answerStatus = AnswerStatus.Incorrect;
-      wrongAnswer.addedAt = new Date();
-      return wrongAnswer;
-    });
-
-    // Сохраняем каждый ответ (можно пакетно, если доработать репозиторий)
-    for (const answer of wrongAnswers) {
-      await this.answerRepository.saveAnswer(answer);
+    for (const q of missing) {
+      // Прямая вставка без сохранения объекта
+      await this.answerRepository.forceInsertAnswer(
+        playerProgress.id,
+        q.id,
+        AnswerStatus.Incorrect,
+      );
     }
   }
 }

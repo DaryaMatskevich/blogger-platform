@@ -22,11 +22,11 @@ export class Game {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @OneToOne(() => PlayerProgress, { cascade: true })
+  @OneToOne(() => PlayerProgress)
   @JoinColumn()
   firstPlayerProgress: PlayerProgress;
 
-  @OneToOne(() => PlayerProgress, { cascade: true, nullable: true })
+  @OneToOne(() => PlayerProgress, { nullable: true })
   @JoinColumn()
   secondPlayerProgress: PlayerProgress | null;
 

@@ -29,4 +29,10 @@ export class PlayerProgressRepository {
   async updateScore(progressId: number, newScore: number): Promise<void> {
     await this.repository.update(progressId, { score: newScore });
   }
+  async findOne(options: {
+    where: { id: number };
+    relations?: string[];
+  }): Promise<PlayerProgress | null> {
+    return this.repository.findOne(options);
+  }
 }

@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, FindManyOptions, Repository } from 'typeorm';
-import { PlayerAnswer } from '../../../modules/pairGameQuiz/domain/player-answer.entity';
+import {
+  AnswerStatus,
+  PlayerAnswer,
+} from '../../../modules/pairGameQuiz/domain/player-answer.entity';
 
 @Injectable()
 export class AnswerRepository {
@@ -36,5 +39,39 @@ export class AnswerRepository {
   async count(options?: FindManyOptions<PlayerAnswer>): Promise<number> {
     return this.repo.count(options);
   }
-  // другие методы по необходимости
+  async insertAnswer(answer: PlayerAnswer): Promise<PlayerAnswer> {
+    // Удаляем id, если он есть (на всякий случай)
+    delete (answer as any).id;
+    const result = await this.repo.insert(answer);
+    // Возвращаем объект с новым id
+    return { ...answer, id: result.identifiers[0].id } as PlayerAnswer;
+  }
+  async insertMissingAnswer(
+    playerProgressId: number,
+    gameQuestionId: number,
+  ): Promise<void> {
+    await this.repo.insert({
+      playerProgress: { id: playerProgressId },
+      gameQuestion: { id: gameQuestionId },
+      answerStatus: AnswerStatus.Incorrect,
+      addedAt: new Date(),
+    });
+  }
+  async forceInsertAnswer(
+    playerProgressId: number,
+    gameQuestionId: number,
+    status: AnswerStatus,
+  ): Promise<void> {
+    await this.repo
+      .createQueryBuilder()
+      .insert()
+      .into(PlayerAnswer)
+      .values({
+        playerProgress: { id: playerProgressId },
+        gameQuestion: { id: gameQuestionId },
+        answerStatus: status,
+        addedAt: new Date(),
+      })
+      .execute();
+  } // другие методы по необходимости
 }

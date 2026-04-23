@@ -1,3 +1,4 @@
+import { CoreConfig } from './core/core.config';
 import { configModule } from './dynamic-config-module';
 import { DynamicModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -23,7 +24,6 @@ import { Comment } from './modules/bloggers-platform/comments/domain/comment.ent
 import { PostLike } from './modules/bloggers-platform/posts/domain/likes/post-like.entity';
 import { Confirmation } from './modules/user-accounts/users/domain/confirmation.entity';
 import { Post } from './modules/bloggers-platform/posts/domain/post.entity';
-import { CoreConfig } from './core/core.config';
 import { GameQuizModule } from './modules/pairGameQuiz/game.quiz.module';
 import { ScheduleModule } from '@nestjs/schedule';
 

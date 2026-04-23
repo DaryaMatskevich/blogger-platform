@@ -1,15 +1,15 @@
+import { CoreConfig } from '../../src/core/core.config';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { appSetup } from '../../src/setup/app.setup';
 import { UsersTestManager } from './users-test-manager';
-import { deleteAllData } from './delete-all-data';
 import { EmailService } from '../../src/modules/notifications/email.service';
 import { EmailServiceMock } from '../mock/email-service.mock';
 import { initAppModule } from '../../src/init-app-module';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import { CoreConfig } from '../../src/core/core.config';
+import { deleteAllData } from './delete-all-data';
 
-export const initSettings = async (
+const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
@@ -34,7 +34,7 @@ export const initSettings = async (
 
   const dataSource = app.get<DataSource>(getDataSourceToken());
   const httpServer = app.getHttpServer();
-  const userTestManger = new UsersTestManager(app);
+  const usersTestManager = new UsersTestManager(app);
 
   await deleteAllData(app);
 
@@ -42,6 +42,7 @@ export const initSettings = async (
     app,
     dataSource,
     httpServer,
-    userTestManger,
+    usersTestManager,
   };
 };
+export default initSettings;

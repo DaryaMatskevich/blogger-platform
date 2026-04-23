@@ -71,8 +71,8 @@ export class UsersTestManager {
     for (let i = 0; i < count; ++i) {
       await delay(50);
       const response = this.createUser({
-        login: `test` + i,
-        email: `test${i}@gmail.com`,
+        login: `tests` + i,
+        email: `tests${i}@gmail.com`,
         password: '123456789',
       });
       usersPromises.push(response);

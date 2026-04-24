@@ -53,8 +53,8 @@ describe('users (e2e)', () => {
 
   it('should create user', async () => {
     const body: CreateUserInputDto = {
-      login: 'name2',
-      password: 'qwert2',
+      login: 'name1',
+      password: 'qwert23',
       email: 'dashy16@mail.com',
     };
 
@@ -90,11 +90,8 @@ describe('users (e2e)', () => {
       email: 'dashy16@mail.ru',
     });
 
-    const userId =
-      typeof user.id === 'string' ? parseInt(user.id, 10) : user.id;
-
     await request(app.getHttpServer())
-      .delete(`/sa/users/${userId}`)
+      .delete(`/sa/users/${user.id}`)
       .auth('admin', 'qwerty')
       .expect(HttpStatus.NO_CONTENT);
 

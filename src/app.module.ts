@@ -37,21 +37,23 @@ import { ScheduleModule } from '@nestjs/schedule';
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : 'api/swagger',
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      entities: [
-        Session,
-        User,
-        Blog,
-        Post,
-        Confirmation,
-        Comment,
-        CommentLike,
-        PostLike,
-      ],
-      url: 'postgresql://neondb_owner:npg_R2NHxQU0gtif@ep-lively-thunder-ahb1wqlr-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
-      autoLoadEntities: true,
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+        entities: [
+          Session,
+          User,
+          Blog,
+          Post,
+          Confirmation,
+          Comment,
+          CommentLike,
+          PostLike,
+        ],
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
     UserAccountsModule, //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
     TestingModule,

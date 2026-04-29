@@ -17,7 +17,7 @@ export class BlogsController {
 
   @ApiParam({ name: 'id' }) //для сваггера
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<BlogViewDto> {
+  async getById(@Param('id', ParseIntPipe) id: number): Promise<BlogViewDto> {
     return this.queryBus.execute(new GetBlogByIdQuery(id));
   }
 

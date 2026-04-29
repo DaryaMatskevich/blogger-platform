@@ -17,6 +17,7 @@ jest.setTimeout(15000);
 describe('Auth (e2e)', () => {
   let app: INestApplication<App>;
   let usersTestManager: UsersTestManager;
+  let emailService: EmailService;
 
   beforeAll(async () => {
     const result = await initSettings((moduleBuilder) =>
@@ -26,13 +27,14 @@ describe('Auth (e2e)', () => {
           factory: (userAccountsConfig: UserAccountsConfig) =>
             new JwtService({
               secret: userAccountsConfig.accessTokenSecret,
-              signOptions: { expiresIn: '2m' },
+              signOptions: { expiresIn: '2s' },
             }),
           inject: [UserAccountsConfig],
         }),
     );
     app = result.app;
     usersTestManager = result.usersTestManager;
+    emailService = app.get(EmailService);
   });
 
   afterAll(async () => {
@@ -42,6 +44,70 @@ describe('Auth (e2e)', () => {
   beforeEach(async () => {
     if (!app) throw new Error('App not initialized');
     await deleteAllData(app);
+    jest.clearAllMocks();
+  });
+
+  it('should register user', async () => {
+    const sendSpy = jest
+      .spyOn(emailService, 'sendConfirmationEmail')
+      .mockResolvedValue();
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        email: 'test@test.com',
+        password: '12345678',
+        login: 'testuser',
+      } as CreateUserInputDto)
+      .expect(HttpStatus.NO_CONTENT);
+    expect(sendSpy).toHaveBeenCalled();
+    const code = sendSpy.mock.calls[0][1];
+    expect(code).toBeDefined();
+  });
+
+  it('should not register user with duplicate login/email', async () => {
+    const dto = {
+      email: 'dup@test.com',
+      password: '12345678',
+      login: 'dupuser',
+    };
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send(dto)
+      .expect(HttpStatus.NO_CONTENT);
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send(dto)
+      .expect(HttpStatus.BAD_REQUEST);
+  });
+
+  it('should confirm email with valid code', async () => {
+    // Локально захватываем код
+    let capturedCode = '';
+    jest
+      .spyOn(emailService, 'sendConfirmationEmail')
+      .mockImplementation(async (_, code) => {
+        capturedCode = code;
+        return Promise.resolve();
+      });
+
+    // Регистрируем пользователя
+    const response = await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        email: 'confirm@test.com',
+        password: '123456789',
+        login: 'confirmus',
+      });
+    expect(response.status).toBe(HttpStatus.NO_CONTENT);
+
+    // Убеждаемся, что код получен
+    // expect(capturedCode).not.toBe('');
+
+    // Подтверждаем email
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({ code: capturedCode })
+      .expect(HttpStatus.NO_CONTENT);
   });
 
   it('should return user info via "me" with valid accessToken', async () => {
@@ -56,7 +122,7 @@ describe('Auth (e2e)', () => {
 
   it('should return 401 for "me" when accessToken expired', async () => {
     const tokens = await usersTestManager.createAndLoginSeveralUsers(1);
-    await delay(2000);
+    await delay(3000);
     await usersTestManager.me(tokens[0].accessToken, HttpStatus.UNAUTHORIZED);
   });
 

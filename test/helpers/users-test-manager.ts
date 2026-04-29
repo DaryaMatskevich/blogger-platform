@@ -39,13 +39,13 @@ export class UsersTestManager {
   }
 
   async login(
-    login: string,
+    loginOrEmail: string,
     password: string,
     statusCode: number = HttpStatus.OK,
   ): Promise<{ accessToken: string }> {
     const response = await request(this.app.getHttpServer())
       .post(`/auth/login`)
-      .send({ login, password })
+      .send({ loginOrEmail, password })
       .expect(statusCode);
 
     return {

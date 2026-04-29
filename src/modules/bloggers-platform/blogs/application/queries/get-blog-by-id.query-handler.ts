@@ -4,7 +4,7 @@ import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { BlogsQueryRepository } from '../../infastructure/query/blogs.query-repository';
 
 export class GetBlogByIdQuery {
-  constructor(public id: string) {}
+  constructor(public blogId: number) {}
 }
 
 @QueryHandler(GetBlogByIdQuery)
@@ -17,7 +17,6 @@ export class GetBlogByIdQueryHandler
   ) {}
 
   async execute(query: GetBlogByIdQuery): Promise<BlogViewDto> {
-    const blogId = parseInt(query.id, 10);
-    return this.blogsQueryRepository.getByIdOrNotFoundFail(blogId);
+    return this.blogsQueryRepository.getByIdOrNotFoundFail(query.blogId);
   }
 }
